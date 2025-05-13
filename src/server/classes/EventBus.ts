@@ -1,4 +1,7 @@
 // EventBus.ts
+import {Hex} from "./hex/Hex";
+import {HexDTO} from "../../shared/networking/dto/HexDTO";
+
 type Handler<T> = (payload: T) => void;
 
 class EventBus {
@@ -15,3 +18,9 @@ class EventBus {
 }
 
 export const eventBus = new EventBus();
+
+// event interfaces
+export interface DirtyHexEvent {
+    hex: Hex;
+    delta: Partial<HexDTO>;
+}

@@ -1,6 +1,12 @@
 import {HexDTO} from "./HexDTO";
 
-export interface HexReplicatorMessage {
-    type: "full" | "update",
+export interface HexUpdateMessage {
+    type: "update",
+    payload: Map<string, Partial<HexDTO>>,
+}
+
+export interface HexCreateMessage {
+    source: "start" | "playerAdded"
+    type: "create",
     payload: HexDTO[],
 }

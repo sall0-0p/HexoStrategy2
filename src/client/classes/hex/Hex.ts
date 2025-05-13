@@ -1,7 +1,10 @@
 import {CubePosition} from "../../../shared/networking/classes/CubePosition";
 import {HexDTO} from "../../../shared/networking/dto/HexDTO";
 import {Nation} from "../nation/Nation";
-import {nationRepository} from "../nation/NationRepository";
+import {NationRepository} from "../nation/NationRepository";
+import {Signal} from "../Signal";
+
+const nationRepository = NationRepository.getInstance();
 
 export class Hex {
     private readonly id: string;
@@ -10,6 +13,9 @@ export class Hex {
     private owner?: Nation;
     private neighbors: Hex[] = [];
     private model?: Model;
+
+    // events
+    private changedSignal?: Signal<[string, unknown]>;
 
     constructor(data: HexDTO) {
         this.id = data.id;
@@ -34,6 +40,12 @@ export class Hex {
         return this.owner;
     }
 
+    public setOwner(owner: Nation) {
+        this.owner = owner;
+
+        this.changedSignal?.fire("owner", owner);
+    }
+
     public getPosition() {
         return this.position;
     }
@@ -41,4 +53,17 @@ export class Hex {
     public getNeighbors() {
         return this.neighbors;
     }
+
+    public getChangedSignal() {
+        if (!this.changedSignal) {
+            this.changedSignal = new Signal<[string, unknown]>();
+        }
+
+        return this.changedSignal;
+    }
+}
+
+export interface HexChangedSignal {
+    property: string,
+    value: unknown,
 }

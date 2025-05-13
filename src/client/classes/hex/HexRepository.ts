@@ -1,7 +1,11 @@
 import {Hex} from "./Hex";
 import {ReplicatedStorage} from "@rbxts/services";
 import {HexDTO} from "../../../shared/networking/dto/HexDTO";
-import {HexReplicatorMessage} from "../../../shared/networking/dto/HexReplicatorMessage";
+import {HexCreateMessage, HexUpdateMessage} from "../../../shared/networking/dto/HexReplicatorMessage";
+import {NationRepository} from "../nation/NationRepository";
+import {Signal} from "../Signal";
+
+const nationRepository = NationRepository.getInstance();
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("HexReplicator") as RemoteEvent;
@@ -10,21 +14,47 @@ export class HexRepository {
     private hexesById = new Map<string, Hex>;
     private hexesByCoords = new Map<string, Hex>;
 
+    private loadedSignal?: Signal<[]>;
+
     private static instance: HexRepository;
+
     private constructor() {
-        replicator.OnClientEvent.Connect((message: HexReplicatorMessage) => {
-            if (message.type === "full") {
+        replicator.OnClientEvent.Connect((message: HexCreateMessage | HexUpdateMessage) => {
+            if (message.type === "create") {
                 if (this.hexesById.size() > 0) error("Hexes were already initialised.");
 
                 this.handleCreateEvent(message.payload);
-                print(this.hexesById);
+                print(`Loaded ${message.payload.size()} hexes from ${message.source}`);
+
+                if (this.loadedSignal) {
+                    this.loadedSignal.fire();
+                }
             } else if (message.type === "update") {
-                this.handleUpdateEvent(message.payload)
+                this.handleUpdateEvent(message.payload);
             } else {
                 error("This type is not available.")
             }
         })
     }
+
+    // public methods
+
+    public getById(id: string) {
+        return this.hexesById.get(id);
+    }
+
+    public getLoadedSignal(): Signal<[]> {
+        if (this.hexesById.size()) {
+            warn("Hexes are already loaded, returned signal will not be fired.");
+        }
+
+        if (!this.loadedSignal) {
+            this.loadedSignal = new Signal<[]>();
+        }
+        return this.loadedSignal;
+    }
+
+    // private methods
 
     private handleCreateEvent(payload: HexDTO[]) {
         payload.forEach((data) => {
@@ -35,8 +65,16 @@ export class HexRepository {
         })
     }
 
-    private handleUpdateEvent(payload: HexDTO[]) {
+    private handleUpdateEvent(payload: Map<string, Partial<HexDTO>>) {
+        payload.forEach((delta, id) => {
+            const hex = this.hexesById.get(id);
+            if (!hex) error(`Hex ${id} is not found!`);
 
+            if (delta.owner) {
+                const nation = nationRepository.getById(delta.owner);
+                if (nation) hex.setOwner(nation);
+            }
+        })
     }
 
     // singleton
@@ -48,5 +86,3 @@ export class HexRepository {
         return this.instance;
     }
 }
-
-export const hexRepository = HexRepository.getInstance();

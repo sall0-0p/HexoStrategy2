@@ -16,7 +16,7 @@ export class NationRepository {
                 if (this.nations.size() > 0) error("Nations were already initialised.");
 
                 this.handleCreateEvent(message.payload);
-                print(this.nations);
+                print(`Loaded ${message.payload.size()} nations`);
             } else if (message.type === "update") {
                 this.handleUpdateEvent(message.payload)
             } else {
@@ -54,6 +54,4 @@ export class NationRepository {
         return this.instance;
     }
 }
-
-export const nationRepository = NationRepository.getInstance();
 
