@@ -14,6 +14,7 @@ interface BaseHeatmapGroup {
     isHighlighted: boolean,
     container?: Model;
 }
+
 interface NormalHeatmapGroup extends BaseHeatmapGroup {
     isHighlighted: false;
 }

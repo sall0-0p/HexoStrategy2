@@ -3,8 +3,10 @@ import {HexDTO} from "../../../shared/dto/HexDTO";
 import {Nation} from "../nation/Nation";
 import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";
+import {HexDispatcher} from "./HexDispatcher";
 
 const nationRepository = NationRepository.getInstance();
+const hexDispatcher = HexDispatcher.getInstance();
 
 export class Hex {
     private readonly id: string;
@@ -44,6 +46,7 @@ export class Hex {
         this.owner = owner;
 
         this.changedSignal?.fire("owner", owner);
+        hexDispatcher.registerUpdate(this, "owner", owner);
     }
 
     public getPosition() {
