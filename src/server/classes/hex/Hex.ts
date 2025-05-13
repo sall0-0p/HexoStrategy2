@@ -79,6 +79,7 @@ export class Hex {
             neighbors: this.neighbors.map((neighbor) => {
                 return neighbor.id;
             }),
+            model: this.model!,
             owner: this.owner?.getId(),
         }
     }

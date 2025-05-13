@@ -5,4 +5,5 @@ export interface HexDTO {
     r: number,
     owner?: string, // owner
     neighbors: string[], // neighbors
+    model: Model,
 }
