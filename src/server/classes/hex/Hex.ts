@@ -13,8 +13,8 @@ export class Hex {
     private readonly name: string;
     private readonly hexType: string;
     private position: CubePosition;
-    private owner?: Nation; // TODO: Change to nation.
-    private neighbors: Hex[] = []; // TODO: Change to actual references.
+    private owner?: Nation;
+    private neighbors: Hex[] = [];
     private model?: Model;
 
     constructor(id: string, data: JsonHex) {
@@ -24,7 +24,7 @@ export class Hex {
         this.hexType = data.hexType;
 
         if (data.owner) {
-            this.owner = nationRepository.getById(data.owner); // TODO: Query nation here.
+            this.owner = nationRepository.getById(data.owner);
         }
 
         this.makeModel();

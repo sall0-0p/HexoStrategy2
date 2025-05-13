@@ -24,7 +24,7 @@ export class Hex {
         // this.model TODO: Find it in Models.
 
         if (data.owner) {
-            this.owner = nationRepository.getById(data.owner); // TODO: Change to Nation.
+            this.owner = nationRepository.getById(data.owner);
         }
     }
 
