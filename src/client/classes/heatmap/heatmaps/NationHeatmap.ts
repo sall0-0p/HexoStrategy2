@@ -16,6 +16,7 @@ export class NationHeatmap implements Heatmap {
                 outlineTransparency: 0.8,
                 fillColor: color,
                 fillTransparency: 0.5,
+                depthMode: Enum.HighlightDepthMode.Occluded,
             } as HeatmapGroup
         } else {
             return {

@@ -12,7 +12,7 @@ export class Hex {
     private readonly position: CubePosition;
     private owner?: Nation;
     private neighbors: Hex[] = [];
-    private model?: Model;
+    private model: Model;
 
     // events
     private changedSignal?: Signal<[string, unknown]>;
@@ -21,7 +21,7 @@ export class Hex {
         this.id = data.id;
         this.name = data.name;
         this.position = CubePosition.fromAxial(data.q, data.r);
-        // this.model TODO: Find it in Models.
+        this.model = data.model;
 
         if (data.owner) {
             this.owner = nationRepository.getById(data.owner);
@@ -52,6 +52,10 @@ export class Hex {
 
     public getNeighbors() {
         return this.neighbors;
+    }
+
+    public getModel() {
+        return this.model;
     }
 
     public getChangedSignal() {
