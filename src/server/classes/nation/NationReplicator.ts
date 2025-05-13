@@ -2,7 +2,7 @@ import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "./Nation";
 import {nationRepository} from "./NationRepository";
 import {eventBus} from "../EventBus";
-import {NationDTO} from "../../../shared/networking/dto/NationDTO";
+import {NationDTO} from "../../../shared/dto/NationDTO";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("NationReplicator") as RemoteEvent;

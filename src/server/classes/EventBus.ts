@@ -1,6 +1,6 @@
 // EventBus.ts
 import {Hex} from "./hex/Hex";
-import {HexDTO} from "../../shared/networking/dto/HexDTO";
+import {HexDTO} from "../../shared/dto/HexDTO";
 
 type Handler<T> = (payload: T) => void;
 

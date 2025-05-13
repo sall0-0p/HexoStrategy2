@@ -1,4 +1,4 @@
-import {NationDTO} from "../../../shared/networking/dto/NationDTO";
+import {NationDTO} from "../../../shared/dto/NationDTO";
 
 export class Nation {
     private readonly id;

@@ -1,9 +1,10 @@
-import {CUBE_DIRECTIONS, CubePosition} from "../../../shared/networking/classes/CubePosition";
+import {CUBE_DIRECTIONS, CubePosition} from "../../../shared/classes/CubePosition";
 import {Workspace, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "../nation/Nation";
 import {nationRepository} from "../nation/NationRepository";
-import {HexDTO} from "../../../shared/networking/dto/HexDTO";
+import {HexDTO} from "../../../shared/dto/HexDTO";
 import {DirtyHexEvent, eventBus} from "../EventBus";
+import {Signal} from "../../../shared/classes/Signal";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;
@@ -16,6 +17,8 @@ export class Hex {
     private owner?: Nation;
     private neighbors: Hex[] = [];
     private model?: Model;
+    
+    private changedSignal?: Signal<[string, unknown]>;
 
     constructor(id: string, data: JsonHex) {
         this.id = id;
@@ -109,6 +112,8 @@ export class Hex {
                 owner: owner.getId(),
             }
         } as DirtyHexEvent);
+
+        this.changedSignal?.fire("owner", owner);
     }
 
     public getNeighbors() {
@@ -117,6 +122,14 @@ export class Hex {
 
     public getModel() {
         return this.model;
+    }
+
+    public getChangedSignal() {
+        if (!this.changedSignal) {
+            this.changedSignal = new Signal();
+        }
+
+        return this.changedSignal;
     }
 }
 

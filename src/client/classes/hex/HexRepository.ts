@@ -1,9 +1,9 @@
 import {Hex} from "./Hex";
 import {ReplicatedStorage} from "@rbxts/services";
-import {HexDTO} from "../../../shared/networking/dto/HexDTO";
-import {HexCreateMessage, HexUpdateMessage} from "../../../shared/networking/dto/HexReplicatorMessage";
+import {HexDTO} from "../../../shared/dto/HexDTO";
+import {HexCreateMessage, HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
 import {NationRepository} from "../nation/NationRepository";
-import {Signal} from "../Signal";
+import {Signal} from "../../../shared/classes/Signal";
 
 const nationRepository = NationRepository.getInstance();
 
