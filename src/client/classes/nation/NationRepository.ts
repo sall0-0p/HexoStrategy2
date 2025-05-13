@@ -18,7 +18,6 @@ export class NationRepository {
                 this.handleCreateEvent(message.payload);
                 print(`Loaded ${message.payload.size()} nations`);
             } else if (message.type === "update") {
-                print("Received update:", message);
                 this.handleUpdateEvent(message.payload)
             } else {
                 error(`This type is not available.`)

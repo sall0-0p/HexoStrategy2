@@ -1,5 +1,4 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
-import {Nation} from "./Nation";
 import {nationRepository} from "./NationRepository";
 import {NationDTO} from "../../../shared/dto/NationDTO";
 import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
@@ -27,7 +26,6 @@ export class NationReplicator {
             this.broadcastUpdates();
         })
     }
-
 
     // private methods
 

@@ -8,7 +8,6 @@ export class NationRepository {
     private static instance: NationRepository;
     private constructor() {
         for (const [id, rawDef] of pairs(raw as Record<string, JsonNation>)) {
-            print(rawDef.name);
             this.nations.set(id, new Nation(id, rawDef));
         }
     }
