@@ -1,5 +1,6 @@
 import {JsonNation, Nation} from "./Nation";
 import raw from "../../../shared/data/nations.json";
+import {Hex} from "../hex/Hex";
 
 export class NationRepository {
     private nations = new Map<string, Nation>;
@@ -21,6 +22,16 @@ export class NationRepository {
 
     public getById(id: string): Nation | undefined {
         return this.nations.get(id);
+    }
+
+    public getAll(): Nation[] {
+        let result: Nation[] = [];
+
+        this.nations.forEach((hex) => {
+            result.push(hex);
+        })
+
+        return result;
     }
 }
 

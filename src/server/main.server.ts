@@ -3,7 +3,9 @@ import {hexRepository, HexRepository} from "./classes/hex/HexRepository";
 import {HexReplicator} from "./classes/hex/HexReplicator";
 import {Hex} from "./classes/hex/Hex";
 import {Nation} from "./classes/nation/Nation";
+import {NationReplicator} from "./classes/nation/NationReplicator";
 NationRepository.getInstance();
+NationReplicator.getInstance();
 HexRepository.getInstance();
 HexReplicator.getInstance();
 

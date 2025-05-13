@@ -1,6 +1,6 @@
 import {Hex, JsonHex} from "./Hex";
 import raw from "shared/data/hexes.json";
-import {CubePosition} from "./CubePosition";
+import {CubePosition} from "../../../shared/networking/classes/CubePosition";
 
 export class HexRepository {
     private hexesById = new Map<string, Hex>;

@@ -1,3 +1,5 @@
+import {NationDTO} from "../../../shared/networking/dto/NationDTO";
+
 export class Nation {
     private id;
     private name;
@@ -9,6 +11,17 @@ export class Nation {
         this.name = data.name;
         this.color = new Color3(data.color[0], data.color[1], data.color[2]);
     }
+
+    public toDTO(): NationDTO {
+        return {
+            id: this.id,
+            name: this.name,
+            color: [this.color.R * 255, this.color.G * 255, this.color.B * 255],
+            player: this.player,
+        }
+    }
+
+    // getters & setters
 
     public getId() {
         return this.id;

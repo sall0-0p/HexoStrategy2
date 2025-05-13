@@ -1,4 +1,4 @@
-import {CUBE_DIRECTIONS, CubePosition} from "./CubePosition";
+import {CUBE_DIRECTIONS, CubePosition} from "../../../shared/networking/classes/CubePosition";
 import {Workspace, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "../nation/Nation";
 import {nationRepository} from "../nation/NationRepository";
@@ -42,7 +42,7 @@ export class Hex {
         const hexTemplate = hexes.WaitForChild(this.hexType) as Model;
 
         const model = hexTemplate.Clone();
-        model.Name = this.name;
+        model.Name = this.id;
         model.Parent = hexContainer;
         model.PivotTo(new CFrame(this.getWorldPos()));
 
@@ -104,7 +104,6 @@ export class Hex {
     public setOwner(owner: Nation) {
         this.owner = owner;
         eventBus.publish("hexDirty", this);
-        // TODO: Add Networking update;
     }
 
     public getNeighbors() {
@@ -113,12 +112,6 @@ export class Hex {
 
     public getModel() {
         return this.model;
-    }
-
-    public setModel(model: Model) {
-        this.model = model;
-        // TODO: Add Networking update???;
-        // TODO: Is it even needed? I do not know.
     }
 }
 
