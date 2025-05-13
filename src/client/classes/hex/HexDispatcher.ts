@@ -2,7 +2,7 @@ import {Hex} from "./Hex";
 import {Signal} from "../../../shared/classes/Signal";
 import {RunService} from "@rbxts/services";
 
-interface Update {
+export interface Update {
     hex:   Hex;
     key:   string;
     value: unknown;
@@ -25,6 +25,10 @@ export class HexDispatcher {
 
     public registerUpdate(hex: Hex, key: string, value: unknown) {
         this.queue.push({ hex, key, value });
+    }
+
+    public getUpdateSignal() {
+        return this.signal;
     }
 
     public static getInstance() {

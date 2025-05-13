@@ -7,10 +7,16 @@ import {RunService, Workspace} from "@rbxts/services";
 const hexRepository = HexRepository.getInstance();
 const heatmapContainer = Workspace.WaitForChild("Heatmaps") as Folder;
 
+interface Group {
+    info: HeatmapGroup,
+    map: Map<string, Hex>,
+}
+
 export class HeatmapManager {
     private currentHeatmap?: Heatmap;
-    private groups = new Map<string, { info: HeatmapGroup; map: Map<string, Hex> }>();
+    private groups = new Map<string, Group>();
     private hexes: Hex[] = [];
+    private hexesIdsToGroupIds = new Map<string, string>;
     private connections = new Set<Connection | RBXScriptConnection>;
 
     private static instance: HeatmapManager;
@@ -23,19 +29,12 @@ export class HeatmapManager {
             // remove previous heatmap
         }
 
+        this.currentHeatmap = heatmap;
         this.hexes.forEach((hex) => {
-            const group = heatmap.getGroup(hex);
-            const key = group.name;
-
-            if (!this.groups.has(key)) {
-                this.createGroup(group);
-            }
-
-            this.assignToGroup(hex, key);
+            this.updateHex(hex);
         })
 
-        heatmapContainer.Parent = undefined;
-        heatmapContainer.Parent = Workspace;
+        this.updateHighlights();
 
         heatmap.onEnable?.()
 
@@ -50,12 +49,38 @@ export class HeatmapManager {
         }
     }
 
+    public updateHex(hex: Hex) {
+        if (!this.currentHeatmap) {
+            error("No heatmap is active!");
+        }
+
+        const group = this.currentHeatmap.getGroup(hex);
+        const key = group.name;
+
+        if (!this.groups.has(key)) {
+            this.createGroup(group);
+        }
+
+        this.assignToGroup(hex, key);
+    }
+
+    public updateHighlights() {
+        this.groups.forEach((group) => {
+            if (group.info.isHighlighted) {
+                group.info.highlight!.Parent = undefined;
+                group.info.highlight!.Parent = group.info.container;
+            }
+        })
+    }
+
     private assignToGroup(hex: Hex, groupId: string) {
         const group = this.groups.get(groupId)!.info;
         hex.getModel().Parent = group.container;
 
         const map = this.groups.get(groupId)!.map;
         map.set(hex.getId(), hex);
+
+        this.hexesIdsToGroupIds.set(hex.getId(), groupId);
     }
 
     private createGroup(group: HeatmapGroup) {
@@ -67,6 +92,7 @@ export class HeatmapManager {
         if (group.isHighlighted) {
             const highlight = new Instance("Highlight") as Highlight;
             highlight.Parent = container;
+            highlight.Adornee = container;
             highlight.OutlineColor = group.outlineColor;
             highlight.OutlineTransparency = group.outlineTransparency;
             highlight.FillColor = group.fillColor;

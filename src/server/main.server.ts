@@ -8,6 +8,7 @@ NationReplicator.getInstance();
 HexRepository.getInstance();
 HexReplicator.getInstance();
 
+wait(3);
 let ponylandia: Nation = nationRepository.getById("PNL")!;
-hexRepository.getById("H1291")!.setOwner(ponylandia);
-ponylandia.setColor(Color3.fromRGB(255, 255, 255));
+hexRepository.getById("H1800")!.setOwner(ponylandia);
+hexRepository.getById("H1799")!.setOwner(ponylandia);
