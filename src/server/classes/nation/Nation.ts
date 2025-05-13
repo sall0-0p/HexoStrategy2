@@ -13,14 +13,15 @@ export class Nation {
     constructor(id: string, data: JsonNation) {
         this.id = id;
         this.name = data.name;
-        this.color = new Color3(data.color[0], data.color[1], data.color[2]);
+        this.color = Color3.fromRGB(data.color[0], data.color[1], data.color[2]);
+        print(this.color)
     }
 
     public toDTO(): NationDTO {
         return {
             id: this.id,
             name: this.name,
-            color: [this.color.R * 255, this.color.G * 255, this.color.B * 255],
+            color: this.color,
             player: this.player,
         }
     }
@@ -45,7 +46,7 @@ export class Nation {
         dirtyNationSignal.fire({
             nation: this,
             delta: {
-                color: [color.R * 255, color.B * 255, color.G * 255],
+                color: this.color,
             }
         } as DirtyNationEvent)
 

@@ -12,7 +12,7 @@ export class Nation {
     constructor(data: NationDTO) {
         this.id = data.id;
         this.name = data.name;
-        this.color = Color3.fromRGB(data.color[0], data.color[1], data.color[2]);
+        this.color = data.color;
         this.player = data.player;
     }
 

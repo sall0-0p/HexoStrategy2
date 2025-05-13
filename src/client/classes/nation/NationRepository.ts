@@ -46,8 +46,7 @@ export class NationRepository {
             if (!nation) error(`Nation ${id} is not found!`);
 
             if (delta.color) {
-                const color = Color3.fromRGB(delta.color[0], delta.color[1], delta.color[2]);
-                nation.setColor(color);
+                nation.setColor(delta.color);
             }
 
             if (delta.player) {
