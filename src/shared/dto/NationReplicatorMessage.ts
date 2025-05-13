@@ -1,6 +1,12 @@
 import {NationDTO} from "./NationDTO";
 
-export interface NationReplicatorMessage {
-    type: "full" | "update",
-    payload: NationDTO[],
+export interface NationCreateMessage {
+    source: "start" | "playerAdded",
+    type: "create",
+    payload: NationDTO[];
+}
+
+export interface NationUpdateMessage {
+    type: "update",
+    payload: Map<string, Partial<NationDTO>>;
 }

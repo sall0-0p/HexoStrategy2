@@ -1,5 +1,5 @@
 import {NationDTO} from "../../../shared/dto/NationDTO";
-import {DirtyNationEvent, dirtyNationSignal} from "./dirtyNationSignal";
+import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
 import {Signal} from "../../../shared/classes/Signal";
 
 export class Nation {

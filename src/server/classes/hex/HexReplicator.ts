@@ -2,13 +2,13 @@ import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
 import {HexDTO} from "../../../shared/dto/HexDTO";
 import {hexRepository} from "./HexRepository";
 import {HexCreateMessage, HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
-import {DirtyHexEvent, dirtyHexSignal} from "./dirtyHexSignal";
+import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("HexReplicator") as RemoteEvent;
 
 export class HexReplicator {
-    private dirtyProperties = new Map<string, Partial<HexDTO>>;
+    private dirtyHexes = new Map<string, Partial<HexDTO>>;
 
     private static instance: HexReplicator;
     private constructor() {
@@ -28,16 +28,18 @@ export class HexReplicator {
     }
 
     // private methods
+
+
     private parseDirtyHexEvent(event: DirtyHexEvent) {
         const hex = event.hex;
 
         // if hex was clean
         const hexId = hex.getId();
-        if (!this.dirtyProperties.has(hexId)) {
-            this.dirtyProperties.set(hexId, event.delta);
+        if (!this.dirtyHexes.has(hexId)) {
+            this.dirtyHexes.set(hexId, event.delta);
         } else {
-            const hexDelta = this.dirtyProperties.get(hexId)
-            this.dirtyProperties.set(hexId, {
+            const hexDelta = this.dirtyHexes.get(hexId)
+            this.dirtyHexes.set(hexId, {
                 ...hexDelta,
                 ...event.delta,
             })
@@ -71,14 +73,14 @@ export class HexReplicator {
     }
 
     private broadcastUpdates() {
-        if (this.dirtyProperties.size() === 0) return;
+        if (this.dirtyHexes.size() === 0) return;
 
         replicator.FireAllClients({
             type: "update",
-            payload: this.dirtyProperties,
+            payload: this.dirtyHexes,
         } as HexUpdateMessage)
 
-        this.dirtyProperties.clear();
+        this.dirtyHexes.clear();
     }
 
     // singleton

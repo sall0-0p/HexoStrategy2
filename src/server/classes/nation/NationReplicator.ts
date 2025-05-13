@@ -2,20 +2,21 @@ import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "./Nation";
 import {nationRepository} from "./NationRepository";
 import {NationDTO} from "../../../shared/dto/NationDTO";
-import {dirtyNationSignal} from "./dirtyNationSignal";
+import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
+import {HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("NationReplicator") as RemoteEvent;
 
 export class NationReplicator {
-    private dirtyNations = new Set<Nation>;
+    private dirtyNations = new Map<string, Partial<NationDTO>>;
 
     private static instance: NationReplicator;
     private constructor() {
         this.broadcastNationsToEveryone();
 
         dirtyNationSignal.connect((event) => {
-            // this.markDirty(nation);
+            this.parseDirtyNationEvent(event);
         })
 
         Players.PlayerAdded.Connect((player) => {
@@ -27,13 +28,23 @@ export class NationReplicator {
         })
     }
 
-    // public methods
-
-    public markDirty(nation: Nation) {
-        this.dirtyNations.add(nation);
-    }
 
     // private methods
+
+    private parseDirtyNationEvent(event: DirtyNationEvent) {
+        const nation = event.nation;
+
+        const nationId = nation.getId();
+        if (!this.dirtyNations.has(nationId)) {
+            this.dirtyNations.set(nationId, event.delta);
+        } else {
+            const nationDelta = this.dirtyNations.get(nationId)
+            this.dirtyNations.set(nationId, {
+                ...nationDelta,
+                ...event.delta,
+            })
+        }
+    }
 
     private sendNationsToPlayer(player: Player) {
         const payload: NationDTO[] = nationRepository.getAll()
@@ -42,7 +53,8 @@ export class NationReplicator {
             })
 
         replicator.FireClient(player, {
-            type: "full",
+            source: "playerAdded",
+            type: "create",
             payload: payload,
         });
     }
@@ -54,26 +66,21 @@ export class NationReplicator {
             })
 
         replicator.FireAllClients({
-            type: "full",
+            source: "start",
+            type: "create",
             payload: payload,
         });
     }
 
     private broadcastUpdates() {
-        if (this.dirtyNations.size() > 0) {
-            const payload: NationDTO[] = [];
+        if (this.dirtyNations.size() === 0) return;
 
-            this.dirtyNations.forEach((nation) => {
-                payload.push(nation.toDTO());
-            })
+        replicator.FireAllClients({
+            type: "update",
+            payload: this.dirtyNations,
+        } as HexUpdateMessage)
 
-            replicator.FireAllClients({
-                type: "update",
-                payload: payload,
-            });
-            this.dirtyNations.clear();
-        }
-
+        this.dirtyNations.clear();
     }
 
     // singleton
