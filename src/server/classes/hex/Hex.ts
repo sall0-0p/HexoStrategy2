@@ -3,8 +3,8 @@ import {Workspace, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "../nation/Nation";
 import {nationRepository} from "../nation/NationRepository";
 import {HexDTO} from "../../../shared/dto/HexDTO";
-import {DirtyHexEvent, eventBus} from "../EventBus";
 import {Signal} from "../../../shared/classes/Signal";
+import {DirtyHexEvent, dirtyHexSignal} from "./dirtyHexSignal";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;
@@ -106,7 +106,8 @@ export class Hex {
 
     public setOwner(owner: Nation) {
         this.owner = owner;
-        eventBus.publish("dirtyHex", {
+
+        dirtyHexSignal.fire({
             hex: this,
             delta: {
                 owner: owner.getId(),

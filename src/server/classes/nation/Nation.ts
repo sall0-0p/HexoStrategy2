@@ -1,10 +1,14 @@
 import {NationDTO} from "../../../shared/dto/NationDTO";
+import {DirtyNationEvent, dirtyNationSignal} from "./dirtyNationSignal";
+import {Signal} from "../../../shared/classes/Signal";
 
 export class Nation {
     private id;
     private name;
     private color: Color3;
     private player?: Player;
+
+    private changedSignal?: Signal<[string, unknown]>;
 
     constructor(id: string, data: JsonNation) {
         this.id = id;
@@ -37,7 +41,15 @@ export class Nation {
 
     public setColor(color: Color3) {
         this.color = color;
-        // TODO: Add Networking update;
+
+        dirtyNationSignal.fire({
+            nation: this,
+            delta: {
+                color: [color.R * 255, color.B * 255, color.G * 255],
+            }
+        } as DirtyNationEvent)
+
+        this.changedSignal?.fire("color", color);
     }
 
     public getPlayer() {
@@ -46,7 +58,23 @@ export class Nation {
 
     public setPlayer(player: Player) {
         this.player = player;
-        // TODO: Add Networking update;
+
+        dirtyNationSignal.fire({
+            nation: this,
+            delta: {
+                player: player,
+            }
+        } as DirtyNationEvent)
+
+        this.changedSignal?.fire("player", player);
+    }
+
+    public getChangedSignal() {
+        if (!this.changedSignal) {
+            this.changedSignal = new Signal();
+        }
+
+        return this.changedSignal;
     }
 }
 

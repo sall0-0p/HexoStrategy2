@@ -1,8 +1,8 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "./Nation";
 import {nationRepository} from "./NationRepository";
-import {eventBus} from "../EventBus";
 import {NationDTO} from "../../../shared/dto/NationDTO";
+import {dirtyNationSignal} from "./dirtyNationSignal";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("NationReplicator") as RemoteEvent;
@@ -14,8 +14,8 @@ export class NationReplicator {
     private constructor() {
         this.broadcastNationsToEveryone();
 
-        eventBus.subscribe<Nation>("nationDirty", (nation) => {
-            this.markDirty(nation);
+        dirtyNationSignal.connect((event) => {
+            // this.markDirty(nation);
         })
 
         Players.PlayerAdded.Connect((player) => {

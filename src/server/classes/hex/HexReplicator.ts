@@ -1,8 +1,8 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
 import {HexDTO} from "../../../shared/dto/HexDTO";
 import {hexRepository} from "./HexRepository";
-import {DirtyHexEvent, eventBus} from "../EventBus";
 import {HexCreateMessage, HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
+import {DirtyHexEvent, dirtyHexSignal} from "./dirtyHexSignal";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("HexReplicator") as RemoteEvent;
@@ -14,7 +14,7 @@ export class HexReplicator {
     private constructor() {
         this.broadcastHexesToEveryone();
 
-        eventBus.subscribe<DirtyHexEvent>("dirtyHex", (event) => {
+        dirtyHexSignal.connect((event) => {
             this.parseDirtyHexEvent(event);
         })
 
