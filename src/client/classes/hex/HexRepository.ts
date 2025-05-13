@@ -43,6 +43,16 @@ export class HexRepository {
         return this.hexesById.get(id);
     }
 
+    public getAll(): Hex[] {
+        let result: Hex[] = [];
+
+        this.hexesById.forEach((hex) => {
+            result.push(hex);
+        })
+
+        return result;
+    }
+
     public getLoadedSignal(): Signal<[]> {
         if (this.hexesById.size()) {
             warn("Hexes are already loaded, returned signal will not be fired.");
