@@ -1,5 +1,5 @@
 type Callback<Args extends unknown[]> = (...args: Args) => void;
-interface Connection {
+export interface Connection {
     disconnect(): void;
 }
 
