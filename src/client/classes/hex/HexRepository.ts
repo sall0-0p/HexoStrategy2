@@ -32,7 +32,7 @@ export class HexRepository {
             } else if (message.type === "update") {
                 this.handleUpdateEvent(message.payload);
             } else {
-                error("This type is not available.")
+                error("This template is not available.")
             }
         })
     }
