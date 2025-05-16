@@ -52,6 +52,10 @@ export class NationRepository {
             if (delta.player) {
                 nation.setPlayer(delta.player);
             }
+
+            if (delta.flag) {
+                nation.setFlag(delta.flag);
+            }
         })
     }
 
