@@ -157,6 +157,6 @@ export class UnitCounter {
 
     public static getNextId() {
         this.currentId++
-        return this.currentId;
+        return tostring(this.currentId);
     }
 }

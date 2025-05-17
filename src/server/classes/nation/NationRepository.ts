@@ -1,6 +1,5 @@
 import {JsonNation, Nation} from "./Nation";
 import raw from "../../../shared/data/nations.json";
-import {Hex} from "../hex/Hex";
 
 export class NationRepository {
     private nations = new Map<string, Nation>;

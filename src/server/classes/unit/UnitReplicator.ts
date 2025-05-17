@@ -8,7 +8,7 @@ const replicator = ReplicatedStorage.WaitForChild("Events")
 
 export class UnitReplicator {
     private createdUnits: UnitDTO[] = [];
-    private dirtyUnits = new Map<number, Partial<UnitDTO>>;
+    private dirtyUnits = new Map<string, Partial<UnitDTO>>;
     private deadUnits: Unit[] = [];
     private deletedUnits: Unit[] = [];
 

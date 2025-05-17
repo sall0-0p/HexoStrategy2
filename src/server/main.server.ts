@@ -17,20 +17,27 @@ UnitRepository.getInstance();
 UnitReplicator.getInstance();
 
 wait(3);
+print("Spawning!")
 let ponylandia: Nation = nationRepository.getById("PNL")!;
-hexRepository.getById("H1800")!.setOwner(ponylandia);
-hexRepository.getById("H1799")!.setOwner(ponylandia);
+let byrdlands: Nation = nationRepository.getById("BRD")!;
 
-let spawnHex = hexRepository.getById("H1800")!;
-let template: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 120, new Instance("Model"), "", ponylandia);
-let unit: Unit = new Unit(template, spawnHex);
+let spawnHex1 = hexRepository.getById("H001")!;
+let spawnHex2 = hexRepository.getById("H003")!;
+let spawnHex3 = hexRepository.getById("H005")!;
+let template1: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 120, new Instance("Model"), "", ponylandia);
+let template2: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 120, new Instance("Model"), "", byrdlands);
+let unit11: Unit = new Unit(template1, spawnHex1);
+let unit12: Unit = new Unit(template1, spawnHex1);
+let unit13: Unit = new Unit(template1, spawnHex1);
+let unit2: Unit = new Unit(template2, spawnHex2);
+let unit3: Unit = new Unit(template2, spawnHex3)
 
-wait(5)
-print("Moving unit!")
-unit.setPosition(hexRepository.getById("H001")!);
 wait(1)
-print("Moving unit!")
-unit.setPosition(hexRepository.getById("H002")!);
+print("Moving!")
+unit3.setPosition(spawnHex2);
+
 wait(1)
-print("Moving unit!")
-unit.setPosition(hexRepository.getById("H003")!);
+print("Moving!")
+unit11.setPosition(spawnHex2);
+wait(1)
+unit11.setPosition(spawnHex3);

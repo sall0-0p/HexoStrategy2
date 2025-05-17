@@ -3,7 +3,7 @@ import {Nation} from "../nation/Nation";
 import {Hex} from "../hex/Hex";
 
 export class UnitRepository {
-    private unitsById= new Map<number, Unit>;
+    private unitsById= new Map<string, Unit>;
     private unitsByOwner = new Map<Nation, Set<Unit>>; // Needs to be updated
     private unitsByHex = new Map<Hex, Set<Unit>>; // Needs to be updated
 
@@ -58,7 +58,7 @@ export class UnitRepository {
         this.unitsByHex.get(unit.getPosition())!.delete(unit);
     }
 
-    public getById(id: number) {
+    public getById(id: string) {
         return this.unitsById.get(id);
     }
 

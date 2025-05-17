@@ -6,6 +6,7 @@ import {UnitReplicatorMessage, UnitUpdateMessage} from "../../../shared/dto/Unit
 import {NationRepository} from "../nation/NationRepository";
 import {HexRepository} from "../hex/HexRepository";
 import {ReplicatedStorage} from "@rbxts/services";
+import {UnitFlairManager} from "./render/UnitFlairManager";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("UnitReplicator") as RemoteEvent;
@@ -13,7 +14,7 @@ const replicator = ReplicatedStorage.WaitForChild("Events")
 const nationRepository = NationRepository.getInstance();
 const hexRepository = HexRepository.getInstance();
 export class UnitRepository {
-    private unitsById = new Map<number, Unit>;
+    private unitsById = new Map<string, Unit>;
     private unitsByOwner = new Map<Nation, Set<Unit>>;
     private unitsByHex = new Map<Hex, Set<Unit>>;
 
@@ -26,7 +27,7 @@ export class UnitRepository {
 
     // queries
 
-    public getById(id: number) {
+    public getById(id: string) {
         return this.unitsById.get(id);
     }
 
@@ -49,6 +50,7 @@ export class UnitRepository {
     // handlers
 
     private handleMessage(message: UnitReplicatorMessage) {
+        print(message, this.unitsById);
         if (message.type === "create") {
             message.payload.forEach((data) => {
                 this.handleCreateEvent(data);
@@ -58,7 +60,9 @@ export class UnitRepository {
                 this.handleUpdateEvent(id, data);
             })
         } else if (message.type === "delete") {
-            // Handle death / deletion
+            message.payload.forEach((id) => {
+                this.handleDeletionEvent(id, message.died);
+            })
         }
     }
 
@@ -78,7 +82,7 @@ export class UnitRepository {
         this.unitsByHex.get(unit.getPosition())!.add(unit);
     }
 
-    private handleUpdateEvent(id: number, delta: Partial<UnitDTO>) {
+    private handleUpdateEvent(id: string, delta: Partial<UnitDTO>) {
         const unit = this.getById(id);
         if (!unit) error("Unit not found, perhaps archives are incomplete.");
 
@@ -103,6 +107,23 @@ export class UnitRepository {
             if (!hexRepository.getById(delta.positionId)) error(`Hex ${delta.positionId} is not found. Perhaps archives are incomplete.`);
             unit.setPosition(hexRepository.getById(delta.positionId)!);
         }
+
+        // Update flairs
+    }
+
+    private handleDeletionEvent(unitId: string, died: boolean) {
+        const unit = this.getById(unitId);
+        if (!unit) return;
+
+        if (died) {
+            unit.die();
+        } else {
+            unit.delete();
+        }
+
+        this.unitsById.delete(unitId);
+        this.unitsByOwner.get(unit.getOwner())?.delete(unit);
+        this.unitsByHex.get(unit.getPosition())?.delete(unit);
     }
 
     public static getInstance() {

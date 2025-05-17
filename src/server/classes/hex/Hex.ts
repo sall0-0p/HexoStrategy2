@@ -54,14 +54,7 @@ export class Hex {
             RunService.Heartbeat.Wait();
         }
 
-        const hexBase = model.WaitForChild("hex") as BasePart
-        // if (this.position.r % 2 !== this.position.q % 2) {
-        //     hexBase.Color = Color3.fromRGB(205, 205, 205);
-        // } else if (this.position.r % 2 === this.position.q % 2) {
-        //     hexBase.Color = Color3.fromRGB(235, 235, 235);
-        // } else {
-        //     hexBase.Color = Color3.fromRGB(255, 255, 255);
-        // }
+        const hexBase = model.WaitForChild("Base") as BasePart
 
         if (this.position.r % 2 === 1 && this.position.q % 2 === 1) {
             hexBase.Color = Color3.fromRGB(195, 195, 195);

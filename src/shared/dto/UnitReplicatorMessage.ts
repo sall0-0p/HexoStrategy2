@@ -8,12 +8,12 @@ export interface UnitCreateMessage {
 
 export interface UnitUpdateMessage {
     type: "update",
-    payload: Map<number, Partial<UnitDTO>>;
+    payload: Map<string, Partial<UnitDTO>>;
 }
 
 export interface UnitDeleteMessage {
     type: "delete"
-    payload: number[]; // Set of ids
+    payload: string[]; // Set of ids
     died: boolean;
 }
 

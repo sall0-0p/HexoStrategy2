@@ -1,5 +1,5 @@
 export interface UnitDTO {
-    id: number,
+    id: string,
     name: string,
     templateId: number,
     hp: number,

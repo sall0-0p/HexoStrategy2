@@ -4,11 +4,13 @@ import {Nation} from "../nation/Nation";
 import {Hex} from "../hex/Hex";
 import {NationRepository} from "../nation/NationRepository";
 import {HexRepository} from "../hex/HexRepository";
+import {UnitFlairManager} from "./render/UnitFlairManager";
 
 const nationRepository = NationRepository.getInstance();
 const hexRepository = HexRepository.getInstance();
+const unitFlairManager = UnitFlairManager.getInstance();
 export class Unit {
-    private id: number;
+    private id: string;
     private name: string;
     private template;
     private hp: number;
@@ -34,6 +36,17 @@ export class Unit {
             error(`Hex ${data.positionId} is not found, perhaps archives are incomplete.`)
         }
         this.position = hexRepository.getById(data.positionId)!;
+
+        // Add flairs
+        unitFlairManager.addUnitToTheMap(this);
+    }
+
+    public die() {
+        this.delete();
+    }
+
+    public delete() {
+        unitFlairManager.deleteUnitFromTheMap(this);
     }
 
     // getters & setters
@@ -48,6 +61,7 @@ export class Unit {
 
     public setName(name: string) {
         this.name = name;
+        this.changedSignal?.fire("name", name);
     }
 
     public getTemplate() {
@@ -60,6 +74,9 @@ export class Unit {
 
     public setHp(hp: number) {
         this.hp = hp;
+        this.changedSignal?.fire("hp", hp);
+
+        unitFlairManager.updateUnitHp(this);
     }
 
     public getOrganisation() {
@@ -68,6 +85,9 @@ export class Unit {
 
     public setOrganisation(organisation: number) {
         this.organisation = organisation
+        this.changedSignal?.fire("organisation", organisation);
+
+        unitFlairManager.updateUnitOrganisation(this);
     }
 
     public getOwner() {
@@ -76,6 +96,9 @@ export class Unit {
 
     public setOwner(owner: Nation) {
         this.owner = owner
+        this.changedSignal?.fire("owner", owner);
+
+        unitFlairManager.updateUnitOwner(this);
     }
 
     public getPosition() {
@@ -83,7 +106,10 @@ export class Unit {
     }
 
     public setPosition(position: Hex) {
+        const oldPosition = this.position;
         this.position = position
+        this.changedSignal?.fire("position", position);
+        unitFlairManager.updateUnitPosition(this, oldPosition);
     }
 
     public getChangedSignal() {
