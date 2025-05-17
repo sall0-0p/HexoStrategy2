@@ -4,7 +4,7 @@ import {Nation} from "../nation/Nation";
 import {Hex} from "../hex/Hex";
 import {NationRepository} from "../nation/NationRepository";
 import {HexRepository} from "../hex/HexRepository";
-import {UnitFlairManager} from "./render/UnitFlairManager";
+import {UnitFlairManager} from "./flair/UnitFlairManager";
 
 const nationRepository = NationRepository.getInstance();
 const hexRepository = HexRepository.getInstance();
@@ -76,7 +76,7 @@ export class Unit {
         this.hp = hp;
         this.changedSignal?.fire("hp", hp);
 
-        unitFlairManager.updateUnitHp(this);
+        // unitFlairManager.updateUnitHp(this);
     }
 
     public getOrganisation() {
@@ -87,7 +87,7 @@ export class Unit {
         this.organisation = organisation
         this.changedSignal?.fire("organisation", organisation);
 
-        unitFlairManager.updateUnitOrganisation(this);
+        // unitFlairManager.updateUnitOrganisation(this);
     }
 
     public getOwner() {
@@ -98,7 +98,7 @@ export class Unit {
         this.owner = owner
         this.changedSignal?.fire("owner", owner);
 
-        unitFlairManager.updateUnitOwner(this);
+        // unitFlairManager.updateUnitOwner(this);
     }
 
     public getPosition() {
@@ -106,10 +106,9 @@ export class Unit {
     }
 
     public setPosition(position: Hex) {
-        const oldPosition = this.position;
         this.position = position
         this.changedSignal?.fire("position", position);
-        unitFlairManager.updateUnitPosition(this, oldPosition);
+        // unitFlairManager.updateUnitPosition(this, oldPosition);
     }
 
     public getChangedSignal() {

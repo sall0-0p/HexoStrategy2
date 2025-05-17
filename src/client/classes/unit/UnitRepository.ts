@@ -6,7 +6,6 @@ import {UnitReplicatorMessage, UnitUpdateMessage} from "../../../shared/dto/Unit
 import {NationRepository} from "../nation/NationRepository";
 import {HexRepository} from "../hex/HexRepository";
 import {ReplicatedStorage} from "@rbxts/services";
-import {UnitFlairManager} from "./render/UnitFlairManager";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("UnitReplicator") as RemoteEvent;
@@ -50,7 +49,6 @@ export class UnitRepository {
     // handlers
 
     private handleMessage(message: UnitReplicatorMessage) {
-        print(message, this.unitsById);
         if (message.type === "create") {
             message.payload.forEach((data) => {
                 this.handleCreateEvent(data);
@@ -84,7 +82,9 @@ export class UnitRepository {
 
     private handleUpdateEvent(id: string, delta: Partial<UnitDTO>) {
         const unit = this.getById(id);
-        if (!unit) error("Unit not found, perhaps archives are incomplete.");
+        if (!unit) {
+            error("Unit not found, perhaps archives are incomplete.")
+        }
 
         if (delta.name) {
             unit.setName(delta.name);
