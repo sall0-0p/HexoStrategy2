@@ -49,6 +49,24 @@ export class Flair {
         label.Text = tostring(qty);
     }
 
+    public setHp(hp: number) {
+        const hpBar = this.frame.WaitForChild("Body")
+            .WaitForChild("IconContainer")
+            .WaitForChild("HPBody")
+            .WaitForChild("HPBar") as Frame;
+
+        hpBar.Size = UDim2.fromScale(hp, 1);
+    }
+
+    public setOrganisation(org: number) {
+        const orgBar = this.frame.WaitForChild("Body")
+            .WaitForChild("IconContainer")
+            .WaitForChild("OrgBody")
+            .WaitForChild("OrganisationBar") as Frame;
+
+        orgBar.Size = UDim2.fromScale(org, 1);
+    }
+
     public destroy() {
         const parent = this.frame.Parent! as BillboardGui;
         this.frame.Destroy();

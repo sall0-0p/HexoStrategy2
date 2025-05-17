@@ -28,6 +28,8 @@ export class UnitStack {
         if (unit.getTemplate() !== this.templateId) error("Cannot add unit with different template id into the stack!");
         this.units.push(unit);
         this.flair.setQuantity(this.units.size());
+        this.updateHp();
+        this.updateOrg();
         this.connections.set(unit, [unit.getChangedSignal().connect((key, value) => this.onUnitChange(unit, key, value))]);
     }
 
@@ -36,6 +38,8 @@ export class UnitStack {
         this.units = this.units.filter((u) => {
             return u.getId() !== unit.getId();
         })
+        this.updateHp();
+        this.updateOrg();
         if (this.units.size() < 1) {
             this.destroy();
         } else {
@@ -50,6 +54,8 @@ export class UnitStack {
         const activeHex = hex ?? this.hex;
         let stacks = this.unitFlairManager.stacks.get(activeHex);
         const newStack = new UnitStack(units, this.unitFlairManager, activeHex);
+        this.updateHp();
+        this.updateOrg();
 
         if (!stacks) {
             this.unitFlairManager.stacks.set(activeHex, []);
@@ -62,6 +68,8 @@ export class UnitStack {
     public join(stack: UnitStack) {
         if (stack.getTemplate() !== this.getTemplate()) error("Cannot merge stacks with different template ids.");
         stack.getUnits().forEach((unit) => this.addUnit(unit));
+        this.updateHp();
+        this.updateOrg();
         stack.destroy();
     }
 
@@ -76,28 +84,61 @@ export class UnitStack {
         this.destroyed = true;
     }
 
-
     // Changes monitoring
 
-    public onUnitChange(unit: Unit, key: string, value: unknown) {
-        if (key === "position") {
-            const toHex = value as Hex;
-            this.removeUnit(unit);
-
-            let destStacks = this.unitFlairManager.stacks.get(toHex);
-            if (!destStacks) {
-                destStacks = [];
-                this.unitFlairManager.stacks.set(toHex, destStacks);
+    private onUnitChange(unit: Unit, key: string, value: unknown) {
+        switch (key) {
+            case "position": {
+                this.updatePosition(unit, value as Hex);
+                break;
             }
-
-            let destStack = destStacks.find((stack) => stack.getTemplate() === this.templateId);
-            if (!destStack) {
-                destStack = new UnitStack([unit], this.unitFlairManager, toHex);
-                destStacks.push(destStack);
-            } else {
-                destStack.addUnit(unit);
+            case "hp": {
+                this.updateHp();
+                break;
             }
         }
+    }
+
+    private updatePosition(unit: Unit, toHex: Hex) {
+        this.removeUnit(unit);
+
+        let destStacks = this.unitFlairManager.stacks.get(toHex);
+        if (!destStacks) {
+            destStacks = [];
+            this.unitFlairManager.stacks.set(toHex, destStacks);
+        }
+
+        let destStack = destStacks.find((stack) => stack.getTemplate() === this.templateId);
+        if (!destStack) {
+            destStack = new UnitStack([unit], this.unitFlairManager, toHex);
+            destStacks.push(destStack);
+        } else {
+            destStack.addUnit(unit);
+        }
+    }
+
+    private updateHp() {
+        let sumHp = 0
+        let sumMaxHp = 0
+        this.units.forEach((unit) => {
+            sumHp += unit.getHp();
+            sumMaxHp += unit.getHp() * 1.2; // TODO: Replace with Maximum HP from modifiers and template.
+        })
+
+        let percentage = sumHp / sumMaxHp;
+        this.flair.setHp(percentage);
+    }
+
+    private updateOrg() {
+        let sumOrg = 0
+        let sumMaxOrg = 0
+        this.units.forEach((unit) => {
+            sumOrg += unit.getOrganisation();
+            sumMaxOrg += unit.getOrganisation() * 2; // TODO: Replace with Maximum HP from modifiers and template.
+        })
+
+        let percentage = sumOrg / sumMaxOrg;
+        this.flair.setOrganisation(percentage);
     }
 
     // Misc
