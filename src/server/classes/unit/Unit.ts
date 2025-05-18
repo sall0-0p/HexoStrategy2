@@ -2,12 +2,14 @@ import {Hex} from "../hex/Hex";
 import {Nation} from "../nation/Nation";
 import {UnitTemplate} from "./template/UnitTemplate";
 import {UnitRepository} from "./UnitRepository";
-import {Signal} from "../../../shared/classes/Signal";
+import {Connection, Signal} from "../../../shared/classes/Signal";
 import {UnitDTO} from "../../../shared/dto/UnitDTO";
 import {UnitReplicator} from "./UnitReplicator";
+import {MovementTicker} from "./MovementTicker";
 
 const unitReplicator = UnitReplicator.getInstance();
 const unitRepository = UnitRepository.getInstance();
+const movementTicker = MovementTicker.getInstance();
 export class Unit {
     private id = UnitCounter.getNextId();
     private name;
@@ -44,6 +46,22 @@ export class Unit {
         // This method will move unit from hex A to its neighbor hex B, over time,
         // and if there are enemy units - engage them.
         // It will also capture territory on its way.
+        const data = movementTicker.scheduleMovement(this, hex);
+        const unit: Unit = this;
+        const connection: Connection = data.finished.connect(() => {
+            connection.disconnect();
+            hex.setOwner(unit.owner);
+        })
+
+        return {
+            to: data.to,
+            from: data.from,
+            finished: data.finished,
+            cancel() {
+                movementTicker.cancelMovement(unit);
+                connection.disconnect();
+            }
+        } as ActiveMovement;
     }
 
     public die() {
@@ -72,6 +90,10 @@ export class Unit {
             name: name,
         });
         this.changedSignal?.fire("name", name);
+    }
+
+    public getTemplate() {
+        return this.template;
     }
 
     public getHp() {
@@ -150,6 +172,13 @@ export class Unit {
             positionId: this.position.getId(),
         } as UnitDTO;
     }
+}
+
+export interface ActiveMovement {
+    to: Hex,
+    from: Hex,
+    cancel(): void,
+    finished: Signal<[]>,
 }
 
 export class UnitCounter {

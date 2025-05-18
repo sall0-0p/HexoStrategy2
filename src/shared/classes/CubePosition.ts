@@ -25,7 +25,7 @@ export class CubePosition {
 
     // convertor
     public toOdd() {
-        const col: number = this.q + (this.r - this.r) / 2;
+        const col: number = this.q + (this.r - (this.r % 2)) / 2;
         const row: number = this.r;
         return new Vector2(col, row);
     }

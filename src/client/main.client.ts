@@ -6,6 +6,7 @@ import {NationHeatmap} from "./classes/heatmap/heatmaps/NationHeatmap";
 import {UnitReplicatorMessage} from "../shared/dto/UnitReplicatorMessage";
 import {UnitRepository} from "./classes/unit/UnitRepository";
 import {UnitFlairManager} from "./classes/unit/flair/UnitFlairManager";
+// import {Camera} from "./classes/camera/Camera";
 
 const nationRepository = NationRepository.getInstance();
 const hexRepository = HexRepository.getInstance();
@@ -14,3 +15,4 @@ const unitFlairManager = UnitFlairManager.getInstance();
 hexRepository.getLoadedSignal().wait();
 const heatmapManager = HeatmapManager.getInstance();
 heatmapManager.showHeatmap(new NationHeatmap());
+// const camera = Camera.getInstance();

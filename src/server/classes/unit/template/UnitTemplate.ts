@@ -7,16 +7,18 @@ export class UnitTemplate {
     private name: string;
     private hp: number;
     private organisation: number;
+    private speed: number;
     private damage: number;
     private model: Model;
     private icon: string;
     private owner: Nation;
 
-    constructor(name: string, hp: number, organisation: number, damage: number, model: Model, icon: string, owner: Nation) {
+    constructor(name: string, hp: number, organisation: number, speed: number, damage: number, model: Model, icon: string, owner: Nation) {
         this.id = TemplateCounter.getNextId();
         this.name = name;
         this.hp = hp;
         this.organisation = organisation;
+        this.speed = speed;
         this.damage = damage;
         this.model = model;
         this.icon = icon;
@@ -39,6 +41,10 @@ export class UnitTemplate {
 
     public getOrganisation() {
         return this.organisation;
+    }
+
+    public getSpeed() {
+        return this.speed;
     }
 
     public getDamage() {
