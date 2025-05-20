@@ -22,8 +22,7 @@ export class Camera {
         this.currentCamera.CameraType = Enum.CameraType.Scriptable;
         // this.currentCamera.CameraSubject = this.cameraPart;
 
-        RunService.RenderStepped.Connect((delta) => this.onRender(delta))
-        this.onRender(0.01);
+        RunService.BindToRenderStep("CameraRendering", Enum.RenderPriority.Camera.Value - 2, (delta) => this.onRender(delta));
     }
 
     private processArrowKeys(delta: number) {

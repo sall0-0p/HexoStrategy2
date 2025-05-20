@@ -1,28 +1,33 @@
-import {ReplicatedStorage} from "@rbxts/services";
+import {Players, ReplicatedStorage, RunService, Workspace} from "@rbxts/services";
 import {Hex} from "../../hex/Hex";
 import {Unit} from "../Unit";
 import {Connection} from "../../../../shared/classes/Signal";
+import {Container} from "./Container";
 
 const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
     .WaitForChild("Map")
-    .WaitForChild("UnitFlair");
+    .WaitForChild("UnitFlair") as Frame;
 
 export class Flair {
+    private id: string;
     private frame: Frame;
+    private containers: Map<Hex, Container>;
+    private container: Container;
+    private hex: Hex;
 
-    constructor(unit: Unit, hex: Hex, qty: number) {
-        const frame = flairTemplate.Clone() as Frame;
-        const container = hex.getModel()
-            .WaitForChild("Base")
-            .WaitForChild("FlairContainer") as BillboardGui;
+    constructor(unit: Unit, hex: Hex, qty: number, containers: Map<Hex, Container>) {
+        this.id = FlairCounter.getNextId();
+        this.hex = hex;
+        this.containers = containers;
 
-        frame.Parent = container;
-        this.frame = frame;
+        this.container = containers.get(hex) ?? this.createContainer(hex);
+        this.frame = flairTemplate.Clone() as Frame;;
+        this.frame.Parent = this.container.getFrame();
         this.setColor(unit.getOwner().getColor());
         this.setFlag(unit.getOwner().getFlag());
         this.setQuantity(qty);
-        this.adjustParentSize(container);
+        this.container.addFlair(this);
     }
 
     public setColor(color: Color3) {
@@ -68,13 +73,26 @@ export class Flair {
     }
 
     public destroy() {
-        const parent = this.frame.Parent! as BillboardGui;
+        this.container.removeFlair(this);
         this.frame.Destroy();
-        this.adjustParentSize(parent);
     }
 
-    private adjustParentSize(parent: BillboardGui) {
-        const childrenQuantity = parent?.GetChildren().size();
-        parent.Size = UDim2.fromOffset(60, 28 * childrenQuantity);
+    public getId() {
+        return this.id;
+    }
+
+    private createContainer(hex: Hex) {
+        const container = new Container(hex);
+        this.containers.set(hex, container);
+        return container;
+    }
+}
+
+export class FlairCounter {
+    private static currentId = 0
+
+    public static getNextId() {
+        this.currentId++
+        return tostring(this.currentId);
     }
 }

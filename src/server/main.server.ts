@@ -70,7 +70,6 @@ while (counter < 25) {
     counter++;
 }
 while (true) {
-    print("Ordering movement");
     units.forEach((unit) => moveToEnemyHex(unit));
     wait(0.25);
 }

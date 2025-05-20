@@ -15,7 +15,7 @@ export class UnitStack {
     private destroyed: boolean = false;
 
     constructor(units: Unit[], unitFlairManager: UnitFlairManager, hex?: Hex) {
-        this.flair = new Flair(units[0], hex ?? units[0].getPosition(), units.size());
+        this.flair = new Flair(units[0], hex ?? units[0].getPosition(), units.size(), unitFlairManager.containers);
         this.templateId = units[0].getTemplate();
         this.hex = hex ?? units[0].getPosition();
         this.unitFlairManager = unitFlairManager;

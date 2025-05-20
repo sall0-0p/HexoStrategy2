@@ -1,9 +1,11 @@
 import {UnitStack} from "./UnitStack";
 import {Hex} from "../../hex/Hex";
 import {Unit} from "../Unit";
+import {Container} from "./Container";
 
 export class UnitFlairManager {
     public stacks = new Map<Hex, UnitStack[]>;
+    public containers = new Map<Hex, Container>;
 
     public static instance: UnitFlairManager;
     private constructor() {
