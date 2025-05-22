@@ -101,7 +101,7 @@ export class SelectionManager {
     private getUnitsOnPosition(pos: Vector2) {
         const guiObjects = playerGui.GetGuiObjectsAtPosition(pos.X, pos.Y);
         const flairs = guiObjects.filter((object) => {
-            return object.HasTag("UnitFlair");
+            return object.HasTag("UnitFlair") && object.Visible;
         });
 
         const result: Unit[] = [];
@@ -118,7 +118,7 @@ export class SelectionManager {
     private getStacksOnPosition(pos: Vector2) {
         const guiObjects = playerGui.GetGuiObjectsAtPosition(pos.X, pos.Y);
         const flairs = guiObjects.filter((object) => {
-            return object.HasTag("UnitFlair");
+            return object.HasTag("UnitFlair") && object.Visible;
         });
 
         const result: UnitStack[] = [];

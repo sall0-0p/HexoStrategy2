@@ -12,6 +12,7 @@ const containersContainer = Players.LocalPlayer
     .WaitForChild("Flairs") as ScreenGui;
 
 export class Container {
+    private id: string = ContainerCounter.getNextId();
     private hex: Hex;
     private frame: Frame;
     private flairs: Flair[] = [];
@@ -20,7 +21,7 @@ export class Container {
         this.frame = containerTemplate.Clone();
         this.frame.Parent = containersContainer;
 
-        RunService.BindToRenderStep("ContainerRendering", Enum.RenderPriority.Camera.Value - 1, () => this.onRender());
+        RunService.BindToRenderStep("ContainerRendering" + this.id, Enum.RenderPriority.Camera.Value - 1, () => this.onRender());
     }
 
     public addFlair(flair: Flair) {
@@ -29,8 +30,8 @@ export class Container {
     }
 
     public removeFlair(flair: Flair) {
-        this.flairs = this.flairs.filter((flair) => {
-            return (flair.getId() !== flair.getId());
+        this.flairs = this.flairs.filter((f) => {
+            return (flair.getId() !== f.getId());
         })
         this.updateSize();
     }
@@ -39,9 +40,16 @@ export class Container {
         if (this.flairs.size() < 1) return;
 
         const currentCamera = Workspace.CurrentCamera!;
+        const viewportBoundaries = currentCamera.ViewportSize;
         const screenVector3 = currentCamera.WorldToViewportPoint(this.hex.getModel().GetPivot().Position)[0];
 
-        this.frame.Position = UDim2.fromOffset(screenVector3.X, screenVector3.Y);
+        if ((screenVector3.X > 0 && screenVector3.X < viewportBoundaries.X)
+        && (screenVector3.Y > 0 && screenVector3.Y < viewportBoundaries.Y)) {
+            this.frame.Position = UDim2.fromOffset(screenVector3.X, screenVector3.Y);
+            this.frame.Visible = true;
+        } else {
+            this.frame.Visible = false;
+        }
     }
 
     private updateSize() {
@@ -51,5 +59,14 @@ export class Container {
 
     public getFrame() {
         return this.frame;
+    }
+}
+
+class ContainerCounter {
+    private static currentId = 0
+
+    public static getNextId() {
+        this.currentId++
+        return tostring(this.currentId);
     }
 }
