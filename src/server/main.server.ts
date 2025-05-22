@@ -25,6 +25,7 @@ let fungaria: Nation = nationRepository.getById("FNG")!;
 
 let spawnHex1 = hexRepository.getById("H001")!;
 let spawnHex2 = hexRepository.getById("H1800")!;
+let spawnHex3 = hexRepository.getById("H003")!;
 let template1: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", ponylandia);
 let template2: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", byrdlands);
 let template3: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", fungaria);
@@ -65,11 +66,11 @@ while (counter < 25) {
 }
 
 counter = 0
-while (counter < 25) {
-    units.push(new Unit(template2, spawnHex2));
+while (counter < 3) {
+    units.push(new Unit(template1, spawnHex3));
     counter++;
 }
-while (true) {
-    units.forEach((unit) => moveToEnemyHex(unit));
-    wait(0.25);
-}
+// while (true) {
+//     units.forEach((unit) => moveToEnemyHex(unit));
+//     wait(0.25);
+// }

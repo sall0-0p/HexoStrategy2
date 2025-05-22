@@ -3,6 +3,7 @@ import {Hex} from "../../hex/Hex";
 import {Unit} from "../Unit";
 import {Connection} from "../../../../shared/classes/Signal";
 import {Container} from "./Container";
+import {UnitStack} from "./UnitStack";
 
 const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -16,17 +17,18 @@ export class Flair {
     private container: Container;
     private hex: Hex;
 
-    constructor(unit: Unit, hex: Hex, qty: number, containers: Map<Hex, Container>) {
-        this.id = FlairCounter.getNextId();
-        this.hex = hex;
-        this.containers = containers;
+    constructor(stack: UnitStack, units: Unit[]) {
+        this.id = stack.getId();
+        this.hex = stack.getHex();
+        this.containers = stack.getUnitFlairManager().containers;
 
-        this.container = containers.get(hex) ?? this.createContainer(hex);
-        this.frame = flairTemplate.Clone() as Frame;;
+        this.container = this.containers.get(this.hex) ?? this.createContainer(this.hex);
+        this.frame = flairTemplate.Clone() as Frame;
+        this.frame.Name = this.id;
         this.frame.Parent = this.container.getFrame();
-        this.setColor(unit.getOwner().getColor());
-        this.setFlag(unit.getOwner().getFlag());
-        this.setQuantity(qty);
+        this.setColor(units[0].getOwner().getColor());
+        this.setFlag(units[0].getOwner().getFlag());
+        this.setQuantity(units.size());
         this.container.addFlair(this);
     }
 
@@ -72,6 +74,11 @@ export class Flair {
         orgBar.Size = UDim2.fromScale(org, 1);
     }
 
+    public setSelected(selected: boolean) {
+        const outline = this.frame.WaitForChild("Outline") as Frame;
+        outline.Visible = selected;
+    }
+
     public destroy() {
         this.container.removeFlair(this);
         this.frame.Destroy();
@@ -88,7 +95,7 @@ export class Flair {
     }
 }
 
-export class FlairCounter {
+class FlairCounter {
     private static currentId = 0
 
     public static getNextId() {
