@@ -22,7 +22,7 @@ export class UnitFlairManager {
         }
         const stack = this.findUnitInStacks(stacks!, unit);
         if (!stack) {
-            new UnitStack([unit], this, unit.getPosition());
+            new UnitStack([unit], this, false, unit.getPosition());
         } else {
             stack.addUnit(unit);
         }
@@ -34,12 +34,6 @@ export class UnitFlairManager {
     }
 
     public findStackByUnit(unit: Unit) {
-        // const hex = unit.getPosition()
-        // const stacks = this.stacks.get(hex);
-        // if (!stacks) error(`Failed to find unit ${unit.getId()}, because stack for ${hex.getId()} is not found.`);
-        // const stack = this.findUnitInStacks(stacks, unit); // Remove toString when migrated to string ids for templates.
-        // if (!stack) error(`Failed to find unit ${unit.getId()}, because stack containing it was not found in ${hex.getId()}`);
-        // return stack;
         return this.stacksByUnit.get(unit);
     }
 

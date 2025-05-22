@@ -16,7 +16,7 @@ export class UnitStack {
     private unitFlairManager: UnitFlairManager;
     private destroyed: boolean = false;
 
-    constructor(units: Unit[], unitFlairManager: UnitFlairManager, hex?: Hex) {
+    constructor(units: Unit[], unitFlairManager: UnitFlairManager, selected: boolean, hex?: Hex) {
         this.id = StackCounter.getNextId();
         this.templateId = units[0].getTemplate();
         this.hex = hex ?? units[0].getPosition();
@@ -33,6 +33,10 @@ export class UnitStack {
         }
         hexStacks.push(this);
         this.unitFlairManager.stacksById.set(this.id, this);
+
+        if (selected) {
+            this.setSelected(selected);
+        }
     }
 
     public addUnit(unit: Unit) {
@@ -65,7 +69,7 @@ export class UnitStack {
     public split(units: Unit[], hex?: Hex) {
         units.forEach((unit) => this.removeUnit(unit));
         const activeHex = hex ?? this.hex;
-        const newStack = new UnitStack(units, this.unitFlairManager, activeHex);
+        const newStack = new UnitStack(units, this.unitFlairManager, this.selected, activeHex);
         this.updateHp();
         this.updateOrg();
         return newStack;
@@ -76,7 +80,7 @@ export class UnitStack {
         let results: UnitStack[] = [];
         this.units.forEach((unit) => {
             this.removeUnit(unit);
-            const stack = new UnitStack([unit], this.unitFlairManager, activeHex);
+            const stack = new UnitStack([unit], this.unitFlairManager, this.selected, activeHex);
 
             if (selected) stack.setSelected(true);
             results.push(stack);
@@ -86,8 +90,9 @@ export class UnitStack {
 
     public join(stack: UnitStack) {
         if (stack.getTemplate() !== this.getTemplate()) error("Cannot merge stacks with different template ids.");
-        stack.getUnits().forEach((unit) => this.addUnit(unit));
-        stack.getUnits().forEach((unit) => stack.removeUnit(unit));
+        const units = [...stack.getUnits()];
+        units.forEach((unit) => stack.removeUnit(unit));
+        units.forEach((unit) => this.addUnit(unit));
         this.updateHp();
         this.updateOrg();
     }
@@ -133,15 +138,16 @@ export class UnitStack {
     }
 
     private updatePosition(unit: Unit, toHex: Hex) {
+        if (this.hex.getId() === toHex.getId()) return;
         this.removeUnit(unit);
 
         const hexStacks = this.unitFlairManager.stacks.get(toHex) ?? [];
-        const targetStack = hexStacks.find((stack) => stack.getTemplate() === this.templateId);
+        const targetStack = hexStacks.find((stack) => stack.isMergeable(this));
 
         if (targetStack) {
             targetStack.addUnit(unit);
         } else {
-            new UnitStack([unit], this.unitFlairManager, toHex);
+            new UnitStack([unit], this.unitFlairManager, this.selected, toHex);
         }
     }
 

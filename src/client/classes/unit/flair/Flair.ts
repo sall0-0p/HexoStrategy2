@@ -1,7 +1,6 @@
-import {Players, ReplicatedStorage, RunService, Workspace} from "@rbxts/services";
+import {ReplicatedStorage} from "@rbxts/services";
 import {Hex} from "../../hex/Hex";
 import {Unit} from "../Unit";
-import {Connection} from "../../../../shared/classes/Signal";
 import {Container} from "./Container";
 import {UnitStack} from "./UnitStack";
 

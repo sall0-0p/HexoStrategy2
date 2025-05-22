@@ -20,7 +20,6 @@ export class Camera {
 
         this.currentCamera = Workspace.CurrentCamera!;
         this.currentCamera.CameraType = Enum.CameraType.Scriptable;
-        // this.currentCamera.CameraSubject = this.cameraPart;
 
         RunService.BindToRenderStep("CameraRendering", Enum.RenderPriority.Camera.Value - 2, (delta) => this.onRender(delta));
     }
@@ -44,15 +43,14 @@ export class Camera {
         }
 
         const adjustedSpeed = this.cameraSpeed
-        const positionChange = directionVector.mul(-adjustedSpeed * delta);
-        // this.cameraPart.Position = this.cameraPart.Position.add(positionChange);
+        const positionChange = directionVector.mul(adjustedSpeed * delta);
         this.targetPosition = this.cameraPart.Position.add(positionChange);
         this.lerpPositionToTarget(delta);
     }
 
     private lerpPositionToTarget(delta: number) {
         const alpha = 1 - math.exp(this.cameraSpeed * delta);
-        this.cameraPart.Position = this.cameraPart.Position.Lerp(this.targetPosition, alpha);
+        this.cameraPart.Position = this.cameraPart.Position.Lerp(this.targetPosition, math.clamp(-alpha, 0, 1));
     }
 
     private onRender(delta: number) {

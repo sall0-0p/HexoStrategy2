@@ -65,12 +65,13 @@ while (counter < 25) {
     counter++;
 }
 
-counter = 0
-while (counter < 3) {
-    units.push(new Unit(template1, spawnHex3));
-    counter++;
-}
-// while (true) {
-//     units.forEach((unit) => moveToEnemyHex(unit));
-//     wait(0.25);
+// counter = 0
+// while (counter < 250) {
+//     units.push(new Unit(template2, spawnHex2));
+//     counter++;
 // }
+
+while (true) {
+    units.forEach((unit) => moveToEnemyHex(unit));
+    wait(0.25);
+}
