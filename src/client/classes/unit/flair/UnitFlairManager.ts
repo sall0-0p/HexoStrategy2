@@ -1,7 +1,7 @@
 import {UnitStack} from "./UnitStack";
 import {Hex} from "../../hex/Hex";
 import {Unit} from "../Unit";
-import {Container} from "./Container";
+import {Container} from "./container/Container";
 
 export class UnitFlairManager {
     public stacks = new Map<Hex, UnitStack[]>;

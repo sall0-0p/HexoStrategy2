@@ -60,7 +60,7 @@ function moveToEnemyHex(unit: Unit) {
 
 const units: Unit[] = [];
 let counter = 0;
-while (counter < 25) {
+while (counter < 5004) {
     units.push(new Unit(template1, spawnHex1));
     counter++;
 }

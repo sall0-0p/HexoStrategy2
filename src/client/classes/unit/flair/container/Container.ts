@@ -1,6 +1,7 @@
 import {Players, ReplicatedStorage, RunService, Workspace} from "@rbxts/services";
-import {Hex} from "../../hex/Hex";
-import {Flair} from "./Flair";
+import {Hex} from "../../../hex/Hex";
+import {Flair} from "../Flair";
+import {ContainerRenderer} from "./ContainerRenderer";
 
 const containerTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -11,17 +12,23 @@ const containersContainer = Players.LocalPlayer
     .WaitForChild("PlayerGui")
     .WaitForChild("Flairs") as ScreenGui;
 
+const containerRenderer = new ContainerRenderer();
 export class Container {
     private id: string = ContainerCounter.getNextId();
     private hex: Hex;
     private frame: Frame;
     private flairs: Flair[] = [];
+
+    public _visible: boolean = true;
+    public _lastPosition: Vector2 = new Vector2();
+    public _worldPos: Vector3;
     constructor(hex: Hex) {
         this.hex = hex;
         this.frame = containerTemplate.Clone();
         this.frame.Parent = containersContainer;
+        this._worldPos = hex.getModel().GetPivot().Position;
 
-        RunService.BindToRenderStep("ContainerRendering" + this.id, Enum.RenderPriority.Camera.Value - 1, () => this.onRender());
+        containerRenderer.addContainer(this);
     }
 
     public addFlair(flair: Flair) {
@@ -36,22 +43,6 @@ export class Container {
         this.updateSize();
     }
 
-    private onRender() {
-        if (this.flairs.size() < 1) return;
-
-        const currentCamera = Workspace.CurrentCamera!;
-        const viewportBoundaries = currentCamera.ViewportSize;
-        const screenVector3 = currentCamera.WorldToViewportPoint(this.hex.getModel().GetPivot().Position)[0];
-
-        if ((screenVector3.X > 0 && screenVector3.X < viewportBoundaries.X)
-        && (screenVector3.Y > 0 && screenVector3.Y < viewportBoundaries.Y)) {
-            this.frame.Position = UDim2.fromOffset(screenVector3.X, screenVector3.Y);
-            this.frame.Visible = true;
-        } else {
-            this.frame.Visible = false;
-        }
-    }
-
     private updateSize() {
         const childrenQuantity = this.flairs.size();
         this.frame.Size = UDim2.fromOffset(60, 28 * childrenQuantity);
@@ -59,6 +50,10 @@ export class Container {
 
     public getFrame() {
         return this.frame;
+    }
+
+    public getFlairs() {
+        return this.flairs;
     }
 }
 

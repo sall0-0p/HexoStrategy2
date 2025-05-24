@@ -1,7 +1,7 @@
 import {ReplicatedStorage} from "@rbxts/services";
 import {Hex} from "../../hex/Hex";
 import {Unit} from "../Unit";
-import {Container} from "./Container";
+import {Container} from "./container/Container";
 import {UnitStack} from "./UnitStack";
 
 const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
