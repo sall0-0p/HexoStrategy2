@@ -6,6 +6,7 @@ import {UnitRepository} from "./classes/unit/UnitRepository";
 import {UnitFlairManager} from "./classes/unit/flair/UnitFlairManager";
 import {Camera} from "./classes/camera/Camera";
 import {SelectionManager} from "./classes/selection/SelectionManager";
+import {Players, UserInputService, Workspace} from "@rbxts/services";
 
 const camera = Camera.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -16,3 +17,25 @@ hexRepository.getLoadedSignal().wait();
 const heatmapManager = HeatmapManager.getInstance();
 heatmapManager.showHeatmap(new NationHeatmap());
 const selectionManager = SelectionManager.getInstance();
+
+UserInputService.InputEnded.Connect((input: InputObject) => {
+    if (input.UserInputType === Enum.UserInputType.MouseButton1) {
+        const player = Players.LocalPlayer;
+        const mouse = player.GetMouse();
+        const camera = Workspace.CurrentCamera!;
+        const unitRay = camera.ScreenPointToRay(mouse.X, mouse.Y);
+        const raycastParams = new RaycastParams();
+        raycastParams.FilterType = Enum.RaycastFilterType.Whitelist;
+        raycastParams.AddToFilter(Workspace.WaitForChild("Heatmaps"));
+        raycastParams.AddToFilter(Workspace.WaitForChild("Hexes"));
+
+        const raycastResult = Workspace.Raycast(unitRay.Origin, unitRay.Direction.mul(1000), raycastParams);
+        if (raycastResult) {
+            const instance = raycastResult.Instance;
+            const hexModel = instance.FindFirstAncestorOfClass("Model");
+            if (!hexModel) return;
+            const hexId = hexModel.Name;
+            print(`[DEBUG]: Hex with id ${hexId}`, hexRepository.getById(hexId));
+        }
+    }
+})

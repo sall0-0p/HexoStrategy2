@@ -5,10 +5,14 @@ export interface Connection {
 
 export class Signal<Args extends unknown[]> {
     private listeners = new Set<Callback<Args>>();
+    private completed: boolean;
+
+    constructor() {
+        this.completed = false;
+    }
 
     public connect(fn: Callback<Args>): Connection {
         this.listeners.add(fn);
-
         const listeners = this.listeners
         return {
             disconnect() {
@@ -23,11 +27,16 @@ export class Signal<Args extends unknown[]> {
         })
     }
 
+    public complete() {
+        this.completed = true;
+    }
+
     public clear() {
         this.listeners.clear();
     }
 
-    public wait(): Args {
+    public wait(): Args | undefined {
+        if (this.completed) return;
         const thread = coroutine.running();
         let conn: Connection;
         conn = this.connect((...args: Args) => {

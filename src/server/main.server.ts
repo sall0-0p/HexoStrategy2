@@ -24,7 +24,6 @@ let byrdlands: Nation = nationRepository.getById("BRD")!;
 let fungaria: Nation = nationRepository.getById("FNG")!;
 
 let spawnHex1 = hexRepository.getById("H001")!;
-let spawnHex2 = hexRepository.getById("H1800")!;
 let spawnHex3 = hexRepository.getById("H003")!;
 let template1: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", ponylandia);
 let template2: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", byrdlands);
@@ -60,13 +59,13 @@ function moveToEnemyHex(unit: Unit) {
 
 const units: Unit[] = [];
 let counter = 0;
-while (counter < 5004) {
+while (counter < 1) {
     units.push(new Unit(template1, spawnHex1));
     counter++;
 }
 
 // counter = 0
-// while (counter < 250) {
+// while (counter < 1) {
 //     units.push(new Unit(template2, spawnHex2));
 //     counter++;
 // }

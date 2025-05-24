@@ -18,7 +18,7 @@ export class NationHeatmap implements Heatmap {
                 name: owner.getName(),
                 isHighlighted: true,
                 outlineColor: color,
-                outlineTransparency: 0.8,
+                outlineTransparency: 0.2,
                 fillColor: color,
                 fillTransparency: 0.5,
                 depthMode: Enum.HighlightDepthMode.Occluded,

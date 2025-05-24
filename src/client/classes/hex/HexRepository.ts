@@ -14,7 +14,7 @@ export class HexRepository {
     private hexesById = new Map<string, Hex>;
     private hexesByCoords = new Map<string, Hex>;
 
-    private loadedSignal?: Signal<[]>;
+    private loadedSignal = new Signal<[]>;
 
     private static instance: HexRepository;
 
@@ -27,6 +27,7 @@ export class HexRepository {
                 print(`Loaded ${message.payload.size()} hexes from ${message.source}`);
 
                 if (this.loadedSignal) {
+                    this.loadedSignal.complete();
                     this.loadedSignal.fire();
                 }
             } else if (message.type === "update") {
@@ -58,9 +59,6 @@ export class HexRepository {
             warn("Hexes are already loaded, returned signal will not be fired.");
         }
 
-        if (!this.loadedSignal) {
-            this.loadedSignal = new Signal<[]>();
-        }
         return this.loadedSignal;
     }
 

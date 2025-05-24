@@ -16,6 +16,7 @@ export class Camera {
         part.CanCollide = false;
         part.Position = new Vector3(0, 2, 0);
         part.Parent = Workspace;
+        part.Transparency = 1;
         this.cameraPart = part;
 
         this.currentCamera = Workspace.CurrentCamera!;
@@ -57,7 +58,7 @@ export class Camera {
         this.processArrowKeys(delta);
 
         const cameraCFrame = new CFrame(this.cameraPart.Position.add(new Vector3(0, 10, 0)));
-        this.currentCamera.CFrame = cameraCFrame.mul(CFrame.Angles(math.rad(45), math.rad(180), 0));
+        this.currentCamera.CFrame = cameraCFrame.mul(CFrame.Angles(math.rad(90), math.rad(180), 0));
     }
 
     public static getInstance() {
