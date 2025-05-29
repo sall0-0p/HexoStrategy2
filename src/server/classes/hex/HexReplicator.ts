@@ -1,12 +1,13 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
 import {HexDTO} from "../../../shared/dto/HexDTO";
-import {hexRepository} from "./HexRepository";
+import {HexRepository} from "./HexRepository";
 import {HexCreateMessage, HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("HexReplicator") as RemoteEvent;
 
+const hexRepository = HexRepository.getInstance();
 export class HexReplicator {
     private dirtyHexes = new Map<string, Partial<HexDTO>>;
 
@@ -92,5 +93,3 @@ export class HexReplicator {
         return this.instance;
     }
 }
-
-export const hexReplicator = HexReplicator.getInstance();

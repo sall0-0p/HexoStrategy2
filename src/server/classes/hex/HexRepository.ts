@@ -45,5 +45,3 @@ export class HexRepository {
         return result;
     }
 }
-
-export const hexRepository = HexRepository.getInstance();

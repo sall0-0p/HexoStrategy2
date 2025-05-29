@@ -1,22 +1,25 @@
 import {CUBE_DIRECTIONS, CubePosition} from "../../../shared/classes/CubePosition";
 import {Workspace, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "../nation/Nation";
-import {nationRepository} from "../nation/NationRepository";
+import {NationRepository} from "../nation/NationRepository";
 import {HexDTO} from "../../../shared/dto/HexDTO";
 import {Signal} from "../../../shared/classes/Signal";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
+import {Region} from "../region/Region";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;
 
+const nationRepository = NationRepository.getInstance();
 export class Hex {
     private readonly id: string;
     private readonly name: string;
     private readonly hexType: string;
+    private region?: Region;
     private position: CubePosition;
     private owner?: Nation;
     private neighbors: Hex[] = [];
-    private model?: Model;
+    private model!: Model;
     
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -27,7 +30,9 @@ export class Hex {
         this.hexType = data.hexType;
 
         if (data.owner) {
-            this.owner = nationRepository.getById(data.owner);
+            const candidate = nationRepository.getById(data.owner);
+            if (!candidate) error(`Nation with id ${data.owner} was not found!`);
+            this.owner = candidate;
         }
 
         this.makeModel();
@@ -81,6 +86,7 @@ export class Hex {
     }
 
     public toDTO(): HexDTO {
+        if (!this.region) error(`Hex ${this.id} was not assigned region in initialisation stage!`);
         return {
             id: this.id,
             name: this.name,
@@ -115,9 +121,20 @@ export class Hex {
         return this.owner;
     }
 
+    public getRegion() {
+        if (!this.region) error("Regions are not initialised yet!");
+        return this.region;
+    }
+
+    public setRegion(region: Region) {
+        if (this.region) error(`Cannot set regions twice to hex ${this.id}! Current region: ${this.region.getId()}, new region: ${region.getId()}`);
+        this.region = region;
+    }
+
     public setOwner(owner: Nation) {
         this.owner = owner;
 
+        this.region?.updateOwner();
         dirtyHexSignal.fire({
             hex: this,
             delta: {

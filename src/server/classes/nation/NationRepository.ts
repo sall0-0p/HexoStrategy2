@@ -32,5 +32,3 @@ export class NationRepository {
         return result;
     }
 }
-
-export const nationRepository = NationRepository.getInstance();

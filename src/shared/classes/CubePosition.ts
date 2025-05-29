@@ -20,7 +20,9 @@ export class CubePosition {
     }
 
     public static fromAxial(q: number, r: number) {
-        return new CubePosition(q, r, -q - r);
+        let s = -q - r;
+        if (s === 0) s = 0; // weird javascript shenanigans
+        return new CubePosition(q, r, s);
     }
 
     // convertor

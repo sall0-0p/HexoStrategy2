@@ -1,5 +1,5 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
-import {nationRepository} from "./NationRepository";
+import {NationRepository} from "./NationRepository";
 import {NationDTO} from "../../../shared/dto/NationDTO";
 import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
 import {HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
@@ -7,6 +7,7 @@ import {HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("NationReplicator") as RemoteEvent;
 
+const nationRepository = NationRepository.getInstance();
 export class NationReplicator {
     private dirtyNations = new Map<string, Partial<NationDTO>>;
 
@@ -90,5 +91,3 @@ export class NationReplicator {
         return this.instance;
     }
 }
-
-export const nationReplicator = NationReplicator.getInstance();
