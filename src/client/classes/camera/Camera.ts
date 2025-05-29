@@ -57,7 +57,7 @@ export class Camera {
     private onRender(delta: number) {
         this.processArrowKeys(delta);
 
-        const cameraCFrame = new CFrame(this.cameraPart.Position.add(new Vector3(0, 10, 0)));
+        const cameraCFrame = new CFrame(this.cameraPart.Position.add(new Vector3(0, 5, 0)));
         this.currentCamera.CFrame = cameraCFrame.mul(CFrame.Angles(math.rad(90), math.rad(180), 0));
     }
 
