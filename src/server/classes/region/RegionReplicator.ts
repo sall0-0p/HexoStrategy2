@@ -62,7 +62,6 @@ export class RegionReplicator {
 
     private broadcastUpdates() {
         if (this.dirtyRegions.size() === 0) return;
-
         replicator.FireAllClients({
             type: "update",
             payload: this.dirtyRegions,

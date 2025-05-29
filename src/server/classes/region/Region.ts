@@ -2,12 +2,10 @@ import {Hex} from "../hex/Hex";
 import {Signal} from "../../../shared/classes/Signal";
 import {Nation} from "../nation/Nation";
 import {HexRepository} from "../hex/HexRepository";
-import {NationRepository} from "../nation/NationRepository";
 import {RegionDTO} from "../../../shared/dto/RegionDTO";
 import {RegionReplicator} from "./RegionReplicator";
 
 const hexRepository = HexRepository.getInstance();
-const regionReplicator = RegionReplicator.getInstance();
 export class Region {
     private id: string;
     private name: string;
@@ -86,6 +84,7 @@ export class Region {
         if (!topNation) error(`Failed to compute owner for ${this.id}`);
         const topNationId = (topNation as Nation).getId()
         if (!this.owner || this.owner.getId() !== topNationId) {
+            const regionReplicator = RegionReplicator.getInstance();
             regionReplicator?.markAsDirty(this, {
                 owner: topNationId,
             })
