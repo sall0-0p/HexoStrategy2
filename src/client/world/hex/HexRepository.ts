@@ -6,7 +6,6 @@ import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";
 
 const nationRepository = NationRepository.getInstance();
-
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("HexReplicator") as RemoteEvent;
 
@@ -86,6 +85,11 @@ export class HexRepository {
     }
 
     // singleton
+    public static resetInstance() {
+        if (!this.instance) return;
+        this.instance = new HexRepository();
+    }
+
     public static getInstance() {
         if (!this.instance) {
             this.instance = new HexRepository();

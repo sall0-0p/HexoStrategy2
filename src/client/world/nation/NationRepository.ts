@@ -105,6 +105,11 @@ export class NationRepository {
 
     // singleton
 
+    public static resetInstance() {
+        if (!this.instance) return;
+        this.instance = new NationRepository();
+    }
+
     public static getInstance() {
         if (!this.instance) {
             this.instance = new NationRepository();

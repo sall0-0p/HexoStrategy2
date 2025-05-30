@@ -18,8 +18,9 @@ export class UnitRepository {
     private unitsByHex = new Map<Hex, Set<Unit>>;
 
     private static instance: UnitRepository;
+    private listenerConnection
     private constructor() {
-        replicator.OnClientEvent.Connect((payload: UnitReplicatorMessage) => {
+        this.listenerConnection = replicator.OnClientEvent.Connect((payload: UnitReplicatorMessage) => {
             this.handleMessage(payload);
         })
     }
@@ -124,6 +125,11 @@ export class UnitRepository {
         this.unitsById.delete(unitId);
         this.unitsByOwner.get(unit.getOwner())?.delete(unit);
         this.unitsByHex.get(unit.getPosition())?.delete(unit);
+    }
+
+    // singleton shenanigans
+    public static resetInstance() {
+        this.instance = new UnitRepository();
     }
 
     public static getInstance() {

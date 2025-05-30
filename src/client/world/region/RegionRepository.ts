@@ -54,6 +54,11 @@ export class RegionRepository {
     }
 
     // singleton shenanigans
+    public static resetInstance() {
+        if (!this.instance) return;
+        this.instance = new RegionRepository();
+    }
+
     public static getInstance(): RegionRepository {
         if (!this.instance) {
             this.instance = new RegionRepository();
