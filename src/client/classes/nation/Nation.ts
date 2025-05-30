@@ -32,7 +32,6 @@ export class Nation {
 
     public setColor(color: Color3) {
         this.color = color;
-
         this.changedSignal?.fire("color", color);
         // TODO: Add update to all units flairs in this nation;
     }
@@ -43,7 +42,6 @@ export class Nation {
 
     public setPlayer(player: Player) {
         this.player = player;
-
         this.changedSignal?.fire("player", player);
     }
 
@@ -53,7 +51,6 @@ export class Nation {
 
     public setFlag(flag: string) {
         this.flag = flag;
-
         this.changedSignal?.fire("flag", flag);
         // TODO: Add update all unit flags of this nation;
     }

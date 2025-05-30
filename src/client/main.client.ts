@@ -9,10 +9,12 @@ import {SelectionManager} from "./classes/selection/SelectionManager";
 import {Players, ReplicatedStorage, UserInputService, Workspace} from "@rbxts/services";
 import {RegionReplicatorMessage} from "../shared/dto/RegionReplicatorMessage";
 import {UnitReplicatorMessage} from "../shared/dto/UnitReplicatorMessage";
+import {RegionRepository} from "./classes/region/RegionRepository";
 
 const camera = Camera.getInstance();
 const nationRepository = NationRepository.getInstance();
 const hexRepository = HexRepository.getInstance();
+const regionRepository = RegionRepository.getInstance();
 const unitRepository = UnitRepository.getInstance();
 const unitFlairManager = UnitFlairManager.getInstance();
 hexRepository.getLoadedSignal().wait();
@@ -20,11 +22,6 @@ const heatmapManager = HeatmapManager.getInstance();
 const selectionManager = SelectionManager.getInstance();
 
 heatmapManager.showHeatmap(new NationHeatmap());
-const event = ReplicatedStorage.WaitForChild("Events")
-    .WaitForChild("RegionReplicator") as RemoteEvent;
-event.OnClientEvent.Connect((message: RegionReplicatorMessage) => {
-    print(message);
-})
 
 UserInputService.InputEnded.Connect((input: InputObject) => {
     if (input.UserInputType === Enum.UserInputType.MouseButton1) {

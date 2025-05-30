@@ -10,3 +10,5 @@ export interface NationUpdateMessage {
     type: "update",
     payload: Map<string, Partial<NationDTO>>;
 }
+
+export type NationReplicatorMessage = NationCreateMessage | NationUpdateMessage;

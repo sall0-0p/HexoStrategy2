@@ -1,6 +1,10 @@
 import {ReplicatedStorage} from "@rbxts/services";
 import {Nation} from "./Nation";
-import {NationCreateMessage, NationUpdateMessage} from "../../../shared/dto/NationReplicatorMessage";
+import {
+    NationCreateMessage,
+    NationReplicatorMessage,
+    NationUpdateMessage
+} from "../../../shared/dto/NationReplicatorMessage";
 import {NationDTO} from "../../../shared/dto/NationDTO";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
@@ -11,7 +15,7 @@ export class NationRepository {
 
     private static instance: NationRepository;
     private constructor() {
-        replicator.OnClientEvent.Connect((message: NationCreateMessage | NationUpdateMessage) => {
+        replicator.OnClientEvent.Connect((message: NationReplicatorMessage) => {
             if (message.type === "create") {
                 if (this.nations.size() > 0) error("Nations were already initialised.");
 
@@ -20,19 +24,17 @@ export class NationRepository {
             } else if (message.type === "update") {
                 this.handleUpdateEvent(message.payload)
             } else {
-                error(`This type is not available.`)
+                error( `This type is not available.`)
             }
         })
     }
 
     // public methods
-
     public getById(id: string) {
         return this.nations.get(id);
     }
 
     // private methods
-
     private handleCreateEvent(payload: NationDTO[]) {
         payload.forEach((data) => {
             const nation = new Nation(data);
