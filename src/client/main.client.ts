@@ -1,15 +1,15 @@
-import {HexRepository} from "./classes/hex/HexRepository";
-import {NationRepository} from "./classes/nation/NationRepository";
-import {HeatmapManager} from "./classes/heatmap/HeatmapManager";
-import {NationHeatmap} from "./classes/heatmap/heatmaps/NationHeatmap";
-import {UnitRepository} from "./classes/unit/UnitRepository";
-import {UnitFlairManager} from "./classes/unit/flair/UnitFlairManager";
-import {Camera} from "./classes/camera/Camera";
-import {SelectionManager} from "./classes/selection/SelectionManager";
+import {HexRepository} from "./world/hex/HexRepository";
+import {NationRepository} from "./world/nation/NationRepository";
+import {HeatmapManager} from "./ui/heatmap/HeatmapManager";
+import {NationHeatmap} from "./ui/heatmap/heatmaps/NationHeatmap";
+import {UnitRepository} from "./systems/unit/UnitRepository";
+import {UnitFlairManager} from "./systems/unit/flair/UnitFlairManager";
+import {Camera} from "./ui/camera/Camera";
+import {SelectionManager} from "./ui/selection/SelectionManager";
 import {Players, ReplicatedStorage, UserInputService, Workspace} from "@rbxts/services";
 import {RegionReplicatorMessage} from "../shared/dto/RegionReplicatorMessage";
 import {UnitReplicatorMessage} from "../shared/dto/UnitReplicatorMessage";
-import {RegionRepository} from "./classes/region/RegionRepository";
+import {RegionRepository} from "./world/region/RegionRepository";
 
 const camera = Camera.getInstance();
 const nationRepository = NationRepository.getInstance();
