@@ -58,6 +58,10 @@ export class NationRepository {
             if (delta.flag) {
                 nation.setFlag(delta.flag);
             }
+
+            if (delta.relations) {
+                nation.setRelations(delta.relations);
+            }
         })
     }
 
