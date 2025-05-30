@@ -9,7 +9,8 @@ export class Nation {
     private color: Color3;
     private flag: string;
     private player?: Player;
-    private relations: Map<string, DiplomaticRelation>
+    private allies: Nation[] = [];
+    private enemies: Nation[] = [];
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -19,7 +20,6 @@ export class Nation {
         this.color = data.color;
         this.flag = data.flag;
         this.player = data.player;
-        this.relations = data.relations;
     }
 
     public getId() {
@@ -59,11 +59,19 @@ export class Nation {
         // TODO: Add update all unit flags of this nation;
     }
 
-    public getRelations() {
-        return this.relations;
+    public getAllies() {
+        return this.allies
     }
 
-    public setRelations(relations: Map<string, DiplomaticRelation>) {
-        this.relations = relations;
+    public setAllies(allies: Nation[]) {
+        this.allies = allies;
+    }
+
+    public getEnemies() {
+        return this.enemies
+    }
+
+    public setEnemies(enemies: Nation[]) {
+        this.enemies = enemies;
     }
 }

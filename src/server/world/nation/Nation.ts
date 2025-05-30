@@ -1,7 +1,7 @@
 import {NationDTO} from "../../../shared/dto/NationDTO";
 import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
 import {Signal} from "../../../shared/classes/Signal";
-import {DiplomaticRelation} from "../../systems/diplomacy/DiplomaticRelation";
+import {DiplomaticRelation, DiplomaticRelationStatus} from "../../systems/diplomacy/DiplomaticRelation";
 
 export class Nation {
     private id;
@@ -21,13 +21,29 @@ export class Nation {
     }
 
     public toDTO(): NationDTO {
+        const allies: string[] = [];
+        const enemies: string[] = [];
+
+        this.relations.forEach((relation, nationId) => {
+            if (relation.status === DiplomaticRelationStatus.Enemy) {
+                enemies.push(nationId);
+                return;
+            }
+
+            if (relation.status === DiplomaticRelationStatus.Allied) {
+                allies.push(nationId);
+                return;
+            }
+        })
+
         return {
             id: this.id,
             name: this.name,
             color: this.color,
             flag: this.flag,
             player: this.player,
-            relations: this.relations,
+            allies: allies,
+            enemies: enemies,
         }
     }
 

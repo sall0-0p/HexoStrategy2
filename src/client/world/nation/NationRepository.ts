@@ -36,9 +36,35 @@ export class NationRepository {
 
     // private methods
     private handleCreateEvent(payload: NationDTO[]) {
+        const alliesToMap = new Map<string, string[]>;
+        const enemiesToMap = new Map<string, string[]>;
         payload.forEach((data) => {
+            if (data.allies.size() > 0) alliesToMap.set(data.id, data.allies);
+            if (data.enemies.size() > 0) enemiesToMap.set(data.id, data.enemies);
+
             const nation = new Nation(data);
             this.nations.set(nation.getId(), nation);
+        })
+
+        this.nations.forEach((nation) => {
+            const id = nation.getId();
+            if (alliesToMap.has(id)) {
+                const mappedAllies = alliesToMap.get(id)!.map((nationId) => {
+                    const candidate = this.getById(nationId)
+                    if (!candidate) error(`Failed to find nation ${nationId}`);
+                    return candidate;
+                })
+                nation.setAllies(mappedAllies);
+            }
+
+            if (enemiesToMap.has(id)) {
+                const mappedEnemies = enemiesToMap.get(id)!.map((nationId) => {
+                    const candidate = this.getById(nationId)
+                    if (!candidate) error(`Failed to find nation ${nationId}`);
+                    return candidate;
+                })
+                nation.setEnemies(mappedEnemies);
+            }
         })
     }
 
@@ -59,8 +85,20 @@ export class NationRepository {
                 nation.setFlag(delta.flag);
             }
 
-            if (delta.relations) {
-                nation.setRelations(delta.relations);
+            if (delta.allies) {
+                nation.setAllies(delta.allies.map((nationId) => {
+                    const candidate = this.getById(nationId);
+                    if (!candidate) error(`Nation ${nationId} was not found!`);
+                    return candidate;
+                }));
+            }
+
+            if (delta.enemies) {
+                nation.setEnemies(delta.enemies.map((nationId) => {
+                    const candidate = this.getById(nationId);
+                    if (!candidate) error(`Nation ${nationId} was not found!`);
+                    return candidate;
+                }));
             }
         })
     }

@@ -6,5 +6,6 @@ export interface NationDTO {
     color: Color3,
     flag: string,
     player?: Player,
-    relations: Map<string, DiplomaticRelation>
+    allies: string[],
+    enemies: string[],
 }
