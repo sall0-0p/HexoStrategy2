@@ -4,8 +4,10 @@ import {Nation} from "../nation/Nation";
 import {HexRepository} from "../hex/HexRepository";
 import {RegionDTO} from "../../../shared/dto/RegionDTO";
 import {RegionReplicator} from "./RegionReplicator";
+import {NationRepository} from "../nation/NationRepository";
 
 const hexRepository = HexRepository.getInstance();
+const nationRepository = NationRepository.getInstance();
 export class Region {
     private id: string;
     private name: string;
@@ -23,6 +25,12 @@ export class Region {
             const candidate = hexRepository.getById(hexId);
             if (!candidate) error(`Failed to load states, hex ${hexId} was not found!`);
             candidate.setRegion(this);
+
+            if (data.owner && !candidate.getOwner()) {
+                const tempOwner = nationRepository.getById(data.owner);
+                if (!tempOwner) error(`Failed to load nation ${data.owner}`);
+                candidate.setOwner(tempOwner, true);
+            }
             return candidate;
         });
         this.owner = this.computeOwner();
@@ -104,5 +112,6 @@ export class Region {
 export interface JsonRegion {
     name: string,
     hexes: string[],
+    owner: string,
     population: number,
 }

@@ -131,10 +131,10 @@ export class Hex {
         this.region = region;
     }
 
-    public setOwner(owner: Nation) {
+    public setOwner(owner: Nation, ignoreRegionUpdate?: boolean) {
         this.owner = owner;
 
-        this.region?.updateOwner();
+        if (!ignoreRegionUpdate) this.region?.updateOwner();
         dirtyHexSignal.fire({
             hex: this,
             delta: {
