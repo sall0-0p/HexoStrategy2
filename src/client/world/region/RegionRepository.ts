@@ -18,7 +18,7 @@ export class RegionRepository {
                 if (this.regions.size() > 0) error("Nations were already initialised!");
 
                 this.handleCreateEvent(message.payload);
-                print(`Loaded ${message.payload.size()} nations`);
+                print(`Loaded ${message.payload.size()} regions`);
             } else if (message.type === "update") {
                 this.handleUpdateEvent(message.payload);
             } else {
