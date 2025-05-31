@@ -2,9 +2,13 @@ import {UnitDTO} from "../../../shared/dto/UnitDTO";
 import {Unit} from "./Unit";
 import {ReplicatedStorage, RunService} from "@rbxts/services";
 import {UnitCreateMessage, UnitDeleteMessage, UnitUpdateMessage} from "../../../shared/dto/UnitReplicatorMessage";
+import {UnitRepository} from "./UnitRepository";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("UnitReplicator") as RemoteEvent;
+const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("StateRequests")
+    .WaitForChild("GetUnitState") as RemoteFunction;
 
 export class UnitReplicator {
     private createdUnits: UnitDTO[] = [];
@@ -12,17 +16,34 @@ export class UnitReplicator {
     private deadUnits: Unit[] = [];
     private deletedUnits: Unit[] = [];
 
+    private unitRepository;
     private static instance: UnitReplicator;
-    private constructor() {
+    private constructor(unitRepository: UnitRepository) {
+        this.unitRepository = unitRepository;
         RunService.Heartbeat.Connect(() => {
             this.broadcastCreations();
             this.broadcastUpdates();
             this.broadcastDeaths();
             this.broadcastDeletions()
         })
+
+        stateRequestRemote.OnServerInvoke = (player) => {
+            return this.broadcastAllToPlayer(player);
+        }
     }
 
     // broadcasts
+    private broadcastAllToPlayer(player: Player) {
+        const currentUnits = this.unitRepository.getAll();
+        if (currentUnits.size() === 0) return;
+        const payload: UnitDTO[] = currentUnits.map((unit) => unit.toDTO());
+
+        return {
+            source: "playerAdded",
+            type: "create",
+            payload: payload,
+        } as UnitCreateMessage;
+    }
 
     private broadcastCreations() {
         if (this.createdUnits.size() === 0) return;
@@ -97,9 +118,9 @@ export class UnitReplicator {
         this.deletedUnits.push(unit);
     }
 
-    public static getInstance() {
-        if (!this.instance) {
-            this.instance = new UnitReplicator();
+    public static getInstance(unitRepository?: UnitRepository): UnitReplicator {
+        if (!this.instance && unitRepository) {
+            this.instance = new UnitReplicator(unitRepository);
         }
 
         return this.instance;

@@ -3,10 +3,9 @@ import {NationRepository} from "../world/nation/NationRepository";
 import {HexRepository} from "../world/hex/HexRepository";
 import {RegionRepository} from "../world/region/RegionRepository";
 import {UnitRepository} from "../systems/unit/UnitRepository";
-import {UnitFlairManager} from "../systems/unit/flair/UnitFlairManager";
+import {UnitFlairManager} from "../ui/unit/flair/UnitFlairManager";
 import {HeatmapManager} from "../ui/heatmap/HeatmapManager";
-import {SelectionManager} from "../ui/selection/SelectionManager";
-import {NationHeatmap} from "../ui/heatmap/heatmaps/NationHeatmap";
+import {SelectionManager} from "../ui/unit/selection/SelectionManager";
 
 export class GameState {
     private activeNationId?: string;
@@ -40,6 +39,9 @@ export class GameState {
         UnitRepository.resetInstance();
 
         // UI
+        UnitFlairManager.resetInstance();
+        HeatmapManager.resetInstance();
+        SelectionManager.resetInstance();
     }
 
     private loadAllModules() {
@@ -54,10 +56,6 @@ export class GameState {
         UnitFlairManager.getInstance();
         HeatmapManager.getInstance();
         SelectionManager.getInstance();
-
-        // We also toggle the Countries heatmap
-        const heatmapManager = HeatmapManager.getInstance();
-        heatmapManager.showHeatmap(new NationHeatmap());
     }
 
     public static getInstance() {

@@ -1,4 +1,4 @@
-import { Unit } from "../Unit";
+import { Unit } from "../../../systems/unit/Unit";
 import { Hex } from "../../../world/hex/Hex";
 import { Flair } from "./Flair";
 import { Connection } from "../../../../shared/classes/Signal";

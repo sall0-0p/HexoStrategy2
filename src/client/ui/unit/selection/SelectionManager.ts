@@ -1,8 +1,8 @@
-import {Unit} from "../../systems/unit/Unit";
+import {Unit} from "../../../systems/unit/Unit";
 import {Players, UserInputService} from "@rbxts/services";
-import {UnitRepository} from "../../systems/unit/UnitRepository";
-import {UnitFlairManager} from "../../systems/unit/flair/UnitFlairManager";
-import {UnitStack} from "../../systems/unit/flair/UnitStack";
+import {UnitRepository} from "../../../systems/unit/UnitRepository";
+import {UnitFlairManager} from "../flair/UnitFlairManager";
+import {UnitStack} from "../flair/UnitStack";
 
 const unitRepository = UnitRepository.getInstance();
 const player = Players.LocalPlayer;
@@ -11,9 +11,10 @@ const unitFlairManager = UnitFlairManager.getInstance();
 export class SelectionManager {
     private selectedUnits: Unit[] = [];
 
+    private connection;
     public static instance: SelectionManager;
     private constructor() {
-        UserInputService.InputEnded.Connect((input: InputObject, processed: boolean)=> {
+        this.connection = UserInputService.InputEnded.Connect((input: InputObject, processed: boolean)=> {
             if (processed) return;
             if (input.UserInputType === Enum.UserInputType.MouseButton1) {
                 this.onClick(input);
@@ -133,6 +134,17 @@ export class SelectionManager {
     private isShiftPressed() {
         return UserInputService.IsKeyDown(Enum.KeyCode.LeftShift) ||
             UserInputService.IsKeyDown(Enum.KeyCode.RightShift);
+    }
+
+    // singleton shenanigans
+    private clear() {
+        this.connection.Disconnect();
+    };
+
+    public static resetInstance() {
+        if (!this.instance) return;
+        this.instance.clear();
+        this.instance = new SelectionManager();
     }
 
     public static getInstance() {

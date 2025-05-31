@@ -1,30 +1,38 @@
 import {ReplicatedStorage} from "@rbxts/services";
 import {Region} from "./Region";
-import {RegionReplicatorMessage} from "../../../shared/dto/RegionReplicatorMessage";
+import {RegionCreateMessage, RegionReplicatorMessage} from "../../../shared/dto/RegionReplicatorMessage";
 import {RegionDTO} from "../../../shared/dto/RegionDTO";
 import {NationRepository} from "../nation/NationRepository";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("RegionReplicator") as RemoteEvent;
+const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("StateRequests")
+    .WaitForChild("GetRegionState") as RemoteFunction;
 
-const nationRepository = NationRepository.getInstance();
 export class RegionRepository {
     private regions = new Map<string, Region>;
 
+    private connection;
+    private nationRepository = NationRepository.getInstance();
     private static instance: RegionRepository;
     private constructor() {
-        replicator.OnClientEvent.Connect((message: RegionReplicatorMessage) => {
-            if (message.type === "create") {
-                if (this.regions.size() > 0) error("Nations were already initialised!");
-
-                this.handleCreateEvent(message.payload);
-                print(`Loaded ${message.payload.size()} regions`);
-            } else if (message.type === "update") {
+        this.getGameState();
+        this.connection = replicator.OnClientEvent.Connect((message: RegionReplicatorMessage) => {
+            if (message.type === "update") {
                 this.handleUpdateEvent(message.payload);
             } else {
                 error("Bad request!");
             }
         })
+    }
+
+    private getGameState() {
+        const message: RegionCreateMessage = stateRequestRemote.InvokeServer();
+        if (this.regions.size() > 0) error("Nations were already initialised!");
+
+        this.handleCreateEvent(message.payload);
+        print(`Loaded ${message.payload.size()} regions`);
     }
 
     // public methods
@@ -46,7 +54,7 @@ export class RegionRepository {
             if (!region) error(`Region ${id} is not found!`);
 
             if (delta.owner) {
-                const candidate = nationRepository.getById(delta.owner);
+                const candidate = this.nationRepository.getById(delta.owner);
                 if (!candidate) error(`Nation ${delta.owner} is not found!`);
                 region.setOwner(candidate);
             }
@@ -54,8 +62,13 @@ export class RegionRepository {
     }
 
     // singleton shenanigans
+    private clear() {
+        this.connection.Disconnect();
+    }
+
     public static resetInstance() {
         if (!this.instance) return;
+        this.instance.clear();
         this.instance = new RegionRepository();
     }
 

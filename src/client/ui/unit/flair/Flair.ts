@@ -1,6 +1,6 @@
 import {ReplicatedStorage} from "@rbxts/services";
 import {Hex} from "../../../world/hex/Hex";
-import {Unit} from "../Unit";
+import {Unit} from "../../../systems/unit/Unit";
 import {Container} from "./container/Container";
 import {UnitStack} from "./UnitStack";
 

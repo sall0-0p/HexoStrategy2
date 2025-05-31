@@ -4,7 +4,7 @@ import {Nation} from "../../world/nation/Nation";
 import {Hex} from "../../world/hex/Hex";
 import {NationRepository} from "../../world/nation/NationRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
-import {UnitFlairManager} from "./flair/UnitFlairManager";
+import {UnitFlairManager} from "../../ui/unit/flair/UnitFlairManager";
 
 const nationRepository = NationRepository.getInstance();
 const hexRepository = HexRepository.getInstance();

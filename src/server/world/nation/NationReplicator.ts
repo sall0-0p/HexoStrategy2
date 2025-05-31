@@ -6,6 +6,9 @@ import {HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("NationReplicator") as RemoteEvent;
+const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("StateRequests")
+    .WaitForChild("GetNationState") as RemoteFunction;
 
 const nationRepository = NationRepository.getInstance();
 export class NationReplicator {
@@ -13,23 +16,20 @@ export class NationReplicator {
 
     private static instance: NationReplicator;
     private constructor() {
-        this.broadcastNationsToEveryone();
-
         dirtyNationSignal.connect((event) => {
             this.parseDirtyNationEvent(event);
-        })
-
-        Players.PlayerAdded.Connect((player) => {
-            this.sendNationsToPlayer(player);
         })
 
         RunService.Heartbeat.Connect(() => {
             this.broadcastUpdates();
         })
+
+        stateRequestRemote.OnServerInvoke = (player) => {
+            return this.sendNationsToPlayer(player);
+        }
     }
 
     // private methods
-
     private parseDirtyNationEvent(event: DirtyNationEvent) {
         const nation = event.nation;
 
@@ -51,24 +51,11 @@ export class NationReplicator {
                 return nation.toDTO();
             })
 
-        replicator.FireClient(player, {
+        return {
             source: "playerAdded",
             type: "create",
             payload: payload,
-        });
-    }
-
-    private broadcastNationsToEveryone() {
-        const payload: NationDTO[] = nationRepository.getAll()
-            .map((nation) => {
-                return nation.toDTO();
-            })
-
-        replicator.FireAllClients({
-            source: "start",
-            type: "create",
-            payload: payload,
-        });
+        };
     }
 
     private broadcastUpdates() {

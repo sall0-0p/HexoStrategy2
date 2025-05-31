@@ -6,6 +6,9 @@ import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("HexReplicator") as RemoteEvent;
+const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("StateRequests")
+    .WaitForChild("GetHexState") as RemoteFunction;
 
 const hexRepository = HexRepository.getInstance();
 export class HexReplicator {
@@ -13,24 +16,20 @@ export class HexReplicator {
 
     private static instance: HexReplicator;
     private constructor() {
-        this.broadcastHexesToEveryone();
-
         dirtyHexSignal.connect((event) => {
             this.parseDirtyHexEvent(event);
-        })
-
-        Players.PlayerAdded.Connect((player) => {
-            this.sendHexesToPlayer(player);
         })
 
         RunService.Heartbeat.Connect(() => {
             this.broadcastUpdates();
         })
+
+        stateRequestRemote.OnServerInvoke = (player) => {
+            return this.sendHexesToPlayer(player);
+        }
     }
 
     // private methods
-
-
     private parseDirtyHexEvent(event: DirtyHexEvent) {
         const hex = event.hex;
 
@@ -53,24 +52,11 @@ export class HexReplicator {
                 return hex.toDTO();
             })
 
-        replicator.FireClient(player, {
+        return {
             source: "playerAdded",
             type: "create",
             payload: payload,
-        } as HexCreateMessage);
-    }
-
-    private broadcastHexesToEveryone() {
-        const payload: HexDTO[] = hexRepository.getAll()
-            .map((hex) => {
-                return hex.toDTO();
-            })
-
-        replicator.FireAllClients({
-            source: "start",
-            type: "create",
-            payload: payload,
-        } as HexCreateMessage);
+        } as HexCreateMessage
     }
 
     private broadcastUpdates() {

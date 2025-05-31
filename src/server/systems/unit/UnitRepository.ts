@@ -70,10 +70,10 @@ export class UnitRepository {
         return this.unitsByHex.get(hex);
     }
 
-    public getAll(): Set<Unit> {
-        let result = new Set<Unit>;
+    public getAll(): Unit[] {
+        let result: Unit[] = [];
         this.unitsById.forEach((unit) => {
-            result.add(unit);
+            result.push(unit);
         })
         return result;
     }

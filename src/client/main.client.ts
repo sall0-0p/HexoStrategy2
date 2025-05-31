@@ -1,9 +1,20 @@
 import {Players, ReplicatedStorage, UserInputService, Workspace} from "@rbxts/services";
 import {GameState} from "./core/GameState";
 import {HexRepository} from "./world/hex/HexRepository";
+import {HeatmapManager} from "./ui/heatmap/HeatmapManager";
+import {MeHeatmap} from "./ui/heatmap/heatmaps/MeHeatmap";
 
 const gameState = GameState.getInstance()
 gameState.switchNation("PNL");
+print(gameState.getPlayedNationId());
+const heatmapManager1 = HeatmapManager.getInstance();
+heatmapManager1.showHeatmap(new MeHeatmap());
+
+wait(5)
+gameState.switchNation("BRD");
+print(gameState.getPlayedNationId());
+const heatmapManager2 = HeatmapManager.getInstance();
+heatmapManager2.showHeatmap(new MeHeatmap());
 
 const hexRepository = HexRepository.getInstance();
 UserInputService.InputEnded.Connect((input: InputObject) => {

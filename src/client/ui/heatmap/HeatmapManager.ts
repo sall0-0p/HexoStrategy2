@@ -1,23 +1,24 @@
-import {Heatmap, HeatmapGroup} from "./Heatmap";
-import {Hex} from "../../world/hex/Hex";
-import {HexRepository} from "../../world/hex/HexRepository";
-import {Connection} from "../../../shared/classes/Signal";
-import {RunService, Workspace} from "@rbxts/services";
+import { Heatmap, HeatmapGroup } from "./Heatmap";
+import { Hex } from "../../world/hex/Hex";
+import { HexRepository } from "../../world/hex/HexRepository";
+import { Connection } from "../../../shared/classes/Signal";
+import { RunService, Workspace } from "@rbxts/services";
 
 const hexRepository = HexRepository.getInstance();
 const heatmapContainer = Workspace.WaitForChild("Heatmaps") as Folder;
 
 interface Group {
-    info: HeatmapGroup,
-    map: Map<string, Hex>,
+    info: HeatmapGroup;
+    map: Map<string, Hex>;
 }
 
 export class HeatmapManager {
     private currentHeatmap?: Heatmap;
     private groups = new Map<string, Group>();
     private hexes: Hex[] = [];
-    private hexesIdsToGroupIds = new Map<string, string>;
-    private connections = new Set<Connection | RBXScriptConnection>;
+    private hexesIdsToGroupIds = new Map<string, string>();
+    private connections = new Set<Connection>();
+    private rbxConnection = new Set<RBXScriptConnection>();
 
     private static instance: HeatmapManager;
     private constructor() {
@@ -26,26 +27,26 @@ export class HeatmapManager {
 
     public showHeatmap(heatmap: Heatmap) {
         if (this.currentHeatmap) {
-            // remove previous heatmap
+            this.clear(); // teardown previous heatmap
         }
 
         this.currentHeatmap = heatmap;
+
         this.hexes.forEach((hex) => {
             this.updateHex(hex);
-        })
+        }); // changed to forEach
 
         this.updateHighlights();
-
-        heatmap.onEnable?.()
+        heatmap.onEnable?.();
 
         if (typeOf(heatmap.onHeartbeat) === "function") {
-            const connection = RunService.Heartbeat.Connect(() => heatmap.onHeartbeat!());
-            this.connections.add(connection);
+            const hbConn = RunService.Heartbeat.Connect(() => heatmap.onHeartbeat!());
+            this.rbxConnection.add(hbConn); // store Heartbeat connection
         }
 
         if (typeOf(heatmap.onRenderStepped) === "function") {
-            const connection = RunService.Heartbeat.Connect(() => heatmap.onRenderStepped!());
-            this.connections.add(connection);
+            const rsConn = RunService.RenderStepped.Connect(() => heatmap.onRenderStepped!());
+            this.rbxConnection.add(rsConn); // store RenderStepped connection
         }
     }
 
@@ -54,14 +55,14 @@ export class HeatmapManager {
             error("No heatmap is active!");
         }
 
-        const group = this.currentHeatmap.getGroup(hex);
-        const key = group.name;
+        const groupInfo = this.currentHeatmap.getGroup(hex);
+        const groupKey = groupInfo.name;
 
-        if (!this.groups.has(key)) {
-            this.createGroup(group);
+        if (!this.groups.has(groupKey)) {
+            this.createGroup(groupInfo);
         }
 
-        this.assignToGroup(hex, key);
+        this.assignToGroup(hex, groupKey);
     }
 
     public updateHighlights() {
@@ -70,46 +71,78 @@ export class HeatmapManager {
                 group.info.highlight!.Parent = undefined;
                 group.info.highlight!.Parent = group.info.container;
             }
-        })
+        });
     }
 
-    private assignToGroup(hex: Hex, groupId: string) {
-        const group = this.groups.get(groupId)!.info;
-        hex.getModel().Parent = group.container;
+    private assignToGroup(hex: Hex, groupKey: string) {
+        const group = this.groups.get(groupKey)!.info;
+        const model = hex.getModel();
 
-        const map = this.groups.get(groupId)!.map;
+        model.Parent = group.container;
+        const map = this.groups.get(groupKey)!.map;
         map.set(hex.getId(), hex);
-
-        this.hexesIdsToGroupIds.set(hex.getId(), groupId);
+        this.hexesIdsToGroupIds.set(hex.getId(), groupKey);
     }
 
-    private createGroup(group: HeatmapGroup) {
+    private createGroup(groupInfo: HeatmapGroup) {
         const container = new Instance("Model");
-        container.Name = group.name;
+        container.Name = groupInfo.name;
         container.Parent = heatmapContainer;
-        group.container = container;
+        groupInfo.container = container;
 
-        if (group.isHighlighted) {
+        if (groupInfo.isHighlighted) {
             const highlight = new Instance("Highlight") as Highlight;
             highlight.Parent = container;
             highlight.Adornee = container;
-            highlight.OutlineColor = group.outlineColor;
-            highlight.OutlineTransparency = group.outlineTransparency;
-            highlight.FillColor = group.fillColor;
-            highlight.FillTransparency = group.fillTransparency;
-            highlight.DepthMode = group.depthMode;
-            group.highlight = highlight;
+            highlight.OutlineColor = groupInfo.outlineColor;
+            highlight.OutlineTransparency = groupInfo.outlineTransparency;
+            highlight.FillColor = groupInfo.fillColor;
+            highlight.FillTransparency = groupInfo.fillTransparency;
+            highlight.DepthMode = groupInfo.depthMode;
+            groupInfo.highlight = highlight;
         }
 
-        this.groups.set(group.name, { info: group, map: new Map() });
+        this.groups.set(groupInfo.name, { info: groupInfo, map: new Map() });
     }
 
-    // singleton shenanigans
+    private clear() {
+        // disconnect stored connections
+        this.connections.forEach((conn) => {
+            conn.disconnect();
+        });
+        this.rbxConnection.forEach((conn) => {
+            conn.Disconnect();
+        });
+        this.connections.clear();
+
+        // move hex models back and destroy highlights/containers
+        this.groups.forEach(({ info, map }) => {
+            map.forEach((hex) => {
+                hex.getModel().Parent = Workspace;
+            }); // changed to forEach
+            if (info.isHighlighted) {
+                info.highlight?.Destroy();
+            }
+            if (info.container) {
+                info.container.Destroy();
+            }
+        }); // changed to forEach
+
+        this.groups.clear();
+        this.hexesIdsToGroupIds.clear();
+        this.currentHeatmap = undefined;
+    }
+
+    public static resetInstance() {
+        if (!this.instance) return;
+        this.instance.clear(); // cleanup before resetting
+        this.instance = new HeatmapManager();
+    }
+
     public static getInstance(): HeatmapManager {
         if (!this.instance) {
             this.instance = new HeatmapManager();
         }
-
         return this.instance;
     }
 }

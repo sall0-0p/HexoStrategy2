@@ -1,6 +1,6 @@
 import {UnitStack} from "./UnitStack";
 import {Hex} from "../../../world/hex/Hex";
-import {Unit} from "../Unit";
+import {Unit} from "../../../systems/unit/Unit";
 import {Container} from "./container/Container";
 
 export class UnitFlairManager {
@@ -47,6 +47,17 @@ export class UnitFlairManager {
 
     public getStackById(id: string) {
         return this.stacksById.get(id);
+    }
+
+    // singleton shenanigans
+    private clear() {
+
+    }
+
+    public static resetInstance() {
+        if (!this.instance) return;
+        this.instance.clear();
+        this.instance = new UnitFlairManager();
     }
 
     public static getInstance() {

@@ -1,32 +1,38 @@
 import {ReplicatedStorage} from "@rbxts/services";
 import {Nation} from "./Nation";
-import {
-    NationCreateMessage,
-    NationReplicatorMessage,
-    NationUpdateMessage
-} from "../../../shared/dto/NationReplicatorMessage";
+import {NationReplicatorMessage, NationCreateMessage} from "../../../shared/dto/NationReplicatorMessage";
 import {NationDTO} from "../../../shared/dto/NationDTO";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("NationReplicator") as RemoteEvent;
+const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("StateRequests")
+    .WaitForChild("GetNationState") as RemoteFunction;
 
 export class NationRepository {
     private nations = new Map<string, Nation>;
 
+    private connection;
+
     private static instance: NationRepository;
     private constructor() {
-        replicator.OnClientEvent.Connect((message: NationReplicatorMessage) => {
-            if (message.type === "create") {
-                if (this.nations.size() > 0) error("Nations were already initialised.");
-
-                this.handleCreateEvent(message.payload);
-                print(`Loaded ${message.payload.size()} nations`);
-            } else if (message.type === "update") {
+        this.getGameState();
+        this.connection = replicator.OnClientEvent.Connect((message: NationReplicatorMessage) => {
+            if (message.type === "update") {
                 this.handleUpdateEvent(message.payload)
             } else {
                 error( `This type is not available.`)
             }
         })
+    }
+
+    private getGameState() {
+        const message: NationCreateMessage = stateRequestRemote.InvokeServer();
+        print(message);
+        if (this.nations.size() > 0) error("Nations were already initialised.");
+
+        this.handleCreateEvent(message.payload);
+        print(`Loaded ${message.payload.size()} nations`);
     }
 
     // public methods
@@ -104,9 +110,13 @@ export class NationRepository {
     }
 
     // singleton
+    private clear() {
+        this.connection.Disconnect()
+    }
 
     public static resetInstance() {
         if (!this.instance) return;
+        this.instance.clear();
         this.instance = new NationRepository();
     }
 

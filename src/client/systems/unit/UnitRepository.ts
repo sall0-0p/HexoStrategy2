@@ -2,27 +2,37 @@ import {Unit} from "./Unit";
 import {Nation} from "../../world/nation/Nation";
 import {Hex} from "../../world/hex/Hex";
 import {UnitDTO} from "../../../shared/dto/UnitDTO";
-import {UnitReplicatorMessage, UnitUpdateMessage} from "../../../shared/dto/UnitReplicatorMessage";
+import {UnitCreateMessage, UnitReplicatorMessage, UnitUpdateMessage} from "../../../shared/dto/UnitReplicatorMessage";
 import {NationRepository} from "../../world/nation/NationRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {ReplicatedStorage} from "@rbxts/services";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("UnitReplicator") as RemoteEvent;
+const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("StateRequests")
+    .WaitForChild("GetUnitState") as RemoteFunction;
 
-const nationRepository = NationRepository.getInstance();
-const hexRepository = HexRepository.getInstance();
 export class UnitRepository {
     private unitsById = new Map<string, Unit>;
     private unitsByOwner = new Map<Nation, Set<Unit>>;
     private unitsByHex = new Map<Hex, Set<Unit>>;
 
+    private nationRepository = NationRepository.getInstance();
+    private hexRepository = HexRepository.getInstance();
+
+    private connection;
     private static instance: UnitRepository;
-    private listenerConnection
     private constructor() {
-        this.listenerConnection = replicator.OnClientEvent.Connect((payload: UnitReplicatorMessage) => {
+        this.requestGameState();
+        this.connection = replicator.OnClientEvent.Connect((payload: UnitReplicatorMessage) => {
             this.handleMessage(payload);
         })
+    }
+
+    private requestGameState() {
+        const message: UnitCreateMessage = stateRequestRemote.InvokeServer();
+        this.handleMessage(message);
     }
 
     // queries
@@ -100,13 +110,13 @@ export class UnitRepository {
         }
 
         if (delta.ownerId) {
-            if (!nationRepository.getById(delta.ownerId)) error(`Nation ${delta.ownerId} is not found. Perhaps archives are incomplete.`);
-            unit.setOwner(nationRepository.getById(delta.ownerId)!);
+            if (!this.nationRepository.getById(delta.ownerId)) error(`Nation ${delta.ownerId} is not found. Perhaps archives are incomplete.`);
+            unit.setOwner(this.nationRepository.getById(delta.ownerId)!);
         }
 
         if (delta.positionId) {
-            if (!hexRepository.getById(delta.positionId)) error(`Hex ${delta.positionId} is not found. Perhaps archives are incomplete.`);
-            unit.setPosition(hexRepository.getById(delta.positionId)!);
+            if (!this.hexRepository.getById(delta.positionId)) error(`Hex ${delta.positionId} is not found. Perhaps archives are incomplete.`);
+            unit.setPosition(this.hexRepository.getById(delta.positionId)!);
         }
 
         // Update flairs
@@ -128,7 +138,13 @@ export class UnitRepository {
     }
 
     // singleton shenanigans
+    private clear() {
+        this.connection.Disconnect()
+    }
+
     public static resetInstance() {
+        if (!this.instance) return;
+        this.instance.clear();
         this.instance = new UnitRepository();
     }
 

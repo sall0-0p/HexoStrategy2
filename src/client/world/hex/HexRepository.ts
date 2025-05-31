@@ -5,9 +5,11 @@ import {HexCreateMessage, HexUpdateMessage} from "../../../shared/dto/HexReplica
 import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";
 
-const nationRepository = NationRepository.getInstance();
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("HexReplicator") as RemoteEvent;
+const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("StateRequests")
+    .WaitForChild("GetHexState") as RemoteFunction;
 
 export class HexRepository {
     private hexesById = new Map<string, Hex>;
@@ -15,26 +17,32 @@ export class HexRepository {
 
     private loadedSignal = new Signal<[]>;
 
+    private connection;
+    private nationRepository = NationRepository.getInstance();
+
     private static instance: HexRepository;
-
     private constructor() {
-        replicator.OnClientEvent.Connect((message: HexCreateMessage | HexUpdateMessage) => {
-            if (message.type === "create") {
-                if (this.hexesById.size() > 0) error("Hexes were already initialised.");
-
-                this.handleCreateEvent(message.payload);
-                print(`Loaded ${message.payload.size()} hexes from ${message.source}`);
-
-                if (this.loadedSignal) {
-                    this.loadedSignal.complete();
-                    this.loadedSignal.fire();
-                }
-            } else if (message.type === "update") {
+        this.requestGameState();
+        this.connection = replicator.OnClientEvent.Connect((message: HexCreateMessage | HexUpdateMessage) => {
+            if (message.type === "update") {
                 this.handleUpdateEvent(message.payload);
             } else {
                 error("This template is not available.")
             }
-        })
+        });
+    }
+
+    private requestGameState() {
+        const message: HexCreateMessage = stateRequestRemote.InvokeServer();
+        if (this.hexesById.size() > 0) error(`Hexes were already initialised. Message Source: ${message.source}`);
+
+        this.handleCreateEvent(message.payload);
+        print(`Loaded ${message.payload.size()} hexes from ${message.source}`);
+
+        if (this.loadedSignal) {
+            this.loadedSignal.complete();
+            this.loadedSignal.fire();
+        }
     }
 
     // public methods
@@ -78,15 +86,20 @@ export class HexRepository {
             if (!hex) error(`Hex ${id} is not found!`);
 
             if (delta.owner) {
-                const nation = nationRepository.getById(delta.owner);
+                const nation = this.nationRepository.getById(delta.owner);
                 if (nation) hex.setOwner(nation);
             }
         })
     }
 
     // singleton
+    private clear() {
+        this.connection.Disconnect();
+    }
+
     public static resetInstance() {
         if (!this.instance) return;
+        this.instance.clear();
         this.instance = new HexRepository();
     }
 

@@ -20,7 +20,7 @@ UnitRepository.getInstance();
 NationReplicator.getInstance();
 HexReplicator.getInstance();
 RegionReplicator.getInstance(RegionRepository.getInstance());
-UnitReplicator.getInstance();
+UnitReplicator.getInstance(UnitRepository.getInstance());
 
 wait(1);
 

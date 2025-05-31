@@ -7,8 +7,6 @@ import {UnitDTO} from "../../../shared/dto/UnitDTO";
 import {UnitReplicator} from "./UnitReplicator";
 import {MovementTicker} from "./MovementTicker";
 
-const unitReplicator = UnitReplicator.getInstance();
-const unitRepository = UnitRepository.getInstance();
 const movementTicker = MovementTicker.getInstance();
 export class Unit {
     private id = UnitCounter.getNextId();
@@ -18,6 +16,9 @@ export class Unit {
     private organisation: number;
     private owner: Nation;
     private position: Hex;
+
+    private unitReplicator = UnitReplicator.getInstance();
+    private unitRepository = UnitRepository.getInstance();
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -29,8 +30,8 @@ export class Unit {
         this.owner = template.getOwner();
         this.position = position;
 
-        unitRepository.addUnit(this);
-        unitReplicator.addToCreateQueue(this);
+        this.unitRepository.addUnit(this);
+        this.unitReplicator.addToCreateQueue(this);
         // TODO: Replicate new unit to clients
     }
 
@@ -65,13 +66,13 @@ export class Unit {
     }
 
     public die() {
-        unitRepository.deleteUnit(this);
-        unitReplicator.addToDeadQueue(this);
+        this.unitRepository.deleteUnit(this);
+        this.unitReplicator.addToDeadQueue(this);
     }
 
     public delete() {
-        unitRepository.deleteUnit(this);
-        unitReplicator.addToDeletionQueue(this);
+        this.unitRepository.deleteUnit(this);
+        this.unitReplicator.addToDeletionQueue(this);
     }
 
     // getters & setters
@@ -86,7 +87,7 @@ export class Unit {
 
     public setName(name: string) {
         this.name = name;
-        unitReplicator.markDirty(this, {
+        this.unitReplicator.markDirty(this, {
             name: name,
         });
         this.changedSignal?.fire("name", name);
@@ -102,7 +103,7 @@ export class Unit {
 
     public setHp(hp: number) {
         this.hp = hp;
-        unitReplicator.markDirty(this, {
+        this.unitReplicator.markDirty(this, {
             hp: hp,
         });
         // TODO: Add upper cap and lower cap for HP
@@ -116,7 +117,7 @@ export class Unit {
 
     public setOrganisation(organisation: number) {
         this.organisation = organisation;
-        unitReplicator.markDirty(this, {
+        this.unitReplicator.markDirty(this, {
             organisation: organisation,
         });
         // TODO: Add upper cap and lower cap for Org
@@ -131,10 +132,10 @@ export class Unit {
     public setOwner(owner: Nation) {
         const oldOwner = this.owner;
         this.owner = owner;
-        unitReplicator.markDirty(this, {
+        this.unitReplicator.markDirty(this, {
             ownerId: owner.getId(),
         });
-        unitRepository.updateUnit(this, "owner", oldOwner, owner);
+        this.unitRepository.updateUnit(this, "owner", oldOwner, owner);
         this.changedSignal?.fire("owner", owner);
     }
 
@@ -146,10 +147,10 @@ export class Unit {
         // Use for teleporting / finishing movements. Use move() to move units between hexes.
         const oldPosition = this.position;
         this.position = position;
-        unitReplicator.markDirty(this, {
+        this.unitReplicator.markDirty(this, {
             positionId: position.getId(),
         });
-        unitRepository.updateUnit(this, "position", oldPosition, position);
+        this.unitRepository.updateUnit(this, "position", oldPosition, position);
         this.changedSignal?.fire("position", position);
     }
 

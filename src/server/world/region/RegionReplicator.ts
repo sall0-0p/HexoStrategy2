@@ -6,6 +6,9 @@ import {RegionCreateMessage, RegionUpdateMessage} from "../../../shared/dto/Regi
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("RegionReplicator") as RemoteEvent;
+const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("StateRequests")
+    .WaitForChild("GetRegionState") as RemoteFunction;
 
 export class RegionReplicator {
     private dirtyRegions = new Map<string, Partial<RegionDTO>>;
@@ -14,10 +17,10 @@ export class RegionReplicator {
     private static instance: RegionReplicator;
     private constructor(regionRepository: RegionRepository) {
         this.regionRepository = regionRepository;
-        this.broadcastRegionsToEveryone();
 
-        Players.PlayerAdded.Connect((player) =>
-            this.sendRegionsToPlayer(player));
+        stateRequestRemote.OnServerInvoke = (player) => {
+            return this.sendRegionsToPlayer(player);
+        }
 
         RunService.Heartbeat.Connect(() => this.broadcastUpdates());
     }
@@ -40,11 +43,11 @@ export class RegionReplicator {
                 return region.toDTO();
             });
 
-        replicator.FireClient(player, {
+        return {
             source: "playerAdded",
             type: "create",
             payload: payload,
-        } as RegionCreateMessage);
+        } as RegionCreateMessage;
     }
 
     private broadcastRegionsToEveryone() {
