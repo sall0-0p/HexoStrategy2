@@ -20,16 +20,16 @@ export class UnitReplicator {
     private static instance: UnitReplicator;
     private constructor(unitRepository: UnitRepository) {
         this.unitRepository = unitRepository;
+        stateRequestRemote.OnServerInvoke = (player) => {
+            return this.broadcastAllToPlayer(player);
+        }
+
         RunService.Heartbeat.Connect(() => {
             this.broadcastCreations();
             this.broadcastUpdates();
             this.broadcastDeaths();
             this.broadcastDeletions()
         })
-
-        stateRequestRemote.OnServerInvoke = (player) => {
-            return this.broadcastAllToPlayer(player);
-        }
     }
 
     // broadcasts

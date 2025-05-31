@@ -76,6 +76,11 @@ export class UnitRepository {
     }
 
     private handleCreateEvent(data: UnitDTO) {
+        if (this.getById(data.id)) {
+            warn(`Attempted to add unit ${data.id} to repository, but it already exists. Aborted.`);
+            return;
+        }
+
         const unit = new Unit(data);
         // Idea, it's on client, I do not care about this duplicate, bruh.
         this.unitsById.set(unit.getId(), unit);
