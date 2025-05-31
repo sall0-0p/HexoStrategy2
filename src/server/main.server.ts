@@ -11,6 +11,7 @@ import {UnitReplicator} from "./systems/unit/UnitReplicator";
 import {Hex} from "./world/hex/Hex";
 import {RegionRepository} from "./world/region/RegionRepository";
 import {RegionReplicator} from "./world/region/RegionReplicator";
+import {UnitController} from "./systems/unit/UnitController";
 
 NationRepository.getInstance();
 HexRepository.getInstance();
@@ -21,6 +22,7 @@ NationReplicator.getInstance();
 HexReplicator.getInstance();
 RegionReplicator.getInstance(RegionRepository.getInstance());
 UnitReplicator.getInstance(UnitRepository.getInstance());
+UnitController.getInstance();
 
 wait(1);
 
@@ -55,12 +57,7 @@ function moveToEnemyHex(unit: Unit) {
 
 const units: Unit[] = [];
 let counter = 0;
-while (counter < 1) {
+while (counter < 2) {
     units.push(new Unit(template1, spawnHex1));
     counter++;
-}
-
-while (true) {
-    units.forEach((unit) => moveToEnemyHex(unit));
-    wait(1);
 }

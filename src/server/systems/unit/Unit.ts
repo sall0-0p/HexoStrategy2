@@ -41,6 +41,9 @@ export class Unit {
         // This method will compute A* path from hexes, after that -> execute .move()
         // for each of them until reaching its destination,
         // while replicating progress to the client.
+        if (this.getPosition().getNeighbors().includes(hex)) {
+            return this.move(hex);
+        }
     }
 
     public move(hex: Hex) {

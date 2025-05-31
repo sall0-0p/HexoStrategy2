@@ -82,7 +82,6 @@ export class UnitRepository {
         }
 
         const unit = new Unit(data);
-        // Idea, it's on client, I do not care about this duplicate, bruh.
         this.unitsById.set(unit.getId(), unit);
 
         if (!this.unitsByOwner.has(unit.getOwner())) {
