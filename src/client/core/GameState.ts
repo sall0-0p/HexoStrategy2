@@ -7,6 +7,9 @@ import {UnitFlairManager} from "../ui/unit/flair/UnitFlairManager";
 import {HeatmapManager} from "../ui/heatmap/HeatmapManager";
 import {SelectionManager} from "../ui/unit/selection/SelectionManager";
 import {ReplicatedStorage} from "@rbxts/services";
+import {NationHeatmap} from "../ui/heatmap/heatmaps/NationHeatmap";
+import {Bind} from "../ui/Bind";
+import {MoveBind} from "../ui/unit/order/MoveBind";
 
 const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("SelectNation") as RemoteFunction;
@@ -14,6 +17,7 @@ const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
 export class GameState {
     private activeNationId?: string;
     private firstLoad = true;
+    private binds: Bind[] = [];
 
     private static instance: GameState
     private constructor() {
@@ -50,6 +54,9 @@ export class GameState {
         UnitFlairManager.resetInstance();
         HeatmapManager.resetInstance();
         SelectionManager.resetInstance();
+
+        this.binds.forEach((bind) => bind.unbind());
+        this.binds.clear();
     }
 
     private loadAllModules() {
@@ -63,6 +70,11 @@ export class GameState {
         UnitFlairManager.getInstance();
         HeatmapManager.getInstance();
         SelectionManager.getInstance();
+
+        this.binds.push(new MoveBind());
+
+        const heatmapManager = HeatmapManager.getInstance();
+        heatmapManager.showHeatmap(new NationHeatmap());
     }
 
     public static getInstance() {

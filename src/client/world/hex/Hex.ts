@@ -6,9 +6,6 @@ import {Signal} from "../../../shared/classes/Signal";
 import {HexDispatcher} from "./HexDispatcher";
 import {Region} from "../region/Region";
 
-const nationRepository = NationRepository.getInstance();
-const hexDispatcher = HexDispatcher.getInstance();
-
 export class Hex {
     private readonly id: string;
     private readonly name: string;
@@ -17,6 +14,9 @@ export class Hex {
     private region?: Region;
     private neighbors: Hex[] = [];
     private model: Model;
+
+    private nationRepository = NationRepository.getInstance();
+    private hexDispatcher = HexDispatcher.getInstance();
 
     // events
     private changedSignal?: Signal<[string, unknown]>;
@@ -28,7 +28,7 @@ export class Hex {
         this.model = data.model;
 
         if (data.owner) {
-            this.owner = nationRepository.getById(data.owner);
+            this.owner = this.nationRepository.getById(data.owner);
         }
     }
 
@@ -48,7 +48,7 @@ export class Hex {
         this.owner = owner;
 
         this.changedSignal?.fire("owner", owner);
-        hexDispatcher.registerUpdate(this, "owner", owner);
+        this.hexDispatcher.registerUpdate(this, "owner", owner);
     }
 
     public getPosition() {

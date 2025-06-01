@@ -17,6 +17,7 @@ export class NationPicker {
     }
 
     private assignPlayer(player: Player, nationId: string) {
+        this.unassignPlayer(player);
         const nation = this.nationRepository.getById(nationId);
         if (!nation) {
             warn(`Wrong nation id ${nationId} from player ${player.DisplayName}`);

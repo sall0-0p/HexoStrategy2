@@ -6,9 +6,6 @@ import {NationRepository} from "../../world/nation/NationRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {UnitFlairManager} from "../../ui/unit/flair/UnitFlairManager";
 
-const nationRepository = NationRepository.getInstance();
-const hexRepository = HexRepository.getInstance();
-const unitFlairManager = UnitFlairManager.getInstance();
 export class Unit {
     private id: string;
     private name: string;
@@ -17,6 +14,10 @@ export class Unit {
     private organisation: number;
     private owner: Nation;
     private position: Hex;
+
+    private nationRepository = NationRepository.getInstance();
+    private hexRepository = HexRepository.getInstance();
+    private unitFlairManager = UnitFlairManager.getInstance();
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -27,18 +28,18 @@ export class Unit {
         this.hp = data.hp;
         this.organisation = data.organisation;
 
-        if (nationRepository.getById(data.ownerId) === undefined) {
+        if (this.nationRepository.getById(data.ownerId) === undefined) {
             error(`Nation ${data.ownerId} is not found, perhaps archives are incomplete.`)
         }
-        this.owner = nationRepository.getById(data.ownerId)!;
+        this.owner = this.nationRepository.getById(data.ownerId)!;
 
-        if (hexRepository.getById(data.positionId) === undefined) {
+        if (this.hexRepository.getById(data.positionId) === undefined) {
             error(`Hex ${data.positionId} is not found, perhaps archives are incomplete.`)
         }
-        this.position = hexRepository.getById(data.positionId)!;
+        this.position = this.hexRepository.getById(data.positionId)!;
 
         // Add flairs
-        unitFlairManager.addUnitToTheMap(this);
+        this.unitFlairManager.addUnitToTheMap(this);
     }
 
     public die() {
@@ -46,7 +47,7 @@ export class Unit {
     }
 
     public delete() {
-        unitFlairManager.deleteUnitFromTheMap(this);
+        this.unitFlairManager.deleteUnitFromTheMap(this);
     }
 
     // getters & setters

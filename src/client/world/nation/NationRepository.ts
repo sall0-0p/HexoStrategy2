@@ -120,7 +120,7 @@ export class NationRepository {
     public static resetInstance() {
         if (!this.instance) return;
         this.instance.clear();
-        this.instance = new NationRepository();
+        this.instance = undefined!;
     }
 
     public static getInstance() {

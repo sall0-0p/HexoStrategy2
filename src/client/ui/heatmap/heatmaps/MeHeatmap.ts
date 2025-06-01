@@ -5,10 +5,11 @@ import {Connection} from "../../../../shared/classes/Signal";
 import {HeatmapManager} from "../HeatmapManager";
 import {GameState} from "../../../core/GameState";
 
-const hexDispatcher = HexDispatcher.getInstance();
 export class MeHeatmap implements Heatmap {
     private name = "MeNation";
     private updateConnection?: Connection;
+
+    private hexDispatcher = HexDispatcher.getInstance();
 
     public getGroup(hex: Hex) {
         const owner = hex.getOwner();
@@ -49,7 +50,7 @@ export class MeHeatmap implements Heatmap {
 
     public onEnable() {
         const heatmapManager = HeatmapManager.getInstance();
-        const signal = hexDispatcher.getUpdateSignal();
+        const signal = this.hexDispatcher.getUpdateSignal();
 
         this.updateConnection = signal.connect((updates: Update[]) => {
             updates.forEach((update) => {

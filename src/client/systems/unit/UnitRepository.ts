@@ -149,7 +149,7 @@ export class UnitRepository {
     public static resetInstance() {
         if (!this.instance) return;
         this.instance.clear();
-        this.instance = new UnitRepository();
+        this.instance = undefined!;
     }
 
     public static getInstance() {

@@ -144,7 +144,7 @@ export class SelectionManager {
     public static resetInstance() {
         if (!this.instance) return;
         this.instance.clear();
-        this.instance = new SelectionManager();
+        this.instance = undefined!;
     }
 
     public static getInstance() {

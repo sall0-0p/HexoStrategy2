@@ -100,7 +100,7 @@ export class HexRepository {
     public static resetInstance() {
         if (!this.instance) return;
         this.instance.clear();
-        this.instance = new HexRepository();
+        this.instance = undefined!;
     }
 
     public static getInstance() {

@@ -4,10 +4,11 @@ import {HexDispatcher, Update} from "../../../world/hex/HexDispatcher";
 import {Connection} from "../../../../shared/classes/Signal";
 import {HeatmapManager} from "../HeatmapManager";
 
-const hexDispatcher = HexDispatcher.getInstance();
 export class NationHeatmap implements Heatmap {
     private name = "Nations";
     private updateConnection?: Connection;
+
+    private hexDispatcher = HexDispatcher.getInstance();
 
     public getGroup(hex: Hex) {
         const owner = hex.getOwner();
@@ -37,7 +38,7 @@ export class NationHeatmap implements Heatmap {
 
     public onEnable() {
         const heatmapManager = HeatmapManager.getInstance();
-        const signal = hexDispatcher.getUpdateSignal();
+        const signal = this.hexDispatcher.getUpdateSignal();
 
         this.updateConnection = signal.connect((updates: Update[]) => {
             updates.forEach((update) => {

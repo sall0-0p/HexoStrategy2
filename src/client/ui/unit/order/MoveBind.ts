@@ -3,16 +3,13 @@ import {SelectionManager} from "../selection/SelectionManager";
 import {HexRepository} from "../../../world/hex/HexRepository";
 import {Hex} from "../../../world/hex/Hex";
 import {Unit} from "../../../systems/unit/Unit";
-import {GameState} from "../../../core/GameState";
 import {NationRepository} from "../../../world/nation/NationRepository";
-import {UnitMoveRequest, UnitOrderRequest} from "../../../../shared/dto/UnitOrderRequest";
+import {UnitMoveRequest} from "../../../../shared/dto/UnitOrderRequest";
+import {Bind} from "../../Bind";
 
 const orderRemote = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("UnitOrder") as RemoteFunction;
 
-const selectionManager = SelectionManager.getInstance();
-const nationRepository = NationRepository.getInstance();
-const hexRepository = HexRepository.getInstance();
 const localPlayer = Players.LocalPlayer;
 const playerGui = localPlayer.WaitForChild("PlayerGui") as PlayerGui;
 const mouse = localPlayer.GetMouse()
@@ -20,17 +17,26 @@ const raycastParams = new RaycastParams();
 raycastParams.FilterType = Enum.RaycastFilterType.Whitelist;
 raycastParams.AddToFilter(Workspace.WaitForChild("Heatmaps"));
 raycastParams.AddToFilter(Workspace.WaitForChild("Hexes"));
-export class MoveBind {
+export class MoveBind implements Bind {
+    private selectionManager = SelectionManager.getInstance();
+    private nationRepository = NationRepository.getInstance();
+    private hexRepository = HexRepository.getInstance();
+
+    private connection;
     constructor() {
-        UserInputService.InputEnded.Connect((object: InputObject) => {
+        this.connection = UserInputService.InputEnded.Connect((object: InputObject) => {
             if (object.UserInputType === Enum.UserInputType.MouseButton2) {
                 this.trigger();
             }
         })
     }
 
+    public unbind() {
+        this.connection.Disconnect();
+    }
+
     private trigger() {
-        const selectedUnits = selectionManager.getSelectedUnits();
+        const selectedUnits = this.selectionManager.getSelectedUnits();
         if (selectedUnits.size() === 0) return;
 
         if (playerGui.GetGuiObjectsAtPosition(mouse.X, mouse.Y).size() === 0) {
@@ -44,7 +50,7 @@ export class MoveBind {
                 if (!hexModel) return;
                 const hexId = hexModel.Name;
 
-                const hex = hexRepository.getById(hexId);
+                const hex = this.hexRepository.getById(hexId);
                 if (!hex) return;
                 this.orderMovement(hex, selectedUnits);
             }
@@ -52,10 +58,9 @@ export class MoveBind {
     }
 
     private orderMovement(hex: Hex, selectedUnits: Unit[]) {
-        print(hex.getId());
         const hexOwner = hex.getOwner();
-        const playedNationId = GameState.getInstance().getPlayedNationId();
-        const playedNation = nationRepository.getById(playedNationId!);
+        const playedNationId = _G.activeNationId;
+        const playedNation = this.nationRepository.getById(playedNationId!);
         if (!hexOwner
             || hexOwner.getId() === playedNationId
             || playedNation?.getAllies().includes(hexOwner)

@@ -69,7 +69,7 @@ export class RegionRepository {
     public static resetInstance() {
         if (!this.instance) return;
         this.instance.clear();
-        this.instance = new RegionRepository();
+        this.instance = undefined!;
     }
 
     public static getInstance(): RegionRepository {

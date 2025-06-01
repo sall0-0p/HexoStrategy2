@@ -11,6 +11,7 @@ interface Group {
     map: Map<string, Hex>;
 }
 
+let version = 0;
 export class HeatmapManager {
     private currentHeatmap?: Heatmap;
     private groups = new Map<string, Group>();
@@ -24,6 +25,7 @@ export class HeatmapManager {
     private static instance: HeatmapManager;
     private constructor() {
         this.hexes = this.hexRepository.getAll();
+        version++;
     }
 
     public showHeatmap(heatmap: Heatmap) {
@@ -53,7 +55,7 @@ export class HeatmapManager {
 
     public updateHex(hex: Hex) {
         if (!this.currentHeatmap) {
-            error("No heatmap is active!");
+            return;
         }
 
         const groupInfo = this.currentHeatmap.getGroup(hex);
@@ -137,7 +139,7 @@ export class HeatmapManager {
     public static resetInstance() {
         if (!this.instance) return;
         this.instance.clear(); // cleanup before resetting
-        this.instance = new HeatmapManager();
+        this.instance = undefined!;
     }
 
     public static getInstance(): HeatmapManager {
