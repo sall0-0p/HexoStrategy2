@@ -3,6 +3,8 @@ import { Hex } from "../../../world/hex/Hex";
 import { Flair } from "./Flair";
 import { Connection } from "../../../../shared/classes/Signal";
 import { UnitFlairManager } from "./UnitFlairManager";
+import {NationRepository} from "../../../world/nation/NationRepository";
+import {Nation} from "../../../world/nation/Nation";
 
 export class UnitStack {
     private id: string;
@@ -11,6 +13,7 @@ export class UnitStack {
     private templateId: number;
     private hex: Hex;
     private selected: boolean = false;
+    private relationConnection: Connection;
     private connections = new Map<Unit, Connection[]>();
     private rbxConnections = new Map<Unit, RBXScriptConnection[]>();
     private unitFlairManager: UnitFlairManager;
@@ -37,6 +40,13 @@ export class UnitStack {
         if (selected) {
             this.setSelected(selected);
         }
+
+        const ownerChangedSignal = units[0].getOwner().getChangedSignal();
+        this.relationConnection = ownerChangedSignal.connect((prop, value) => {
+            if (prop === "allies" || prop === "enemies") {
+                unitFlairManager.updateAllColors();
+            }
+        });
     }
 
     public addUnit(unit: Unit) {
@@ -46,6 +56,7 @@ export class UnitStack {
         this.flair.setQuantity(this.units.size());
         this.updateHp();
         this.updateOrg();
+        this.updateColor();
         this.unitFlairManager.stacksByUnit.set(unit, this);
         this.connections.set(unit, [unit.getChangedSignal().connect((key, value) => this.onUnitChange(unit, key, value))]);
     }
@@ -151,6 +162,25 @@ export class UnitStack {
         }
     }
 
+    public updateColor() {
+        const playedNationId = _G.activeNationId;
+        const playedNation = NationRepository.getInstance().getById(playedNationId)!;
+
+        const owner =  this.units[0].getOwner();
+        const enemies = new Set<Nation>(playedNation.getEnemies());
+        const allies = new Set<Nation>(playedNation.getAllies());
+
+        if (playedNationId === owner.getId()) {
+            this.flair.setColor(Color3.fromRGB(65, 200, 85));
+        } else if (enemies.has(owner)) {
+            this.flair.setColor(Color3.fromRGB(215, 95, 80));
+        } else if (allies.has(owner)) {
+            this.flair.setColor(Color3.fromRGB(70, 143, 215));
+        } else {
+            this.flair.setColor(Color3.fromRGB(180, 180, 180));
+        }
+    }
+
     private updateHp() {
         let sumHp = 0;
         let sumMaxHp = 0;
@@ -188,6 +218,8 @@ export class UnitStack {
         this.rbxConnections.forEach((conns) => {
             conns.forEach((conn) => conn.Disconnect());
         });
+
+        this.relationConnection.disconnect();
     }
 
     public getId() {

@@ -8,10 +8,10 @@ import {TemplateRepository} from "./systems/unit/template/TemplateRepository";
 import {UnitRepository} from "./systems/unit/UnitRepository";
 import {Unit} from "./systems/unit/Unit";
 import {UnitReplicator} from "./systems/unit/UnitReplicator";
-import {Hex} from "./world/hex/Hex";
 import {RegionRepository} from "./world/region/RegionRepository";
 import {RegionReplicator} from "./world/region/RegionReplicator";
 import {UnitController} from "./systems/unit/UnitController";
+import {DiplomaticRelation, DiplomaticRelationStatus} from "./systems/diplomacy/DiplomaticRelation";
 
 NationRepository.getInstance();
 HexRepository.getInstance();
@@ -32,32 +32,24 @@ let ponylandia: Nation = nationRepository.getById("PNL")!;
 let byrdlands: Nation = nationRepository.getById("BRD")!;
 let fungaria: Nation = nationRepository.getById("FNG")!;
 
-let spawnHex1 = hexRepository.getById("H001")!;
-let template1: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", ponylandia);
+let pnlCapital = hexRepository.getById("H009")!;
+let brdCapital = hexRepository.getById("H002")!;
+let fngCapital = hexRepository.getById("H005")!;
+let pnlUnit: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", ponylandia);
+let brdUnit: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", byrdlands);
+let fngUnit: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", fungaria);
 
-function moveToEnemyHex(unit: Unit) {
-    const neighbors = unit.getPosition().getNeighbors();
-    const alliedHexes: Hex[] = [];
-    const enemyHexes: Hex[] = [];
+new Unit(pnlUnit, pnlCapital);
+new Unit(pnlUnit, pnlCapital);
+new Unit(pnlUnit, pnlCapital);
+new Unit(brdUnit, brdCapital);
+new Unit(brdUnit, brdCapital);
+new Unit(fngUnit, fngCapital);
 
-    neighbors.forEach((hex) => {
-        if (hex.getOwner()?.getId() === unit.getOwner().getId()) {
-            alliedHexes.push(hex);
-        } else {
-            enemyHexes.push(hex);
-        }
-    })
-
-    if (enemyHexes.size() > 0) {
-        unit.move(enemyHexes[math.random(0, enemyHexes.size() - 1)]);
-    } else {
-        unit.move(alliedHexes[math.random(0, alliedHexes.size() - 1)]);
-    }
-}
-
-const units: Unit[] = [];
-let counter = 0;
-while (counter < 2) {
-    units.push(new Unit(template1, spawnHex1));
-    counter++;
-}
+wait(5);
+print("Making an enemy!");
+const pnlRelations = ponylandia.getRelations();
+pnlRelations.set(fungaria.getId(), {
+    status: DiplomaticRelationStatus.Enemy,
+} as DiplomaticRelation)
+ponylandia.setRelations(pnlRelations);

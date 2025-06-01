@@ -23,7 +23,9 @@ export class GameState {
 
     public switchNation(nationId: string) {
         this.activeNationId = nationId;
+        _G.activeNationId = nationId;
         // this.resetAllModules();
+        print(`Loading as ${nationId}`);
         this.loadAllModules();
     }
 
@@ -47,8 +49,7 @@ export class GameState {
     private loadAllModules() {
         // Repositories
         NationRepository.getInstance();
-        HexRepository.getInstance()
-            .getLoadedSignal().wait();
+        HexRepository.getInstance();
         RegionRepository.getInstance();
         UnitRepository.getInstance();
 

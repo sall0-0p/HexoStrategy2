@@ -52,6 +52,7 @@ export class MoveBind {
     }
 
     private orderMovement(hex: Hex, selectedUnits: Unit[]) {
+        print(hex.getId());
         const hexOwner = hex.getOwner();
         const playedNationId = GameState.getInstance().getPlayedNationId();
         const playedNation = nationRepository.getById(playedNationId!);
@@ -66,7 +67,7 @@ export class MoveBind {
                 destination: hex.getId(),
             } as UnitMoveRequest)
         } else {
-            warn("You cannot move here!")
+            warn(`You cannot move here!`);
         }
     }
 }

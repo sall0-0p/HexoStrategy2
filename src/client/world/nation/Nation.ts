@@ -65,6 +65,7 @@ export class Nation {
 
     public setAllies(allies: Nation[]) {
         this.allies = allies;
+        this.changedSignal?.fire("allies", allies);
     }
 
     public getEnemies() {
@@ -73,5 +74,14 @@ export class Nation {
 
     public setEnemies(enemies: Nation[]) {
         this.enemies = enemies;
+        this.changedSignal?.fire("enemies", enemies);
+    }
+
+    public getChangedSignal() {
+        if (!this.changedSignal) {
+            this.changedSignal = new Signal();
+        }
+
+        return this.changedSignal;
     }
 }

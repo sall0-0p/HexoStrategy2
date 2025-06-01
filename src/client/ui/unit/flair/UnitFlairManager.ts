@@ -49,6 +49,10 @@ export class UnitFlairManager {
         return this.stacksById.get(id);
     }
 
+    public updateAllColors() {
+        this.stacksById.forEach((stack) => stack.updateColor());
+    }
+
     // singleton shenanigans
     private clear() {
 

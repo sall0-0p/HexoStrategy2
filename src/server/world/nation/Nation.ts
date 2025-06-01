@@ -115,11 +115,21 @@ export class Nation {
     public setRelations(relations: Map<string, DiplomaticRelation>) {
         this.relations = relations;
 
+        const allies: string[] = [];
+        const enemies: string[] = [];
+        relations.forEach((relation, nationId) => {
+            if (relation.status === DiplomaticRelationStatus.Enemy) {
+                enemies.push(nationId);
+            } else if (relation.status === DiplomaticRelationStatus.Allied) {
+                allies.push(nationId);
+            }
+        })
+
         dirtyNationSignal.fire({
             nation: this,
             delta: {
-                // TODO: This can be optimised, by only sending delta of relations, not full relations.
-                relations: this.relations,
+                allies: allies,
+                enemies: enemies,
             }
         } as DirtyNationEvent)
     }

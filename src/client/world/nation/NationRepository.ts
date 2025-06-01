@@ -28,7 +28,6 @@ export class NationRepository {
 
     private getGameState() {
         const message: NationCreateMessage = stateRequestRemote.InvokeServer();
-        print(message);
         if (this.nations.size() > 0) error("Nations were already initialised.");
 
         this.handleCreateEvent(message.payload);
@@ -47,6 +46,7 @@ export class NationRepository {
         payload.forEach((data) => {
             if (data.allies.size() > 0) alliesToMap.set(data.id, data.allies);
             if (data.enemies.size() > 0) enemiesToMap.set(data.id, data.enemies);
+            print(data.id, data.allies.size(), data.enemies.size());
 
             const nation = new Nation(data);
             this.nations.set(nation.getId(), nation);
@@ -55,8 +55,9 @@ export class NationRepository {
         this.nations.forEach((nation) => {
             const id = nation.getId();
             if (alliesToMap.has(id)) {
+                print(`Parsing allies for ${id}`);
                 const mappedAllies = alliesToMap.get(id)!.map((nationId) => {
-                    const candidate = this.getById(nationId)
+                    const candidate = this.getById(nationId);
                     if (!candidate) error(`Failed to find nation ${nationId}`);
                     return candidate;
                 })
@@ -64,8 +65,9 @@ export class NationRepository {
             }
 
             if (enemiesToMap.has(id)) {
+                print(`Parsing enemies for ${id}`);
                 const mappedEnemies = enemiesToMap.get(id)!.map((nationId) => {
-                    const candidate = this.getById(nationId)
+                    const candidate = this.getById(nationId);
                     if (!candidate) error(`Failed to find nation ${nationId}`);
                     return candidate;
                 })
@@ -75,6 +77,7 @@ export class NationRepository {
     }
 
     private handleUpdateEvent(payload: Map<string, Partial<NationDTO>>) {
+        print(payload);
         payload.forEach((delta, id) => {
             const nation = this.nations.get(id);
             if (!nation) error(`Nation ${id} is not found!`);

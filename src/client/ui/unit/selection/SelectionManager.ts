@@ -4,13 +4,12 @@ import {UnitRepository} from "../../../systems/unit/UnitRepository";
 import {UnitFlairManager} from "../flair/UnitFlairManager";
 import {UnitStack} from "../flair/UnitStack";
 
-const unitRepository = UnitRepository.getInstance();
 const player = Players.LocalPlayer;
 const playerGui: PlayerGui = player.WaitForChild("PlayerGui") as PlayerGui;
-const unitFlairManager = UnitFlairManager.getInstance();
 export class SelectionManager {
     private selectedUnits: Unit[] = [];
 
+    private unitFlairManager = UnitFlairManager.getInstance();
     private connection;
     public static instance: SelectionManager;
     private constructor() {
@@ -24,10 +23,11 @@ export class SelectionManager {
 
     public select(units: Unit[]) {
         if (this.selectedUnits.includes(units[0])) return;
+        if (units[0]?.getOwner().getId() !== _G.activeNationId) return;
 
         let stacks: Set<UnitStack> = new Set();
         units.forEach((unit) => {
-            const stack = unitFlairManager.findStackByUnit(unit);
+            const stack = this.unitFlairManager.findStackByUnit(unit);
             if (stack) stacks.add(stack);
 
             this.selectedUnits.push(unit);
@@ -48,7 +48,7 @@ export class SelectionManager {
         this.selectedUnits = this.selectedUnits.filter((unit) => {
             if (!deselectSet.has(unit)) return true;
 
-            const stack = unitFlairManager.findStackByUnit(unit);
+            const stack = this.unitFlairManager.findStackByUnit(unit);
             if (stack) {
                 stack.setSelected(false);
                 affectedStacks.add(stack);
@@ -58,7 +58,7 @@ export class SelectionManager {
 
         affectedStacks.forEach((stack) => {
             const hex = stack.getHex();
-            const stacksInHex = unitFlairManager.stacks.get(hex);
+            const stacksInHex = this.unitFlairManager.stacks.get(hex);
 
             if (stacksInHex) stacksInHex.some((s) => {
                 if (stack.isMergeable(s)) {
@@ -107,7 +107,7 @@ export class SelectionManager {
 
         const result: Unit[] = [];
         flairs.forEach((object) => {
-            const stack = unitFlairManager.getStackById(object.Name);
+            const stack = this.unitFlairManager.getStackById(object.Name);
             stack?.getUnits().forEach((unit) => {
                 result.push(unit);
             })
@@ -124,7 +124,7 @@ export class SelectionManager {
 
         const result: UnitStack[] = [];
         flairs.forEach((object) => {
-            const stack = unitFlairManager.getStackById(object.Name);
+            const stack = this.unitFlairManager.getStackById(object.Name);
             if (stack) result.push(stack);
         })
 

@@ -4,7 +4,6 @@ import { HexRepository } from "../../world/hex/HexRepository";
 import { Connection } from "../../../shared/classes/Signal";
 import { RunService, Workspace } from "@rbxts/services";
 
-const hexRepository = HexRepository.getInstance();
 const heatmapContainer = Workspace.WaitForChild("Heatmaps") as Folder;
 
 interface Group {
@@ -20,9 +19,11 @@ export class HeatmapManager {
     private connections = new Set<Connection>();
     private rbxConnection = new Set<RBXScriptConnection>();
 
+    private hexRepository = HexRepository.getInstance();
+
     private static instance: HeatmapManager;
     private constructor() {
-        this.hexes = hexRepository.getAll();
+        this.hexes = this.hexRepository.getAll();
     }
 
     public showHeatmap(heatmap: Heatmap) {
