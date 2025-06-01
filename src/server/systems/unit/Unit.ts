@@ -186,7 +186,7 @@ export class Unit {
     }
 
     private movementCost(from: Hex, to: Hex) {
-        if (to.getOwner()?.getId() === this.getOwner().getId()) return 1.25;
+        if (to.getOwner()?.getId() !== this.getOwner().getId()) return 1.25;
         return 1;
     }
 
