@@ -6,6 +6,7 @@ import {Connection, Signal} from "../../../shared/classes/Signal";
 import {UnitDTO} from "../../../shared/dto/UnitDTO";
 import {UnitReplicator} from "./UnitReplicator";
 import {MovementTicker} from "./MovementTicker";
+import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
 
 const movementTicker = MovementTicker.getInstance();
 export class Unit {
@@ -16,6 +17,7 @@ export class Unit {
     private organisation: number;
     private owner: Nation;
     private position: Hex;
+    private currentMovement?: ActiveMovementOrder;
 
     private unitReplicator = UnitReplicator.getInstance();
     private unitRepository = UnitRepository.getInstance();
@@ -36,13 +38,13 @@ export class Unit {
     }
 
     // logic
-
     public moveTo(goal: Hex) {
         // This method will compute A* path from hexes, after that -> execute .move()
         // for each of them until reaching its destination,
         // while replicating progress to the client.
         const start = this.getPosition();
         const path = this.findPath(start, goal);
+        const unit = this;
 
         if (!path) {
             return;
@@ -53,7 +55,10 @@ export class Unit {
         let stepIndex = 0;
 
         const executeNextStep = () => {
-            if (isCancelled || stepIndex >= path.size()) return;
+            if (isCancelled || stepIndex >= path.size()) {
+                this.currentMovement = undefined;
+                return;
+            }
 
             const nextHex = path[stepIndex];
             const data = movementTicker.scheduleMovement(this, nextHex);
@@ -73,8 +78,10 @@ export class Unit {
 
         executeNextStep();
 
-        const unit = this;
-        return {
+        this.currentMovement = {
+            to: goal,
+            from: start,
+            path: path,
             cancel(): void {
                 isCancelled = true;
                 // Cancel whichever movement is in progress, if any.
@@ -82,9 +89,11 @@ export class Unit {
                 if (currentConnection) {
                     currentConnection.disconnect();
                     currentConnection = undefined;
+                    unit.currentMovement = undefined;
                 }
             },
         };
+        return this.currentMovement;
     }
 
     public move(hex: Hex) {
@@ -152,7 +161,7 @@ export class Unit {
             openSet.delete(current);
 
             currentDef.getNeighbors().forEach((neighbor) => {
-                if (false) {
+                if (!this.isTraversable(currentDef, neighbor)) {
                     return;
                 }
 
@@ -177,7 +186,28 @@ export class Unit {
     }
 
     private movementCost(from: Hex, to: Hex) {
+        if (to.getOwner()?.getId() === this.getOwner().getId()) return 1.25;
         return 1;
+    }
+
+    private isTraversable(from: Hex, to: Hex) {
+        const hexOwner = to.getOwner();
+        const unitOwner = this.getOwner();
+
+        if (hexOwner) {
+            if (hexOwner.getId() === unitOwner.getId()) return true;
+
+            const unitOwnerRelations = unitOwner.getRelations();
+            const relations = unitOwnerRelations.get(hexOwner.getId());
+
+            return (relations &&
+                (relations.status === DiplomaticRelationStatus.Allied ||
+                relations.status  === DiplomaticRelationStatus.Enemy)
+            )
+        } else {
+            // Check if water or whatever.
+            return true;
+        }
     }
 
     private reconstructPath(cameFrom: Map<Hex, Hex>, current: Hex) {
@@ -196,7 +226,6 @@ export class Unit {
     }
 
     // getters & setters
-
     public getId() {
         return this.id;
     }
@@ -295,11 +324,18 @@ export class Unit {
     }
 }
 
-export interface ActiveMovement {
+interface ActiveMovement {
     to: Hex,
     from: Hex,
     cancel(): void,
     finished: Signal<[]>,
+}
+
+export interface ActiveMovementOrder {
+    to: Hex,
+    from: Hex,
+    path: Hex[],
+    cancel(): void,
 }
 
 export class UnitCounter {
