@@ -44,7 +44,7 @@ export class Nation {
        return this.player;
     }
 
-    public setPlayer(player: Player) {
+    public setPlayer(player: Player | undefined) {
         this.player = player;
         this.changedSignal?.fire("player", player);
     }
@@ -56,7 +56,6 @@ export class Nation {
     public setFlag(flag: string) {
         this.flag = flag;
         this.changedSignal?.fire("flag", flag);
-        // TODO: Add update all unit flags of this nation;
     }
 
     public getAllies() {

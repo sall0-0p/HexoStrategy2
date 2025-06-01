@@ -16,11 +16,11 @@ export class UnitController {
 
     private parseRequest(player: Player, request: UnitOrderRequest) {
         if (request.request === "move") {
-            return this.moveRequest(request);
+            return this.moveRequest(player, request);
         }
     }
 
-    private moveRequest(request: UnitMoveRequest) {
+    private moveRequest(player: Player, request: UnitMoveRequest) {
         const hex = hexRepository.getById(request.destination);
         if (!hex) {
             warn(`Invalid hexId ${request.destination}`)
@@ -33,6 +33,7 @@ export class UnitController {
                 warn(`Invalid unitId ${unitId}. Aborting`);
                 return { success: false } as UnitOrderResponse;
             }
+            const nation = unit.getOwner();
 
             unit.moveTo(hex);
         })

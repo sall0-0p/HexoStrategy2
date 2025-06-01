@@ -95,7 +95,7 @@ export class Nation {
         return this.player;
     }
 
-    public setPlayer(player: Player) {
+    public setPlayer(player: Player | undefined) {
         this.player = player;
 
         dirtyNationSignal.fire({

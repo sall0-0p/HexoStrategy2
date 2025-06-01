@@ -6,6 +6,10 @@ import {UnitRepository} from "../systems/unit/UnitRepository";
 import {UnitFlairManager} from "../ui/unit/flair/UnitFlairManager";
 import {HeatmapManager} from "../ui/heatmap/HeatmapManager";
 import {SelectionManager} from "../ui/unit/selection/SelectionManager";
+import {ReplicatedStorage} from "@rbxts/services";
+
+const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("SelectNation") as RemoteFunction;
 
 export class GameState {
     private activeNationId?: string;
@@ -22,9 +26,11 @@ export class GameState {
     }
 
     public switchNation(nationId: string) {
+        const allowed: boolean = changeNationRequest.InvokeServer(nationId);
+        if (!allowed) return;
         this.activeNationId = nationId;
         _G.activeNationId = nationId;
-        // this.resetAllModules();
+        this.resetAllModules();
         print(`Loading as ${nationId}`);
         this.loadAllModules();
     }

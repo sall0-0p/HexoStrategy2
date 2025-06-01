@@ -12,6 +12,7 @@ import {RegionRepository} from "./world/region/RegionRepository";
 import {RegionReplicator} from "./world/region/RegionReplicator";
 import {UnitController} from "./systems/unit/UnitController";
 import {DiplomaticRelation, DiplomaticRelationStatus} from "./systems/diplomacy/DiplomaticRelation";
+import {NationPicker} from "./world/nation/NationPicker";
 
 NationRepository.getInstance();
 HexRepository.getInstance();
@@ -23,6 +24,7 @@ HexReplicator.getInstance();
 RegionReplicator.getInstance(RegionRepository.getInstance());
 UnitReplicator.getInstance(UnitRepository.getInstance());
 UnitController.getInstance();
+NationPicker.getInstance();
 
 wait(1);
 
