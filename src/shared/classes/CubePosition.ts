@@ -41,6 +41,25 @@ export class CubePosition {
         return new Vector3(x, 1, y);
     }
 
+    public sub(position?: CubePosition, other?: number) {
+        if (position) {
+            this.q -= position.q;
+            this.s -= position.s;
+            this.r -= position.r;
+        } else if (other) {
+            this.q -= other;
+            this.s -= other;
+            this.r -= other;
+        }
+
+        return this;
+    }
+
+    public distance(position: CubePosition): number {
+        const vector = this.sub(position);
+        return (math.abs(vector.q) + math.abs(vector.r) + math.abs(vector.s)) / 2;
+    }
+
     public equals(position: CubePosition): boolean {
         return this.r === position.r
             && this.q === position.q

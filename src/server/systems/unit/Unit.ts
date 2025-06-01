@@ -37,13 +37,54 @@ export class Unit {
 
     // logic
 
-    public moveTo(hex: Hex) {
+    public moveTo(goal: Hex) {
         // This method will compute A* path from hexes, after that -> execute .move()
         // for each of them until reaching its destination,
         // while replicating progress to the client.
-        if (this.getPosition().getNeighbors().includes(hex)) {
-            return this.move(hex);
+        const start = this.getPosition();
+        const path = this.findPath(start, goal);
+
+        if (!path) {
+            return;
         }
+
+        let isCancelled = false;
+        let currentConnection: Connection | undefined = undefined;
+        let stepIndex = 0;
+
+        const executeNextStep = () => {
+            if (isCancelled || stepIndex >= path.size()) return;
+
+            const nextHex = path[stepIndex];
+            const data = movementTicker.scheduleMovement(this, nextHex);
+            const unit: Unit = this;
+
+            currentConnection = data.finished.connect(() => {
+                currentConnection!.disconnect();
+                currentConnection = undefined;
+
+                // Change to only enemy hexes;
+                nextHex.setOwner(unit.owner);
+
+                stepIndex += 1;
+                executeNextStep();
+            })
+        }
+
+        executeNextStep();
+
+        const unit = this;
+        return {
+            cancel(): void {
+                isCancelled = true;
+                // Cancel whichever movement is in progress, if any.
+                movementTicker.cancelMovement(unit);
+                if (currentConnection) {
+                    currentConnection.disconnect();
+                    currentConnection = undefined;
+                }
+            },
+        };
     }
 
     public move(hex: Hex) {
@@ -76,6 +117,82 @@ export class Unit {
     public delete() {
         this.unitRepository.deleteUnit(this);
         this.unitReplicator.addToDeletionQueue(this);
+    }
+
+    // pathfinding here
+    private findPath(start: Hex, goal: Hex): Hex[] | undefined {
+        const openSet = new Set<Hex>();
+        openSet.add(start);
+
+        const cameFrom = new Map<Hex, Hex>();
+
+        const gScore = new Map<Hex, number>();
+        gScore.set(start, 0);
+
+        const fScore = new Map<Hex, number>();
+        fScore.set(start, this.heuristicCost(start, goal));
+
+        while (openSet.size() > 0) {
+            let current: Hex | undefined = undefined;
+            let bestF = math.huge;
+            openSet.forEach((h) => {
+                const score = fScore.get(h) ?? math.huge;
+                if (score < bestF) {
+                    bestF = score;
+                    current = h;
+                }
+            })
+            if (current === undefined) break;
+            let currentDef = current as Hex;
+
+            if (currentDef === goal) {
+                return this.reconstructPath(cameFrom, current);
+            }
+
+            openSet.delete(current);
+
+            currentDef.getNeighbors().forEach((neighbor) => {
+                if (false) {
+                    return;
+                }
+
+                const tentativeG = (gScore.get(currentDef) ?? math.huge) + this.movementCost(currentDef, neighbor);
+
+                const prevG = gScore.get(neighbor) ?? math.huge;
+                if (tentativeG < prevG) {
+                    cameFrom.set(neighbor, currentDef);
+                    gScore.set(neighbor, tentativeG);
+                    fScore.set(neighbor, tentativeG + this.heuristicCost(neighbor, goal));
+                    if (!openSet.has(neighbor)) {
+                        openSet.add(neighbor);
+                    }
+                }
+            })
+        }
+        return undefined;
+    }
+
+    private heuristicCost(a: Hex, b: Hex) {
+        return a.getPosition().distance(b.getPosition());
+    }
+
+    private movementCost(from: Hex, to: Hex) {
+        return 1;
+    }
+
+    private reconstructPath(cameFrom: Map<Hex, Hex>, current: Hex) {
+        const totalPath: Hex[] = [current];
+        let curr = current;
+        while (cameFrom.has(curr)) {
+            curr = cameFrom.get(curr)!;
+            totalPath.push(curr);
+        }
+        const path: Hex[] = [];
+        for (let i = totalPath.size() - 2; i >= 0; i--) {
+            path.push(totalPath[i]);
+        }
+
+        return path;
     }
 
     // getters & setters

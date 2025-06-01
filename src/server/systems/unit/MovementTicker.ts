@@ -32,6 +32,7 @@ export class MovementTicker {
     };
 
     public scheduleMovement(unit: Unit, destination: Hex) {
+        if (destination === undefined) error("Attempting movement to nil!");
         const data = {
             from: unit.getPosition(),
             to: destination,
