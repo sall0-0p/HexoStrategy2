@@ -1,0 +1,224 @@
+{
+  "H001": {
+    "name": "Hex_H001",
+    "q": -3,
+    "r": 0,
+    "hexType": "hex"
+  },
+  "H002": {
+    "name": "Hex_H002",
+    "q": -2,
+    "r": 0,
+    "hexType": "hex"
+  },
+  "H003": {
+    "name": "Hex_H003",
+    "q": -1,
+    "r": 0,
+    "hexType": "hex"
+  },
+  "H004": {
+    "name": "Hex_H003",
+    "q": 0,
+    "r": 0,
+    "hexType": "hex"
+  },
+  "H005": {
+    "name": "Hex_H001",
+    "q": 1,
+    "r": 0,
+    "hexType": "hex"
+  },
+  "H006": {
+    "name": "Hex_H001",
+    "q": 2,
+    "r": 0,
+    "hexType": "hex"
+  },
+  "H007": {
+    "name": "Hex_H001",
+    "q": 3,
+    "r": 0,
+    "hexType": "hex"
+  },
+  "H008": {
+    "name": "Hex_H001",
+    "q": -2,
+    "r": 1,
+    "hexType": "hex"
+  },
+  "H009": {
+    "name": "Hex_H001",
+    "q": -1,
+    "r": 1,
+    "hexType": "hex"
+  },
+  "H010": {
+    "name": "Hex_H001",
+    "q": 0,
+    "r": 1,
+    "hexType": "hex"
+  },
+  "H011": {
+    "name": "Hex_H001",
+    "q": 1,
+    "r": 1,
+    "hexType": "hex"
+  },
+  "H012": {
+    "name": "Hex_H001",
+    "q": 2,
+    "r": 1,
+    "hexType": "hex"
+  },
+  "H013": {
+    "name": "Hex_H001",
+    "q": -3,
+    "r": 1,
+    "hexType": "hex"
+  },
+  "H014": {
+    "name": "Hex_H014",
+    "q": -2,
+    "r": -1,
+    "hexType": "hex"
+  },
+  "H015": {
+    "name": "Hex_H015",
+    "q": -1,
+    "r": -1,
+    "hexType": "hex"
+  },
+  "H016": {
+    "name": "Hex_H016",
+    "q": 0,
+    "r": -1,
+    "hexType": "hex"
+  },
+  "H017": {
+    "name": "Hex_H017",
+    "q": 1,
+    "r": -1,
+    "hexType": "hex"
+  },
+  "H018": {
+    "name": "Hex_H018",
+    "q": 2,
+    "r": -1,
+    "hexType": "hex"
+  },
+  "H019": {
+    "name": "Hex_H019",
+    "q": 3,
+    "r": -1,
+    "hexType": "hex"
+  },
+  "H020": {
+    "name": "Hex_H020",
+    "q": -3,
+    "r": 2,
+    "hexType": "hex"
+  },
+  "H021": {
+    "name": "Hex_H021",
+    "q": -2,
+    "r": 2,
+    "hexType": "hex"
+  },
+  "H022": {
+    "name": "Hex_H022",
+    "q": -1,
+    "r": 2,
+    "hexType": "hex"
+  },
+  "H023": {
+    "name": "Hex_H023",
+    "q": 0,
+    "r": 2,
+    "hexType": "hex"
+  },
+  "H024": {
+    "name": "Hex_H024",
+    "q": 1,
+    "r": 2,
+    "hexType": "hex"
+  },
+  "H025": {
+    "name": "Hex_H025",
+    "q": -3,
+    "r": 3,
+    "hexType": "hex"
+  },
+  "H026": {
+    "name": "Hex_H026",
+    "q": -2,
+    "r": 3,
+    "hexType": "hex"
+  },
+  "H027": {
+    "name": "Hex_H027",
+    "q": -1,
+    "r": 3,
+    "hexType": "hex"
+  },
+  "H028": {
+    "name": "Hex_H028",
+    "q": 0,
+    "r": 3,
+    "hexType": "hex"
+  },
+  "H029": {
+    "name": "Hex_H029",
+    "q": -1,
+    "r": -2,
+    "hexType": "hex"
+  },
+  "H030": {
+    "name": "Hex_H030",
+    "q": 0,
+    "r": -2,
+    "hexType": "hex"
+  },
+  "H031": {
+    "name": "Hex_H031",
+    "q": 1,
+    "r": -2,
+    "hexType": "hex"
+  },
+  "H032": {
+    "name": "Hex_H032",
+    "q": 2,
+    "r": -2,
+    "hexType": "hex"
+  },
+  "H033": {
+    "name": "Hex_H033",
+    "q": 3,
+    "r": -2,
+    "hexType": "hex"
+  },
+  "H034": {
+    "name": "Hex_H034",
+    "q": 0,
+    "r": -3,
+    "hexType": "hex"
+  },
+  "H035": {
+    "name": "Hex_H035",
+    "q": 1,
+    "r": -3,
+    "hexType": "hex"
+  },
+  "H036": {
+    "name": "Hex_H036",
+    "q": 2,
+    "r": -3,
+    "hexType": "hex"
+  },
+  "H037": {
+    "name": "Hex_H037",
+    "q": 3,
+    "r": -3,
+    "hexType": "hex"
+  }
+}
