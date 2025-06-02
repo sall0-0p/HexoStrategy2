@@ -69,7 +69,12 @@ export class Unit {
                 currentConnection = undefined;
 
                 // Change to only enemy hexes;
-                nextHex.setOwner(unit.owner);
+                const relations = unit.getOwner().getRelations()
+                if (!nextHex.getOwner() ||
+                    relations.get(nextHex.getOwner()!.getId())?.status === DiplomaticRelationStatus.Enemy
+                ) {
+                    nextHex.setOwner(unit.owner);
+                }
 
                 stepIndex += 1;
                 executeNextStep();

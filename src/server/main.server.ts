@@ -54,4 +54,7 @@ const pnlRelations = ponylandia.getRelations();
 pnlRelations.set(fungaria.getId(), {
     status: DiplomaticRelationStatus.Enemy,
 } as DiplomaticRelation)
+pnlRelations.set(byrdlands.getId(), {
+    status: DiplomaticRelationStatus.Allied,
+})
 ponylandia.setRelations(pnlRelations);

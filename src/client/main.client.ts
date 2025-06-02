@@ -9,4 +9,4 @@ declare global {
 print("Getting GameState")
 const gameState = GameState.getInstance();
 print("Selecting PNL")
-gameState.switchNation("PNL");
+gameState.switchNation("PNL")
