@@ -87,8 +87,6 @@ export class UnitStack {
     }
 
     public explode(selected?: boolean) {
-        print(`Exploding ${this.id} with ${this.units.size()} in it`);
-        print(debug.traceback());
         const activeHex = this.hex;
         const oldUnits = [...this.units];
         let results: UnitStack[] = [];

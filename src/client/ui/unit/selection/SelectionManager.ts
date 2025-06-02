@@ -34,12 +34,22 @@ export class SelectionManager {
         });
 
         stacks.forEach((stack) => {
-            print(stack.getId(), stack.getUnits().size());
-            if (stack.getUnits().size() < 5 && stack.getUnits().size() > 1) {
-                print("Exploding here!");
-                stack.explode(true);
+            let isHomogeneous = true;
+            stack.getUnits().forEach((unit) => {
+                if (!units.includes(unit)) {
+                    isHomogeneous = false;
+                }
+            })
+
+            if (isHomogeneous) {
+                if (stack.getUnits().size() < 5 && stack.getUnits().size() > 1) {
+                    stack.explode(true);
+                } else {
+                    stack.setSelected(true);
+                }
             } else {
-                stack.setSelected(true);
+                const newStack = stack.split(units);
+                newStack.setSelected(true);
             }
         })
     }
@@ -53,8 +63,6 @@ export class SelectionManager {
             const stack = this.unitFlairManager.findStackByUnit(unit);
             if (stack) {
                 const frame = stack.getFlair().getFrame();
-                print(stack.getId(), stack.getUnits().size());
-                print(frame, frame.Parent);
                 stack.setSelected(false);
                 affectedStacks.add(stack);
             }
@@ -77,7 +85,6 @@ export class SelectionManager {
     }
 
     public deselectAll() {
-        print("Deselect Triggered!");
         this.deselect([...this.selectedUnits]);
     }
 
@@ -104,8 +111,6 @@ export class SelectionManager {
                 this.select(unitsOnPosition);
             }
         } else {
-            print("Hello World!");
-            print(unitsOnPosition.size());
             this.deselectAll();
             this.select(unitsOnPosition);
         }
