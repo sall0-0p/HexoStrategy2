@@ -34,7 +34,9 @@ export class SelectionManager {
         });
 
         stacks.forEach((stack) => {
-            if (stack.getUnits().size() < 5) {
+            print(stack.getId(), stack.getUnits().size());
+            if (stack.getUnits().size() < 5 && stack.getUnits().size() > 1) {
+                print("Exploding here!");
                 stack.explode(true);
             } else {
                 stack.setSelected(true);
@@ -50,6 +52,9 @@ export class SelectionManager {
 
             const stack = this.unitFlairManager.findStackByUnit(unit);
             if (stack) {
+                const frame = stack.getFlair().getFrame();
+                print(stack.getId(), stack.getUnits().size());
+                print(frame, frame.Parent);
                 stack.setSelected(false);
                 affectedStacks.add(stack);
             }
@@ -62,6 +67,7 @@ export class SelectionManager {
 
             if (stacksInHex) stacksInHex.some((s) => {
                 if (stack.isMergeable(s)) {
+                    // removing join made them not join together, but deselects them correctly.
                     s.join(stack);
                     return true;
                 }
@@ -71,6 +77,7 @@ export class SelectionManager {
     }
 
     public deselectAll() {
+        print("Deselect Triggered!");
         this.deselect([...this.selectedUnits]);
     }
 
@@ -85,7 +92,10 @@ export class SelectionManager {
         const unitsOnPosition = this.getUnitsOnPosition(position);
 
         // Deselect if no unit is in place :>
-        if (unitsOnPosition.size() === 0) this.deselectAll();
+        if (unitsOnPosition.size() === 0) {
+            this.deselectAll();
+            return;
+        }
 
         if (this.isShiftPressed()) {
             if (this.selectedUnits.includes(unitsOnPosition[0])) {
@@ -94,6 +104,8 @@ export class SelectionManager {
                 this.select(unitsOnPosition);
             }
         } else {
+            print("Hello World!");
+            print(unitsOnPosition.size());
             this.deselectAll();
             this.select(unitsOnPosition);
         }

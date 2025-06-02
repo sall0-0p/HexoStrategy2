@@ -17,6 +17,7 @@ export class Flair {
     private hex: Hex;
 
     constructor(stack: UnitStack, units: Unit[]) {
+        // print(debug.traceback());
         this.id = stack.getId();
         this.hex = stack.getHex();
         this.containers = stack.getUnitFlairManager().containers;
@@ -85,6 +86,10 @@ export class Flair {
 
     public getId() {
         return this.id;
+    }
+
+    public getFrame() {
+        return this.frame;
     }
 
     private createContainer(hex: Hex) {
