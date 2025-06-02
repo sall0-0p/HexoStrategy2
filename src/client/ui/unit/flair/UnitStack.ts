@@ -88,8 +88,10 @@ export class UnitStack {
 
     public explode(selected?: boolean) {
         const activeHex = this.hex;
+        const oldUnits = [...this.units];
         let results: UnitStack[] = [];
-        this.units.forEach((unit) => {
+
+        oldUnits.forEach((unit) => {
             this.removeUnit(unit);
             const stack = new UnitStack([unit], this.unitFlairManager, this.selected, activeHex);
 
@@ -236,6 +238,10 @@ export class UnitStack {
 
     public getTemplate() {
         return this.templateId;
+    }
+
+    public getFlair() {
+        return this.flair;
     }
 
     public getUnitFlairManager() {

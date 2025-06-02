@@ -34,10 +34,22 @@ export class SelectionManager {
         });
 
         stacks.forEach((stack) => {
-            if (stack.getUnits().size() < 5) {
-                stack.explode(true);
+            let isHomogeneous = true;
+            stack.getUnits().forEach((unit) => {
+                if (!units.includes(unit)) {
+                    isHomogeneous = false;
+                }
+            })
+
+            if (isHomogeneous) {
+                if (stack.getUnits().size() < 5 && stack.getUnits().size() > 1) {
+                    stack.explode(true);
+                } else {
+                    stack.setSelected(true);
+                }
             } else {
-                stack.setSelected(true);
+                const newStack = stack.split(units);
+                newStack.setSelected(true);
             }
         })
     }
@@ -50,6 +62,7 @@ export class SelectionManager {
 
             const stack = this.unitFlairManager.findStackByUnit(unit);
             if (stack) {
+                const frame = stack.getFlair().getFrame();
                 stack.setSelected(false);
                 affectedStacks.add(stack);
             }
@@ -62,6 +75,7 @@ export class SelectionManager {
 
             if (stacksInHex) stacksInHex.some((s) => {
                 if (stack.isMergeable(s)) {
+                    // removing join made them not join together, but deselects them correctly.
                     s.join(stack);
                     return true;
                 }
@@ -85,7 +99,10 @@ export class SelectionManager {
         const unitsOnPosition = this.getUnitsOnPosition(position);
 
         // Deselect if no unit is in place :>
-        if (unitsOnPosition.size() === 0) this.deselectAll();
+        if (unitsOnPosition.size() === 0) {
+            this.deselectAll();
+            return;
+        }
 
         if (this.isShiftPressed()) {
             if (this.selectedUnits.includes(unitsOnPosition[0])) {
