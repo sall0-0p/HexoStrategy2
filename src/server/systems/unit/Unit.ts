@@ -187,7 +187,9 @@ export class Unit {
     }
 
     private heuristicCost(a: Hex, b: Hex) {
-        return a.getPosition().distance(b.getPosition());
+        // const hexDistance = a.getPosition().distance(b.getPosition());
+        const physicalDistance = math.abs((a.getModel().GetPivot().Position.sub(b.getModel().GetPivot().Position)).Magnitude);
+        return physicalDistance;
     }
 
     private movementCost(from: Hex, to: Hex) {
