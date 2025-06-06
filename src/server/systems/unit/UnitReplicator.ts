@@ -76,7 +76,7 @@ export class UnitReplicator {
             }),
             died: true,
         } as UnitDeleteMessage);
-        this.deletedUnits.clear();
+        this.deadUnits.clear();
     }
 
     private broadcastDeletions() {
