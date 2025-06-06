@@ -3,6 +3,7 @@ import {Players, UserInputService} from "@rbxts/services";
 import {UnitRepository} from "../../../systems/unit/UnitRepository";
 import {UnitFlairManager} from "../flair/UnitFlairManager";
 import {UnitStack} from "../flair/UnitStack";
+import {TrailManager} from "../trail/TrailManager";
 
 const player = Players.LocalPlayer;
 const playerGui: PlayerGui = player.WaitForChild("PlayerGui") as PlayerGui;
@@ -10,6 +11,7 @@ export class SelectionManager {
     private selectedUnits: Unit[] = [];
 
     private unitFlairManager = UnitFlairManager.getInstance();
+    private trailManager = TrailManager.getInstance();
     private connection;
     public static instance: SelectionManager;
     private constructor() {
@@ -52,6 +54,8 @@ export class SelectionManager {
                 newStack.setSelected(true);
             }
         })
+
+        this.trailManager.onSelect(units);
     }
 
     public deselect(units: Unit[]) {
@@ -82,6 +86,8 @@ export class SelectionManager {
                 return false;
             })
         })
+
+        this.trailManager.onDeselect(units);
     }
 
     public deselectAll() {
@@ -155,6 +161,7 @@ export class SelectionManager {
 
     // singleton shenanigans
     private clear() {
+        TrailManager.resetInstance();
         this.connection.Disconnect();
     };
 

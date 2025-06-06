@@ -54,9 +54,29 @@ export class Unit {
         let currentConnection: Connection | undefined = undefined;
         let stepIndex = 0;
 
+        this.currentMovement = {
+            to: goal,
+            from: start,
+            path: path,
+            current: path[0],
+            cancel(): void {
+                isCancelled = true;
+                // Cancel whichever movement is in progress, if any.
+                movementTicker.cancelMovement(unit);
+                if (currentConnection) {
+                    currentConnection.disconnect();
+                    currentConnection = undefined;
+                    unit.currentMovement = undefined;
+                }
+            },
+        };
+
+        movementTicker.scheduleOrder(unit);
+
         const executeNextStep = () => {
             if (isCancelled || stepIndex >= path.size()) {
                 this.currentMovement = undefined;
+                movementTicker.notifyReached(this);
                 return;
             }
 
@@ -69,12 +89,13 @@ export class Unit {
                 currentConnection = undefined;
 
                 // Change to only enemy hexes;
-                const relations = unit.getOwner().getRelations()
+                const relations = unit.getOwner().getRelations();
                 if (!nextHex.getOwner() ||
                     relations.get(nextHex.getOwner()!.getId())?.status === DiplomaticRelationStatus.Enemy
                 ) {
                     nextHex.setOwner(unit.owner);
                 }
+                this.currentMovement!.current = nextHex;
 
                 stepIndex += 1;
                 executeNextStep();
@@ -82,22 +103,6 @@ export class Unit {
         }
 
         executeNextStep();
-
-        this.currentMovement = {
-            to: goal,
-            from: start,
-            path: path,
-            cancel(): void {
-                isCancelled = true;
-                // Cancel whichever movement is in progress, if any.
-                movementTicker.cancelMovement(unit);
-                if (currentConnection) {
-                    currentConnection.disconnect();
-                    currentConnection = undefined;
-                    unit.currentMovement = undefined;
-                }
-            },
-        };
         return this.currentMovement;
     }
 
@@ -310,6 +315,10 @@ export class Unit {
         this.changedSignal?.fire("position", position);
     }
 
+    public getCurrentMovemementOrder() {
+        return this.currentMovement;
+    }
+
     public getChangedSignal() {
         if (!this.changedSignal) {
             this.changedSignal = new Signal();
@@ -342,6 +351,7 @@ export interface ActiveMovementOrder {
     to: Hex,
     from: Hex,
     path: Hex[],
+    current: Hex,
     cancel(): void,
 }
 
