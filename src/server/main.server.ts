@@ -37,13 +37,14 @@ let fungaria: Nation = nationRepository.getById("FNG")!;
 let pnlCapital = hexRepository.getById("H009")!;
 let brdCapital = hexRepository.getById("H002")!;
 let fngCapital = hexRepository.getById("H005")!;
-let pnlUnit: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", ponylandia);
+let plnInfantry: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", ponylandia);
+let plnMotorised: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 12, 120, new Instance("Model"), "", ponylandia);
 let brdUnit: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", byrdlands);
 let fngUnit: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "", fungaria);
 
-new Unit(pnlUnit, pnlCapital);
-new Unit(pnlUnit, pnlCapital);
-new Unit(pnlUnit, pnlCapital);
+new Unit(plnInfantry, pnlCapital);
+new Unit(plnInfantry, pnlCapital);
+new Unit(plnMotorised, pnlCapital);
 new Unit(brdUnit, brdCapital);
 new Unit(brdUnit, brdCapital);
 new Unit(fngUnit, fngCapital);
