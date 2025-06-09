@@ -339,6 +339,7 @@ export class Unit {
             organisation: this.organisation,
             ownerId: this.owner.getId(),
             positionId: this.position.getId(),
+            icon: this.template.getIcon(), // TODO: Move to TemplateDTO, when it is added.
         } as UnitDTO;
     }
 }

@@ -14,6 +14,7 @@ export class Unit {
     private organisation: number;
     private owner: Nation;
     private position: Hex;
+    private icon: string;
 
     private nationRepository = NationRepository.getInstance();
     private hexRepository = HexRepository.getInstance();
@@ -27,6 +28,7 @@ export class Unit {
         this.template = data.templateId; // TODO: Convert into template;
         this.hp = data.hp;
         this.organisation = data.organisation;
+        this.icon = data.icon;
 
         if (this.nationRepository.getById(data.ownerId) === undefined) {
             error(`Nation ${data.ownerId} is not found, perhaps archives are incomplete.`)
@@ -110,6 +112,10 @@ export class Unit {
         this.position = position
         this.changedSignal?.fire("position", position);
         // unitFlairManager.updateUnitPosition(this, oldPosition);
+    }
+
+    public getIcon() {
+        return this.icon;
     }
 
     public getChangedSignal() {

@@ -17,7 +17,6 @@ export class Flair {
     private hex: Hex;
 
     constructor(stack: UnitStack, units: Unit[]) {
-        // print(debug.traceback());
         this.id = stack.getId();
         this.hex = stack.getHex();
         this.containers = stack.getUnitFlairManager().containers;
@@ -29,15 +28,25 @@ export class Flair {
         this.setColor(units[0].getOwner().getColor());
         this.setFlag(units[0].getOwner().getFlag());
         this.setQuantity(units.size());
+        this.setIcon(units[0].getIcon());
         this.container.addFlair(this);
     }
 
     public setColor(color: Color3) {
         const body = this.frame.WaitForChild("Body") as Frame;
         const qtyContainer = this.frame.WaitForChild("Body").WaitForChild("QuantityContainer") as Frame;
+        const iconLabel = this.frame.WaitForChild("Body")
+            .WaitForChild("IconContainer")
+            .WaitForChild("TemplateIcon") as ImageLabel;
 
         body.BackgroundColor3 = color;
         qtyContainer.BackgroundColor3 = color;
+
+        // Icon color offset,
+        // applied to make icons a bit brighter compared to everything else
+        const offset = 100/255;
+        const iconColor = new Color3(color.R + offset, color.G + offset, color.B + offset)
+        iconLabel.ImageColor3 = iconColor;
     }
 
     public setFlag(flag: string) {
@@ -72,6 +81,14 @@ export class Flair {
             .WaitForChild("OrganisationBar") as Frame;
 
         orgBar.Size = UDim2.fromScale(org, 1);
+    }
+
+    public setIcon(icon: string) {
+        const iconLabel = this.frame.WaitForChild("Body")
+            .WaitForChild("IconContainer")
+            .WaitForChild("TemplateIcon") as ImageLabel;
+
+        iconLabel.Image = icon;
     }
 
     public setSelected(selected: boolean) {
