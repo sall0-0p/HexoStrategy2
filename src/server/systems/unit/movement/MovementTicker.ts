@@ -1,8 +1,8 @@
-import { Hex } from "../../world/hex/Hex";
-import { Unit } from "./Unit";
+import { Hex } from "../../../world/hex/Hex";
+import { Unit } from "../Unit";
 import { RunService } from "@rbxts/services";
-import { Signal } from "../../../shared/classes/Signal";
-import { UnitRepository } from "./UnitRepository";
+import { Signal } from "../../../../shared/classes/Signal";
+import { UnitRepository } from "../UnitRepository";
 import { MovementSubscriptionManager } from "./MovementSubscriptionManager";
 
 type MovementData = {

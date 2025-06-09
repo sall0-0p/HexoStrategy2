@@ -5,8 +5,11 @@ import {UnitRepository} from "./UnitRepository";
 import {Connection, Signal} from "../../../shared/classes/Signal";
 import {UnitDTO} from "../../../shared/dto/UnitDTO";
 import {UnitReplicator} from "./UnitReplicator";
-import {MovementTicker} from "./MovementTicker";
+import {MovementTicker} from "./movement/MovementTicker";
 import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
+import {MovementPathfinder} from "./movement/MovementPathfinder";
+import findPath = MovementPathfinder.findPath;
+import {MovementController} from "./movement/MovementController";
 
 const movementTicker = MovementTicker.getInstance();
 export class Unit {
@@ -46,66 +49,15 @@ export class Unit {
         // for each of them until reaching its destination,
         // while replicating progress to the client.
         const start = this.getPosition();
-        const path = this.findPath(start, goal);
+        const path = findPath(this, start, goal);
         const unit = this;
 
         if (!path) {
             return;
         }
 
-        let isCancelled = false;
-        let currentConnection: Connection | undefined = undefined;
-        let stepIndex = 0;
-
-        this.currentMovement = {
-            to: goal,
-            from: start,
-            path: path,
-            current: path[0],
-            cancel(): void {
-                isCancelled = true;
-                // Cancel whichever movement is in progress, if any.
-                movementTicker.cancelMovement(unit);
-                if (currentConnection) {
-                    currentConnection.disconnect();
-                    currentConnection = undefined;
-                    unit.currentMovement = undefined;
-                }
-            },
-        };
-
-        movementTicker.scheduleOrder(unit);
-
-        const executeNextStep = () => {
-            if (isCancelled || stepIndex >= path.size()) {
-                this.currentMovement = undefined;
-                movementTicker.notifyReached(this);
-                return;
-            }
-
-            const nextHex = path[stepIndex];
-            const data = movementTicker.scheduleMovement(this, nextHex);
-            const unit: Unit = this;
-
-            currentConnection = data.finished.connect(() => {
-                currentConnection!.disconnect();
-                currentConnection = undefined;
-
-                // Change to only enemy hexes;
-                const relations = unit.getOwner().getRelations();
-                if (!nextHex.getOwner() ||
-                    relations.get(nextHex.getOwner()!.getId())?.status === DiplomaticRelationStatus.Enemy
-                ) {
-                    nextHex.setOwner(unit.owner);
-                }
-                this.currentMovement!.current = nextHex;
-
-                stepIndex += 1;
-                executeNextStep();
-            })
-        }
-
-        executeNextStep();
+        const controller = new MovementController(this, path, movementTicker);
+        this.currentMovement = controller.start();
         return this.currentMovement;
     }
 
@@ -139,105 +91,6 @@ export class Unit {
     public delete() {
         this.unitRepository.deleteUnit(this);
         this.unitReplicator.addToDeletionQueue(this);
-    }
-
-    // pathfinding here
-    private findPath(start: Hex, goal: Hex): Hex[] | undefined {
-        const openSet = new Set<Hex>();
-        openSet.add(start);
-
-        const cameFrom = new Map<Hex, Hex>();
-
-        const gScore = new Map<Hex, number>();
-        gScore.set(start, 0);
-
-        const fScore = new Map<Hex, number>();
-        fScore.set(start, this.heuristicCost(start, goal));
-
-        while (openSet.size() > 0) {
-            let current: Hex | undefined = undefined;
-            let bestF = math.huge;
-            openSet.forEach((h) => {
-                const score = fScore.get(h) ?? math.huge;
-                if (score < bestF) {
-                    bestF = score;
-                    current = h;
-                }
-            })
-            if (current === undefined) break;
-            let currentDef = current as Hex;
-
-            if (currentDef === goal) {
-                return this.reconstructPath(cameFrom, current);
-            }
-
-            openSet.delete(current);
-
-            currentDef.getNeighbors().forEach((neighbor) => {
-                if (!this.isTraversable(currentDef, neighbor)) {
-                    return;
-                }
-
-                const tentativeG = (gScore.get(currentDef) ?? math.huge) + this.movementCost(currentDef, neighbor);
-
-                const prevG = gScore.get(neighbor) ?? math.huge;
-                if (tentativeG < prevG) {
-                    cameFrom.set(neighbor, currentDef);
-                    gScore.set(neighbor, tentativeG);
-                    fScore.set(neighbor, tentativeG + this.heuristicCost(neighbor, goal));
-                    if (!openSet.has(neighbor)) {
-                        openSet.add(neighbor);
-                    }
-                }
-            })
-        }
-        return undefined;
-    }
-
-    private heuristicCost(a: Hex, b: Hex) {
-        // const hexDistance = a.getPosition().distance(b.getPosition());
-        const physicalDistance = math.abs((a.getModel().GetPivot().Position.sub(b.getModel().GetPivot().Position)).Magnitude);
-        return physicalDistance;
-    }
-
-    private movementCost(from: Hex, to: Hex) {
-        if (to.getOwner()?.getId() !== this.getOwner().getId()) return 1.25;
-        return 1;
-    }
-
-    private isTraversable(from: Hex, to: Hex) {
-        const hexOwner = to.getOwner();
-        const unitOwner = this.getOwner();
-
-        if (hexOwner) {
-            if (hexOwner.getId() === unitOwner.getId()) return true;
-
-            const unitOwnerRelations = unitOwner.getRelations();
-            const relations = unitOwnerRelations.get(hexOwner.getId());
-
-            return (relations &&
-                (relations.status === DiplomaticRelationStatus.Allied ||
-                relations.status  === DiplomaticRelationStatus.Enemy)
-            )
-        } else {
-            // Check if water or whatever.
-            return true;
-        }
-    }
-
-    private reconstructPath(cameFrom: Map<Hex, Hex>, current: Hex) {
-        const totalPath: Hex[] = [current];
-        let curr = current;
-        while (cameFrom.has(curr)) {
-            curr = cameFrom.get(curr)!;
-            totalPath.push(curr);
-        }
-        const path: Hex[] = [];
-        for (let i = totalPath.size() - 2; i >= 0; i--) {
-            path.push(totalPath[i]);
-        }
-
-        return path;
     }
 
     // getters & setters

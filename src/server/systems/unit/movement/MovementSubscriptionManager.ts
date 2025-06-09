@@ -8,9 +8,9 @@ import {
     MovementProgressMessage,
     MovementUpdateMessage,
     MovementEndedMessage,
-} from "../../../shared/dto/MovementDataSubscription";
-import { Unit } from "./Unit";
-import { UnitRepository } from "./UnitRepository";
+} from "../../../../shared/dto/MovementDataSubscription";
+import { Unit } from "../Unit";
+import { UnitRepository } from "../UnitRepository";
 import { MovementTicker } from "./MovementTicker";
 
 const subscriber = ReplicatedStorage.WaitForChild("Events")
