@@ -39,6 +39,9 @@ export class Unit {
 
     // logic
     public moveTo(goal: Hex) {
+        if (this.currentMovement) {
+            this.currentMovement.cancel();
+        }
         // This method will compute A* path from hexes, after that -> execute .move()
         // for each of them until reaching its destination,
         // while replicating progress to the client.

@@ -6,9 +6,14 @@ import {
     MovementStartedMessage, MovementSubscriptionMessage,
     MovementUpdateMessage, SubscribeRequest, SubscribeResponse, UnsubscribeRequest
 } from "../../../../shared/dto/MovementDataSubscription";
+import {HexRepository} from "../../../world/hex/HexRepository";
+import {Hex} from "../../../world/hex/Hex";
+import {UnitRepository} from "../../../systems/unit/UnitRepository";
 
 const subscriber = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("PathSubscriber") as RemoteFunction;
+const unsubscriber = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("PathUnsubscriber") as RemoteFunction;
 const subscriptionMessenger = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("PathSubscriptionEvent") as RemoteEvent;
 
@@ -16,6 +21,8 @@ export class TrailManager {
     private trails = new Map<Unit, Trail>;
     private subscribedUnits = new Set<Unit>;
 
+    private hexRepository = HexRepository.getInstance();
+    private unitRepository = UnitRepository.getInstance();
     private static instance: TrailManager;
     private constructor() {
         subscriptionMessenger.OnClientEvent.Connect((payload) => this.onMessage(payload));
@@ -23,13 +30,13 @@ export class TrailManager {
 
     private onMessage(message: MovementSubscriptionMessage) {
         if (message.type === "started") {
-            print("STARTED:", message.payload);
+            this.onStartMessage(message);
         } else if (message.type === "update") {
-            print("UPDATED:", message.payload);
+            this.onUpdateMessage(message)
         } else if (message.type === "progress") {
 
         } else if (message.type === "end") {
-            print("ENDED:", message.payload);
+            this.onFinishedMessage(message);
         }
     }
 
@@ -50,6 +57,10 @@ export class TrailManager {
         })
 
         const response: SubscribeResponse = subscriber.InvokeServer({ units: payload } as SubscribeRequest);
+        const responsePayload = response.payload;
+        responsePayload.forEach((data, unitId) => {
+            this.addTrail(this.queryUnit(unitId), this.queryPath(data.path), this.queryHex(data.current));
+        })
     }
 
     private unsubscribe(units: Unit[]) {
@@ -60,19 +71,68 @@ export class TrailManager {
             payload.push(unit.getId());
         })
 
-        subscriptionMessenger.FireServer({ units: payload } as UnsubscribeRequest);
+        unsubscriber.InvokeServer({ units: payload } as UnsubscribeRequest);
+        units.forEach((unit) => {
+            this.trails.get(unit)?.destroy();
+            this.trails.delete(unit);
+        })
     }
 
     private onStartMessage(message: MovementStartedMessage) {
-
+        const payload = message.payload;
+        payload.forEach((data, unitId) => {
+            const path = this.queryPath(data.path);
+            this.addTrail(this.queryUnit(unitId), path, path[0]);
+        })
     }
 
-    private onUpdateEvent(message: MovementUpdateMessage) {
-
+    private onUpdateMessage(message: MovementUpdateMessage) {
+        const payload = message.payload;
+        payload.forEach((data, unitId) => {
+            const unit = this.queryUnit(unitId);
+            const trail = this.trails.get(unit);
+            trail?.update(this.queryPath(data.path), this.queryHex(data.current));
+        })
     }
 
     private onFinishedMessage(message: MovementEndedMessage) {
+        const payload = message.payload;
+        payload.forEach((unitId) => {
+            const unit = this.queryUnit(unitId);
+            this.trails.get(unit)?.destroy();
+            this.trails.delete(unit);
+        })
+    }
 
+    private addTrail(unit: Unit, path: Hex[], current: Hex) {
+        if (this.trails.has(unit)) {
+            warn(`Trail already exists for unit ${unit.getId()}!`);
+            this.trails.get(unit)?.destroy();
+            this.trails.delete(unit);
+        }
+
+        const trail = new Trail(path, current);
+        this.trails.set(unit, trail);
+    }
+
+    private queryPath(path: string[]): Hex[] {
+        const result: Hex[] = [];
+        path.forEach((hexId) => {
+            result.push(this.queryHex(hexId));
+        })
+        return result;
+    }
+
+    private queryUnit(unitId: string) {
+        const candidate = this.unitRepository.getById(unitId);
+        if (!candidate) error(`Failed to find unit ${unitId}.`);
+        return candidate;
+    }
+
+    private queryHex(hexId: string) {
+        const candidate = this.hexRepository.getById(hexId);
+        if (!candidate) error(`Hex with id ${hexId} was not found!`);
+        return candidate;
     }
 
     // singleton shenanigans
