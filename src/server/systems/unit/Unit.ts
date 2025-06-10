@@ -9,7 +9,6 @@ import {MovementTicker} from "./movement/MovementTicker";
 import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
 import {MovementPathfinder} from "./movement/MovementPathfinder";
 import findPath = MovementPathfinder.findPath;
-import {MovementController} from "./movement/MovementController";
 
 const movementTicker = MovementTicker.getInstance();
 export class Unit {
@@ -56,8 +55,59 @@ export class Unit {
             return;
         }
 
-        const controller = new MovementController(this, path, movementTicker);
-        this.currentMovement = controller.start();
+        let isCancelled = false;
+        let currentConnection: Connection | undefined = undefined;
+        let stepIndex = 0;
+
+        this.currentMovement = {
+            to: goal,
+            from: start,
+            path: path,
+            current: path[0],
+            cancel(): void {
+                isCancelled = true;
+                // Cancel whichever movement is in progress, if any.
+                movementTicker.cancelMovement(unit);
+                if (currentConnection) {
+                    currentConnection.disconnect();
+                    currentConnection = undefined;
+                    unit.currentMovement = undefined;
+                }
+            },
+        };
+
+        movementTicker.scheduleOrder(unit);
+
+        const executeNextStep = () => {
+            if (isCancelled || stepIndex >= path.size()) {
+                this.currentMovement = undefined;
+                movementTicker.notifyReached(this);
+                return;
+            }
+
+            const nextHex = path[stepIndex];
+            const data = movementTicker.scheduleMovement(this, nextHex);
+            const unit: Unit = this;
+
+            currentConnection = data.finished.connect(() => {
+                currentConnection!.disconnect();
+                currentConnection = undefined;
+
+                // Change to only enemy hexes;
+                const relations = unit.getOwner().getRelations();
+                if (!nextHex.getOwner() ||
+                    relations.get(nextHex.getOwner()!.getId())?.status === DiplomaticRelationStatus.Enemy
+                ) {
+                    nextHex.setOwner(unit.owner);
+                }
+                this.currentMovement!.current = nextHex;
+
+                stepIndex += 1;
+                executeNextStep();
+            })
+        }
+
+        executeNextStep();
         return this.currentMovement;
     }
 
