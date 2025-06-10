@@ -93,7 +93,6 @@ export class Unit {
                 currentConnection!.disconnect();
                 currentConnection = undefined;
 
-                // Change to only enemy hexes;
                 const relations = unit.getOwner().getRelations();
                 if (!nextHex.getOwner() ||
                     relations.get(nextHex.getOwner()!.getId())?.status === DiplomaticRelationStatus.Enemy
