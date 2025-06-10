@@ -44,20 +44,25 @@ export class Unit {
         if (this.currentMovement) {
             this.currentMovement.cancel();
         }
-        // This method will compute A* path from hexes, after that -> execute .move()
-        // for each of them until reaching its destination,
-        // while replicating progress to the client.
+
         const start = this.getPosition();
         const path = findPath(this, start, goal);
+        // const path: Hex[] = [];
         const unit = this;
 
         if (!path) {
             return;
         }
 
+        // fullPath.forEach((node, index) => {
+        //     if (index !== 0) {
+        //         path.push(node);
+        //     }
+        // })
+
         let isCancelled = false;
         let currentConnection: Connection | undefined = undefined;
-        let stepIndex = 0;
+        let stepIndex = 1;
 
         this.currentMovement = {
             to: goal,

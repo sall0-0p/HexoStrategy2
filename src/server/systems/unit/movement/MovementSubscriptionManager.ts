@@ -127,7 +127,7 @@ export class MovementSubscriptionManager {
 
         const pathIds = order.path.map((hex) => hex.getId());
         const info: Partial<UnitPathingData> = {
-            progress: 0,
+            progress: dataProgress,
             current: pathIds[0],
         };
 

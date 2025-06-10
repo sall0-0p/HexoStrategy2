@@ -93,8 +93,9 @@ export namespace MovementPathfinder {
             curr = cameFrom.get(curr)!;
             totalPath.push(curr);
         }
+
         const path: Hex[] = [];
-        for (let i = totalPath.size() - 2; i >= 0; i--) {
+        for (let i = totalPath.size() - 1; i >= 0; i--) {
             path.push(totalPath[i]);
         }
 

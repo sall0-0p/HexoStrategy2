@@ -1,8 +1,8 @@
 import {Unit} from "../../../systems/unit/Unit";
 import {Trail} from "./Trail";
-import {ReplicatedStorage} from "@rbxts/services";
+import {ReplicatedStorage, Workspace} from "@rbxts/services";
 import {
-    MovementEndedMessage,
+    MovementEndedMessage, MovementProgressMessage,
     MovementStartedMessage, MovementSubscriptionMessage,
     MovementUpdateMessage, SubscribeRequest, SubscribeResponse, UnsubscribeRequest
 } from "../../../../shared/dto/MovementDataSubscription";
@@ -23,18 +23,19 @@ export class TrailManager {
 
     private hexRepository = HexRepository.getInstance();
     private unitRepository = UnitRepository.getInstance();
+    private connection;
     private static instance: TrailManager;
     private constructor() {
-        subscriptionMessenger.OnClientEvent.Connect((payload) => this.onMessage(payload));
+        this.connection = subscriptionMessenger.OnClientEvent.Connect((payload) => this.onMessage(payload));
     }
 
     private onMessage(message: MovementSubscriptionMessage) {
         if (message.type === "started") {
             this.onStartMessage(message);
         } else if (message.type === "update") {
-            this.onUpdateMessage(message)
+            this.onUpdateMessage(message);
         } else if (message.type === "progress") {
-
+            this.onProgressMessage(message);
         } else if (message.type === "end") {
             this.onFinishedMessage(message);
         }
@@ -95,6 +96,16 @@ export class TrailManager {
         })
     }
 
+    private onProgressMessage(message: MovementProgressMessage) {
+        const payload = message.payload;
+        payload.forEach((data, unitId) => {
+            if (!data.progress) return;
+            const unit = this.queryUnit(unitId);
+            const trail = this.trails.get(unit);
+            trail?.updateProgress(data.progress);
+        })
+    }
+
     private onFinishedMessage(message: MovementEndedMessage) {
         const payload = message.payload;
         payload.forEach((unitId) => {
@@ -137,7 +148,9 @@ export class TrailManager {
 
     // singleton shenanigans
     private clear() {
-
+        this.trails.forEach((trail) => trail.destroy());
+        this.trails.clear();
+        this.connection.Disconnect();
     };
 
     public static resetInstance() {
