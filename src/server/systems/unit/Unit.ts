@@ -8,6 +8,8 @@ import {UnitReplicator} from "./UnitReplicator";
 import {MovementTicker} from "./movement/MovementTicker";
 import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
 import {MovementPathfinder} from "./movement/MovementPathfinder";
+import {ModifierContainer} from "../modifier/ModifierContainer";
+import {ModifiableProperty} from "../modifier/ModifiableProperty";
 import findPath = MovementPathfinder.findPath;
 
 const movementTicker = MovementTicker.getInstance();
@@ -20,6 +22,7 @@ export class Unit {
     private owner: Nation;
     private position: Hex;
     private currentMovement?: ActiveMovementOrder;
+    private modifierContainer = new ModifierContainer();
 
     private unitReplicator = UnitReplicator.getInstance();
     private unitRepository = UnitRepository.getInstance();
@@ -147,6 +150,14 @@ export class Unit {
         this.unitReplicator.addToDeletionQueue(this);
     }
 
+    private updateModifierParents() {
+        this.modifierContainer.setParents([
+            this.owner.getModifierContainer(),
+            this.position.getModifierContainer(),
+            this.position.getRegion().getModifierContainer(),
+        ])
+    }
+
     // getters & setters
     public getId() {
         return this.id;
@@ -208,6 +219,11 @@ export class Unit {
         });
         this.unitRepository.updateUnit(this, "owner", oldOwner, owner);
         this.changedSignal?.fire("owner", owner);
+        this.updateModifierParents();
+    }
+
+    public getSpeed() {
+        return this.modifierContainer.getEffectiveValue(this.template.getSpeed(), ModifiableProperty.UnitSpeed);
     }
 
     public getPosition() {
@@ -223,10 +239,15 @@ export class Unit {
         });
         this.unitRepository.updateUnit(this, "position", oldPosition, position);
         this.changedSignal?.fire("position", position);
+        this.updateModifierParents();
     }
 
     public getCurrentMovemementOrder() {
         return this.currentMovement;
+    }
+
+    public getModifierContainer() {
+        return this.modifierContainer;
     }
 
     public getChangedSignal() {

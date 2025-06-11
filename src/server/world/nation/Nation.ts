@@ -2,6 +2,7 @@ import {NationDTO} from "../../../shared/dto/NationDTO";
 import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
 import {Signal} from "../../../shared/classes/Signal";
 import {DiplomaticRelation, DiplomaticRelationStatus} from "../../systems/diplomacy/DiplomaticRelation";
+import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 
 export class Nation {
     private id;
@@ -10,6 +11,7 @@ export class Nation {
     private flag: string;
     private player?: Player;
     private relations: Map<string, DiplomaticRelation> = new Map();
+    private modifierContainer = new ModifierContainer();
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -132,6 +134,10 @@ export class Nation {
                 enemies: enemies,
             }
         } as DirtyNationEvent)
+    }
+
+    public getModifierContainer() {
+        return this.modifierContainer;
     }
 
     public getChangedSignal() {

@@ -38,7 +38,7 @@ export class MovementTicker {
         }
 
         // Hexes Per Second = Speed * 0.06
-        data.progress += unit.getTemplate().getSpeed() / 10;
+        data.progress += unit.getSpeed() / 10;
     }
 
     public scheduleMovement(unit: Unit, destination: Hex) {

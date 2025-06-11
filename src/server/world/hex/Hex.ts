@@ -6,6 +6,7 @@ import {HexDTO} from "../../../shared/dto/HexDTO";
 import {Signal} from "../../../shared/classes/Signal";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 import {Region} from "../region/Region";
+import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;
@@ -20,6 +21,7 @@ export class Hex {
     private owner?: Nation;
     private neighbors: Hex[] = [];
     private model!: Model;
+    private modifierContainer = new ModifierContainer();
     
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -151,6 +153,10 @@ export class Hex {
 
     public getModel() {
         return this.model;
+    }
+
+    public getModifierContainer() {
+        return this.modifierContainer;
     }
 
     public getChangedSignal() {

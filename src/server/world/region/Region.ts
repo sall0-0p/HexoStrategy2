@@ -5,6 +5,7 @@ import {HexRepository} from "../hex/HexRepository";
 import {RegionDTO} from "../../../shared/dto/RegionDTO";
 import {RegionReplicator} from "./RegionReplicator";
 import {NationRepository} from "../nation/NationRepository";
+import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 
 const hexRepository = HexRepository.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -14,6 +15,7 @@ export class Region {
     private hexes: Hex[];
     private owner: Nation;
     private population: number; // in thousands
+    private modifierContainer = new ModifierContainer();
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -106,6 +108,10 @@ export class Region {
 
     public getPopulation() {
         return this.population;
+    }
+
+    public getModifierContainer() {
+        return this.modifierContainer;
     }
 }
 

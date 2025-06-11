@@ -13,6 +13,8 @@ import {RegionReplicator} from "./world/region/RegionReplicator";
 import {UnitController} from "./systems/unit/UnitController";
 import {DiplomaticRelation, DiplomaticRelationStatus} from "./systems/diplomacy/DiplomaticRelation";
 import {NationPicker} from "./world/nation/NationPicker";
+import {Modifier, ModifierType} from "./systems/modifier/Modifier";
+import {ModifiableProperty} from "./systems/modifier/ModifiableProperty";
 
 NationRepository.getInstance();
 HexRepository.getInstance();
@@ -59,3 +61,10 @@ pnlRelations.set(byrdlands.getId(), {
     status: DiplomaticRelationStatus.Allied,
 })
 ponylandia.setRelations(pnlRelations);
+const region = RegionRepository.getInstance().getById("R005")!;
+region.getModifierContainer().add({
+    id: "test_speed_modifier",
+    property: ModifiableProperty.UnitSpeed,
+    type: ModifierType.Additive,
+    value: 100,
+} as Modifier);
