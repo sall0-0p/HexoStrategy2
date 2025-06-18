@@ -15,7 +15,9 @@ import {DiplomaticRelation, DiplomaticRelationStatus} from "./systems/diplomacy/
 import {NationPicker} from "./world/nation/NationPicker";
 import {Modifier, ModifierType} from "./systems/modifier/Modifier";
 import {ModifiableProperty} from "./systems/modifier/ModifiableProperty";
+import {GameSpeed, TimeSignalType, WorldTime} from "./systems/time/WorldTime";
 
+WorldTime.getInstance();
 NationRepository.getInstance();
 HexRepository.getInstance();
 RegionRepository.getInstance();
@@ -68,3 +70,13 @@ region.getModifierContainer().add({
     type: ModifierType.Additive,
     value: 100,
 } as Modifier);
+
+const timeManager = WorldTime.getInstance();
+timeManager.setPaused(false);
+
+wait(1);
+print("Setting alarm in 1 day");
+timeManager.setAlarm(timeManager.getTimestamp() + 86400);
+timeManager.on(TimeSignalType.Hour).connect((tp, time) => {
+    print(`${time.Day}.${time.Month}.${time.Year} - - - ${time.Hour}:${time.Minute}`);
+})

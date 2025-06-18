@@ -1,9 +1,8 @@
-import { Hex } from "../../../world/hex/Hex";
-import { Unit } from "../Unit";
-import { RunService } from "@rbxts/services";
-import { Signal } from "../../../../shared/classes/Signal";
-import { UnitRepository } from "../UnitRepository";
-import { MovementSubscriptionManager } from "./MovementSubscriptionManager";
+import {Hex} from "../../../world/hex/Hex";
+import {Unit} from "../Unit";
+import {Signal} from "../../../../shared/classes/Signal";
+import {MovementSubscriptionManager} from "./MovementSubscriptionManager";
+import {TimeSignalType, WorldTime} from "../../time/WorldTime";
 
 type MovementData = {
     from: Hex;
@@ -16,11 +15,13 @@ export class MovementTicker {
     private unitsInMovement = new Map<Unit, MovementData>();
     private movementSubscriptionManager;
 
+    private worldTime = WorldTime.getInstance();
     private static instance: MovementTicker;
     private constructor() {
         this.movementSubscriptionManager = new MovementSubscriptionManager(this);
-        RunService.Heartbeat.Connect(() => this.onTick());
+        this.worldTime.on(TimeSignalType.Tick).connect(() => this.onTick());
     }
+
 
     private onTick() {
         this.unitsInMovement.forEach((data, unit) => {
@@ -37,8 +38,7 @@ export class MovementTicker {
             return;
         }
 
-        // Hexes Per Second = Speed * 0.06
-        data.progress += unit.getSpeed() / 10;
+        data.progress += unit.getSpeed() * 0.10 * this.worldTime.getGameSpeed();
     }
 
     public scheduleMovement(unit: Unit, destination: Hex) {
