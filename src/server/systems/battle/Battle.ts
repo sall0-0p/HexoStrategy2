@@ -44,7 +44,6 @@ export class Battle {
         this.selectUnits(this.defendingReserve, this.defendingUnits, powers);
 
         this.battleRepository = battleRepository;
-        battleRepository.add(this);
     }
 
     public tick() {

@@ -105,7 +105,7 @@ export class BattleRepository {
             }
         } else {
             // constructor should call repo.add(this) internally
-            new Battle(hex, enemies, units, this);
+            this.add(new Battle(hex, enemies, units, this));
         }
     }
 
