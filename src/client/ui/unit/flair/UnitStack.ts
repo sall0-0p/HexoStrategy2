@@ -147,6 +147,18 @@ export class UnitStack {
                 this.updateHp();
                 break;
             }
+            case "maxHp": {
+                this.updateHp();
+                break;
+            }
+            case "organisation": {
+                this.updateOrg();
+                break;
+            }
+            case "maxOrg": {
+                this.updateOrg();
+                break;
+            }
         }
     }
 
@@ -188,7 +200,7 @@ export class UnitStack {
         let sumMaxHp = 0;
         this.units.forEach((unit) => {
             sumHp += unit.getHp();
-            sumMaxHp += unit.getHp() * 1.2; // TODO: Replace with Maximum HP from modifiers and template.
+            sumMaxHp += unit.getMaxHp(); // TODO: Replace with Maximum HP from modifiers and template.
         });
 
         let percentage = sumHp / sumMaxHp;
@@ -200,7 +212,7 @@ export class UnitStack {
         let sumMaxOrg = 0;
         this.units.forEach((unit) => {
             sumOrg += unit.getOrganisation();
-            sumMaxOrg += unit.getOrganisation() * 2; // TODO: Replace with Maximum HP from modifiers and template.
+            sumMaxOrg += unit.getMaxOrg(); // TODO: Replace with Maximum HP from modifiers and template.
         });
 
         let percentage = sumOrg / sumMaxOrg;

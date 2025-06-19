@@ -10,11 +10,15 @@ export class Unit {
     private id: string;
     private name: string;
     private template;
-    private hp: number;
-    private organisation: number;
     private owner: Nation;
     private position: Hex;
     private icon: string;
+
+    // stats
+    private hp: number;
+    private maxHp: number;
+    private organisation: number;
+    private maxOrg: number;
 
     private nationRepository = NationRepository.getInstance();
     private hexRepository = HexRepository.getInstance();
@@ -26,9 +30,13 @@ export class Unit {
         this.id = data.id;
         this.name = data.name;
         this.template = data.templateId; // TODO: Convert into template;
-        this.hp = data.hp;
-        this.organisation = data.organisation;
         this.icon = data.icon;
+
+        // stats
+        this.hp = data.hp;
+        this.maxHp = data.maxHp;
+        this.organisation = data.organisation;
+        this.maxOrg = data.maxOrg;
 
         if (this.nationRepository.getById(data.ownerId) === undefined) {
             error(`Nation ${data.ownerId} is not found, perhaps archives are incomplete.`)
@@ -71,6 +79,16 @@ export class Unit {
         return this.template;
     }
 
+    // stats
+
+    public getSpeed() {
+
+    }
+
+    public setSpeed() {
+
+    }
+
     public getHp() {
         return this.hp;
     }
@@ -82,6 +100,15 @@ export class Unit {
         // unitFlairManager.updateUnitHp(this);
     }
 
+    public getMaxHp() {
+        return this.maxHp;
+    }
+
+    public setMaxHp(value: number) {
+        this.maxHp = value;
+        this.changedSignal?.fire("maxHp", value);
+    }
+
     public getOrganisation() {
         return this.organisation;
     }
@@ -91,6 +118,15 @@ export class Unit {
         this.changedSignal?.fire("organisation", organisation);
 
         // unitFlairManager.updateUnitOrganisation(this);
+    }
+
+    public getMaxOrg() {
+        return this.maxOrg;
+    }
+
+    public setMaxOrg(value: number) {
+        this.maxOrg = value;
+        this.changedSignal?.fire("maxOrg", value);
     }
 
     public getOwner() {

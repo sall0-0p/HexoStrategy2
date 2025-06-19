@@ -109,8 +109,16 @@ export class UnitRepository {
             unit.setHp(delta.hp);
         }
 
+        if (delta.maxHp) {
+            unit.setMaxHp(delta.maxHp);
+        }
+
         if (delta.organisation) {
             unit.setOrganisation(delta.organisation);
+        }
+
+        if (delta.maxOrg) {
+            unit.setMaxOrg(delta.maxOrg);
         }
 
         if (delta.ownerId) {

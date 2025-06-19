@@ -3,6 +3,7 @@ import {Unit} from "../Unit";
 import {Signal} from "../../../../shared/classes/Signal";
 import {MovementSubscriptionManager} from "./MovementSubscriptionManager";
 import {TimeSignalType, WorldTime} from "../../time/WorldTime";
+import {ModifiableProperty} from "../../modifier/ModifiableProperty";
 
 type MovementData = {
     from: Hex;
@@ -39,6 +40,7 @@ export class MovementTicker {
         }
 
         data.progress += unit.getSpeed() * 0.10 * this.worldTime.getGameSpeed();
+        unit.setOrganisation(unit.getOrganisation() - unit.getModifierContainer().getEffectiveValue(0, [ModifiableProperty.UnitOrganisationLossInMovement]));
     }
 
     public scheduleMovement(unit: Unit, destination: Hex) {

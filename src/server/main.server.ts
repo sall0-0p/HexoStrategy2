@@ -3,7 +3,7 @@ import {HexRepository} from "./world/hex/HexRepository";
 import {NationReplicator} from "./world/nation/NationReplicator";
 import {HexReplicator} from "./world/hex/HexReplicator";
 import {Nation} from "./world/nation/Nation";
-import {UnitTemplate} from "./systems/unit/template/UnitTemplate";
+import {StatsTemplate, UnitTemplate, UnitType} from "./systems/unit/template/UnitTemplate";
 import {TemplateRepository} from "./systems/unit/template/TemplateRepository";
 import {UnitRepository} from "./systems/unit/UnitRepository";
 import {Unit} from "./systems/unit/Unit";
@@ -15,7 +15,7 @@ import {DiplomaticRelation, DiplomaticRelationStatus} from "./systems/diplomacy/
 import {NationPicker} from "./world/nation/NationPicker";
 import {Modifier, ModifierType} from "./systems/modifier/Modifier";
 import {ModifiableProperty} from "./systems/modifier/ModifiableProperty";
-import {GameSpeed, TimeSignalType, WorldTime} from "./systems/time/WorldTime";
+import {TimeSignalType, WorldTime} from "./systems/time/WorldTime";
 
 WorldTime.getInstance();
 NationRepository.getInstance();
@@ -41,10 +41,45 @@ let fungaria: Nation = nationRepository.getById("FNG")!;
 let pnlCapital = hexRepository.getById("H009")!;
 let brdCapital = hexRepository.getById("H002")!;
 let fngCapital = hexRepository.getById("H005")!;
-let plnInfantry: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "rbxassetid://91903456850255", ponylandia);
-let plnMotorised: UnitTemplate = new UnitTemplate("Motorised", 200, 60, 12, 120, new Instance("Model"), "rbxassetid://72306001883478", ponylandia);
-let brdUnit: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
-let fngUnit: UnitTemplate = new UnitTemplate("Infantry", 200, 60, 4, 120, new Instance("Model"), "rbxassetid://91903456850255", fungaria);
+
+const infantryStats: StatsTemplate = {
+    speed: 4,
+    hp: 230,
+    organisation: 60,
+    recovery: 0.25,
+    softAttack: 150,
+    hardAttack: 30,
+    defence: 500,
+    breakthrough: 100,
+    armor: 3,
+    piercing: 15,
+    hardness: 0,
+    initiative: 0.3,
+    combatWidth: 27,
+    unitType: UnitType.Infantry,
+};
+
+const motorisedStats: StatsTemplate = {
+    speed: 12,
+    hp: 250,
+    organisation: 60,
+    recovery: 0.25,
+    softAttack: 150,
+    hardAttack: 35,
+    defence: 500,
+    breakthrough: 125,
+    armor: 3,
+    piercing: 15,
+    hardness: 0.1,
+    initiative: 0.5,
+    combatWidth: 27,
+    unitType: UnitType.Motorised,
+};
+
+let plnInfantry: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", ponylandia);
+let plnMotorised: UnitTemplate = new UnitTemplate("Motorised", motorisedStats, new Instance("Model"), "rbxassetid://72306001883478", ponylandia);
+let brdUnit: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
+let fngUnit: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", fungaria);
 
 new Unit(plnInfantry, pnlCapital);
 new Unit(plnInfantry, pnlCapital);
@@ -77,6 +112,6 @@ timeManager.setPaused(false);
 wait(1);
 print("Setting alarm in 1 day");
 timeManager.setAlarm(timeManager.getTimestamp() + 86400);
-timeManager.on(TimeSignalType.Hour).connect((tp, time) => {
-    print(`${time.Day}.${time.Month}.${time.Year} - - - ${time.Hour}:${time.Minute}`);
-})
+// timeManager.on(TimeSignalType.Hour).connect((tp, time) => {
+//     print(`${time.Day}.${time.Month}.${time.Year} - - - ${time.Hour}:${time.Minute}`);
+// })

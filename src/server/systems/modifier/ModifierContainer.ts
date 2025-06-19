@@ -30,14 +30,16 @@ export class ModifierContainer {
         })
     }
 
-    public getEffectiveValue(base: number, property: ModifiableProperty) {
-        let modifiers: Modifier[] = [ ...this.getAllForProperty(property) ];
-
-        this.parents.forEach((parent) => {
-            modifiers = [
-                ...modifiers,
-                ...parent.getAllForProperty(property),
-            ]
+    public getEffectiveValue(base: number, properies: ModifiableProperty[]) {
+        let modifiers: Modifier[] = [];
+        properies.forEach((property) => {
+            modifiers = [ ...modifiers, ...this.getAllForProperty(property)];
+            this.parents.forEach((parent) => {
+                modifiers = [
+                    ...modifiers,
+                    ...parent.getAllForProperty(property),
+                ]
+            })
         })
 
         let flatSum = 0;
