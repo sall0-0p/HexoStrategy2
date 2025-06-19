@@ -4,6 +4,7 @@ import {Signal} from "../../../../shared/classes/Signal";
 import {MovementSubscriptionManager} from "./MovementSubscriptionManager";
 import {TimeSignalType, WorldTime} from "../../time/WorldTime";
 import {ModifiableProperty} from "../../modifier/ModifiableProperty";
+import {BattleRepository} from "../../battle/BattleRepository";
 
 type MovementData = {
     from: Hex;
@@ -15,6 +16,7 @@ type MovementData = {
 export class MovementTicker {
     private unitsInMovement = new Map<Unit, MovementData>();
     private movementSubscriptionManager;
+    private battleRepository = BattleRepository.getInstance();
 
     private worldTime = WorldTime.getInstance();
     private static instance: MovementTicker;
@@ -22,7 +24,6 @@ export class MovementTicker {
         this.movementSubscriptionManager = new MovementSubscriptionManager(this);
         this.worldTime.on(TimeSignalType.Tick).connect(() => this.onTick());
     }
-
 
     private onTick() {
         this.unitsInMovement.forEach((data, unit) => {
@@ -34,6 +35,38 @@ export class MovementTicker {
     }
 
     private tickUnit(unit: Unit, data: MovementData) {
+        const repo = this.battleRepository;
+        const hex = data.to;
+        const hexBattles = repo.getBattlesByHex(hex);
+        const inAnyBattle = repo.isUnitInBattle(unit);
+
+        if (inAnyBattle && hexBattles.size() === 0) {
+            const enemiesHere = repo.getEnemiesInHex(unit.getOwner(), hex);
+            if (enemiesHere.size() === 0) {
+                repo.removeUnitFromAllBattles(unit);
+            }
+        }
+
+        if (hexBattles.some(b => repo.isUnitInBattle(unit, b))) {
+            return;
+        }
+
+        if (hex.getOwner() !== unit.getOwner()) {
+            const enemies = this.battleRepository.getEnemiesInHex(unit.getOwner(), hex);
+            if (enemies.size() > 0) {
+                this.battleRepository.engage([unit], hex);
+                return;
+            }
+        }
+
+        if (data.to.getOwner() !== unit.getOwner()) {
+            const enemies = this.battleRepository.getEnemiesInHex(unit.getOwner(), data.to);
+            if (enemies.size() > 0) {
+                this.battleRepository.engage([unit], data.to);
+                return;
+            }
+        }
+
         if (data.progress > 100) {
             this.finishMovement(unit);
             return;

@@ -98,7 +98,9 @@ export class UnitRepository {
     private handleUpdateEvent(id: string, delta: Partial<UnitDTO>) {
         const unit = this.getById(id);
         if (!unit) {
-            error("Unit not found, perhaps archives are incomplete.")
+            warn(`Unit ${id} not found, update packed dropped.`);
+            print("Dumping:", delta);
+            return;
         }
 
         if (delta.name) {

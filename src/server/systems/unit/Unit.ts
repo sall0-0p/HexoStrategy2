@@ -41,6 +41,7 @@ export class Unit {
     private hardness: number;
 
     // Meta
+    private dead = false;
     private unitReplicator = UnitReplicator.getInstance();
     private unitRepository = UnitRepository.getInstance();
 
@@ -77,7 +78,7 @@ export class Unit {
     }
 
     // logic
-    public moveTo(goal: Hex) {
+    public moveTo(goal: Hex, retreating = false) {
         if (this.currentMovement) {
             this.currentMovement.cancel();
         }
@@ -106,6 +107,7 @@ export class Unit {
             from: start,
             path: path,
             current: path[0],
+            retreating: retreating,
             cancel(): void {
                 isCancelled = true;
                 // Cancel whichever movement is in progress, if any.
@@ -137,7 +139,7 @@ export class Unit {
 
                 const relations = unit.getOwner().getRelations();
                 if (!nextHex.getOwner() ||
-                    relations.get(nextHex.getOwner()!.getId())?.status === DiplomaticRelationStatus.Enemy
+                    relations.getRelationStatus(nextHex.getOwner()!) === DiplomaticRelationStatus.Enemy
                 ) {
                     nextHex.setOwner(unit.owner);
                 }
@@ -174,7 +176,24 @@ export class Unit {
         } as ActiveMovement;
     }
 
+    public retreat() {
+        const position = this.position;
+        const relations = this.getOwner().getRelations();
+        const candidate = position.getNeighbors().find((neighbour) => {
+            const owner = neighbour.getOwner();
+            if (!owner) return true;
+            return relations.getRelationStatus(owner) === DiplomaticRelationStatus.Allied || owner === this.getOwner();
+        });
+
+        if (candidate) {
+            this.moveTo(candidate, true);
+        } else {
+            this.die();
+        }
+    }
+
     public die() {
+        this.dead = true;
         this.unitRepository.deleteUnit(this);
         this.unitReplicator.addToDeadQueue(this);
     }
@@ -424,6 +443,10 @@ export class Unit {
         return candidate;
     }
 
+    public isDead() {
+        return this.dead;
+    }
+
     public getUnitType() {
         return this.template.getUnitType();
     }
@@ -475,6 +498,7 @@ export class Unit {
 interface ActiveMovement {
     to: Hex,
     from: Hex,
+    retreating: boolean,
     cancel(): void,
     finished: Signal<[]>,
 }
@@ -484,6 +508,7 @@ export interface ActiveMovementOrder {
     from: Hex,
     path: Hex[],
     current: Hex,
+    retreating: boolean,
     cancel(): void,
 }
 

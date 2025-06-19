@@ -11,11 +11,12 @@ import {UnitReplicator} from "./systems/unit/UnitReplicator";
 import {RegionRepository} from "./world/region/RegionRepository";
 import {RegionReplicator} from "./world/region/RegionReplicator";
 import {UnitController} from "./systems/unit/UnitController";
-import {DiplomaticRelation, DiplomaticRelationStatus} from "./systems/diplomacy/DiplomaticRelation";
+import {DiplomaticRelationStatus} from "./systems/diplomacy/DiplomaticRelation";
 import {NationPicker} from "./world/nation/NationPicker";
 import {Modifier, ModifierType} from "./systems/modifier/Modifier";
 import {ModifiableProperty} from "./systems/modifier/ModifiableProperty";
-import {TimeSignalType, WorldTime} from "./systems/time/WorldTime";
+import {WorldTime} from "./systems/time/WorldTime";
+import {Battle} from "./systems/battle/Battle";
 
 WorldTime.getInstance();
 NationRepository.getInstance();
@@ -59,6 +60,23 @@ const infantryStats: StatsTemplate = {
     unitType: UnitType.Infantry,
 };
 
+const militiaStats: StatsTemplate = {
+    speed: 4,              // slower movement
+    hp: 140,                 // less durability
+    organisation: 35,        // lower cohesion
+    recovery: 0.15,          // slower recovery
+    softAttack: 90,          // weaker against soft targets
+    hardAttack: 15,          // weaker anti‐armour
+    defence: 300,            // lower defence value
+    breakthrough: 50,        // reduced punch-through
+    armor: 1,                // minimal protection
+    piercing: 8,             // lower armour penetration
+    hardness: 0,             // still soft
+    initiative: 0.2,         // slower to act
+    combatWidth: 27,         // same width so density drops even more
+    unitType: UnitType.Infantry,
+};
+
 const motorisedStats: StatsTemplate = {
     speed: 12,
     hp: 250,
@@ -78,40 +96,26 @@ const motorisedStats: StatsTemplate = {
 
 let plnInfantry: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", ponylandia);
 let plnMotorised: UnitTemplate = new UnitTemplate("Motorised", motorisedStats, new Instance("Model"), "rbxassetid://72306001883478", ponylandia);
-let brdUnit: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
+let brdUnit: UnitTemplate = new UnitTemplate("Militia", militiaStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
 let fngUnit: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", fungaria);
 
-new Unit(plnInfantry, pnlCapital);
-new Unit(plnInfantry, pnlCapital);
-new Unit(plnMotorised, pnlCapital);
+const pln1 = new Unit(plnMotorised, pnlCapital);
+const pln2 = new Unit(plnMotorised, pnlCapital);
+const pln3 = new Unit(plnMotorised, pnlCapital);
+const brd1 = new Unit(brdUnit, brdCapital);
+const brd2 = new Unit(brdUnit, brdCapital);
+const brd3 = new Unit(brdUnit, brdCapital);
+const brd4 = new Unit(brdUnit, brdCapital);
+const brd5 = new Unit(brdUnit, brdCapital);
 new Unit(brdUnit, brdCapital);
-new Unit(brdUnit, brdCapital);
-new Unit(fngUnit, fngCapital);
+const fng1 = new Unit(fngUnit, fngCapital);
 
 wait(5);
 print("Making an enemy!");
 const pnlRelations = ponylandia.getRelations();
-pnlRelations.set(fungaria.getId(), {
-    status: DiplomaticRelationStatus.Enemy,
-} as DiplomaticRelation)
-pnlRelations.set(byrdlands.getId(), {
-    status: DiplomaticRelationStatus.Allied,
-})
-ponylandia.setRelations(pnlRelations);
-const region = RegionRepository.getInstance().getById("R005")!;
-region.getModifierContainer().add({
-    id: "test_speed_modifier",
-    property: ModifiableProperty.UnitSpeed,
-    type: ModifierType.Additive,
-    value: 100,
-} as Modifier);
+pnlRelations.setRelationStatus(fungaria, DiplomaticRelationStatus.Enemy)
+pnlRelations.setRelationStatus(byrdlands, DiplomaticRelationStatus.Allied);
+print(ponylandia.getRelations());
 
 const timeManager = WorldTime.getInstance();
 timeManager.setPaused(false);
-
-wait(1);
-print("Setting alarm in 1 day");
-timeManager.setAlarm(timeManager.getTimestamp() + 86400);
-// timeManager.on(TimeSignalType.Hour).connect((tp, time) => {
-//     print(`${time.Day}.${time.Month}.${time.Year} - - - ${time.Hour}:${time.Minute}`);
-// })

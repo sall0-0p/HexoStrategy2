@@ -74,12 +74,9 @@ export namespace MovementPathfinder {
             if (hexOwner.getId() === unitOwner.getId()) return true;
 
             const unitOwnerRelations = unitOwner.getRelations();
-            const relations = unitOwnerRelations.get(hexOwner.getId());
+            const relation = unitOwnerRelations.getRelationStatus(hexOwner);
 
-            return (relations &&
-                (relations.status === DiplomaticRelationStatus.Allied ||
-                    relations.status  === DiplomaticRelationStatus.Enemy)
-            )
+            return (relation === DiplomaticRelationStatus.Allied || relation  === DiplomaticRelationStatus.Enemy)
         } else {
             // Check if water or whatever.
             return true;

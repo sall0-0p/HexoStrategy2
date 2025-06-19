@@ -1,7 +1,11 @@
 import {NationDTO} from "../../../shared/dto/NationDTO";
 import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
 import {Signal} from "../../../shared/classes/Signal";
-import {DiplomaticRelation, DiplomaticRelationStatus} from "../../systems/diplomacy/DiplomaticRelation";
+import {
+    DiplomaticRelation,
+    DiplomaticRelations,
+    DiplomaticRelationStatus
+} from "../../systems/diplomacy/DiplomaticRelation";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 
 export class Nation {
@@ -10,7 +14,7 @@ export class Nation {
     private color: Color3;
     private flag: string;
     private player?: Player;
-    private relations: Map<string, DiplomaticRelation> = new Map();
+    private relations: DiplomaticRelations;
     private modifierContainer = new ModifierContainer();
 
     private changedSignal?: Signal<[string, unknown]>;
@@ -20,20 +24,21 @@ export class Nation {
         this.name = data.name;
         this.color = Color3.fromRGB(data.color[0], data.color[1], data.color[2]);
         this.flag = data.flag;
+        this.relations = new DiplomaticRelations(this);
     }
 
     public toDTO(): NationDTO {
         const allies: string[] = [];
         const enemies: string[] = [];
 
-        this.relations.forEach((relation, nationId) => {
+        this.relations.getRelations().forEach((relation, nation) => {
             if (relation.status === DiplomaticRelationStatus.Enemy) {
-                enemies.push(nationId);
+                enemies.push(nation.getId());
                 return;
             }
 
             if (relation.status === DiplomaticRelationStatus.Allied) {
-                allies.push(nationId);
+                allies.push(nation.getId());
                 return;
             }
         })
@@ -114,16 +119,14 @@ export class Nation {
         return this.relations;
     }
 
-    public setRelations(relations: Map<string, DiplomaticRelation>) {
-        this.relations = relations;
-
+    public pushRelations() {
         const allies: string[] = [];
         const enemies: string[] = [];
-        relations.forEach((relation, nationId) => {
+        this.relations.getRelations().forEach((relation, nation) => {
             if (relation.status === DiplomaticRelationStatus.Enemy) {
-                enemies.push(nationId);
+                enemies.push(nation.getId());
             } else if (relation.status === DiplomaticRelationStatus.Allied) {
-                allies.push(nationId);
+                allies.push(nation.getId());
             }
         })
 
