@@ -86,6 +86,11 @@ export class ModifierContainer {
         return valid;
     }
 
+    public hasModifier(id: string) {
+        const modifiers = new Set(this.getAllModifiers().map((mod) => mod.id));
+        return modifiers.has(id);
+    }
+
     public getParents() {
         return this.parents;
     }
