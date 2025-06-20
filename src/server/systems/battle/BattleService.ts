@@ -83,6 +83,7 @@ export class BattleService {
     }
 
     private tickAll() {
+        print(this.repo.getAllBattles().size());
         this.repo.getAllBattles().forEach(b => {
             // Hook: replication on tick
             b.tick();

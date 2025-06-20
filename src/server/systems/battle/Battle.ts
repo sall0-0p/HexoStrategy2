@@ -2,9 +2,10 @@ import {Hex} from "../../world/hex/Hex";
 import {Nation} from "../../world/nation/Nation";
 import {Unit} from "../unit/Unit";
 import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
-import {BattleRepository} from "./BattleRepository";
 import {Signal} from "../../../shared/classes/Signal";
+import {ArrayShuffle} from "../../../shared/classes/ArrayShuffle";
 
+let dumped = false;
 export class Battle {
     private id: string;
     private location: Hex;
@@ -27,6 +28,8 @@ export class Battle {
 
     private attackingHardness = 0;
     private defendingHardness = 0;
+
+    private defences = new Map<Unit, number>();
 
     public onUnitAdded = new Signal<[unit: Unit, isAttacker: boolean]>();
     public onBattleEnded = new Signal<[battle: Battle]>();
@@ -54,18 +57,12 @@ export class Battle {
         all.forEach(u => u.isDead() && this.removeUnit(u));
 
         this.tickReserves();
+        this.buildDefences();
 
-        this.defendingUnits.forEach((u) => {
-            const debuff = (1 * this.attackingUnits.size());
-            u.setOrganisation(u.getOrganisation() - debuff);
-        })
+        this.attackingUnits.forEach((unit) => this.tickAttack(unit, false));
+        this.defendingUnits.forEach((unit) => this.tickAttack(unit, true));
 
-        this.defendingUnits.forEach((unit) => {
-            if (unit.getOrganisation() < (unit.getMaxOrganisation() * 0.05)) {
-                unit.retreat();
-                this.removeUnit(unit);
-            }
-        })
+        this.disengageLosers();
 
         if (this.defendingUnits.size() === 0 || this.attackingUnits.size() === 0) {
             this.end();
@@ -75,6 +72,29 @@ export class Battle {
     private tickReserves() {
         this.defendingReserve.forEach((unit) => this.tickUnitInReserve(unit, true));
         this.attackingReserve.forEach((unit) => this.tickUnitInReserve(unit, false));
+    }
+
+    private disengageLosers() {
+        this.defendingUnits.forEach((unit) => {
+            if (unit.getOrganisation() / unit.getMaxOrganisation() < 0.05) {
+                unit.retreat();
+                this.removeUnit(unit);
+            }
+        })
+
+        this.attackingUnits.forEach((unit) => {
+            if (unit.getOrganisation() / unit.getMaxOrganisation() < 0.05) {
+                unit.getCurrentMovemementOrder()?.cancel();
+                this.removeUnit(unit);
+            }
+        })
+    }
+
+    private verifyAttackability(unit: Unit) {
+        const path = unit.getCurrentMovemementOrder()?.path;
+        if (!(path && path[path.size() - 1] === this.location)) {
+            this.removeUnit(unit);
+        }
     }
 
     private tickUnitInReserve(unit: Unit, isDefender: boolean) {
@@ -91,7 +111,6 @@ export class Battle {
         const roll = math.random(1, 100) * 0.01;
         const chance = 0.02 * (1 + unit.getInitiative());
         if (roll < chance) {
-            print(`${unit.getId()} joining battle!`)
             if (isDefender) {
                 this.defendingReserve.remove(this.defendingReserve.indexOf(unit));
                 this.defendingUnits.push(unit);
@@ -100,6 +119,123 @@ export class Battle {
                 this.attackingUnits.push(unit);
             }
         }
+    }
+
+    private tickAttack(unit: Unit, isDefender: boolean) {
+        const targets = this.selectTargets(unit,
+            isDefender ? this.attackingUnits : this.defendingUnits);
+        if (targets.size() === 0) { return; }
+
+        // Determine enemy average hardness
+        let sumHardness = 0
+        targets.forEach((t) => sumHardness += t.getHardness());
+        const averageHardness = sumHardness / targets.size();
+
+        const totalAttack = averageHardness * unit.getHardAttack()
+            + (1 - averageHardness) * unit.getSoftAttack();
+        const attackCount = math.round(totalAttack / 10);
+
+        const attacks = this.allocateAttacks(unit, targets, attackCount);
+
+        attacks.forEach((count, target) => {
+            for (let i = 0; i < count; i++) {
+                this.attack(unit, target);
+            }
+        });
+    }
+
+    private attack(unit: Unit, target: Unit) {
+        const hitChance = (this.defences.get(unit) ?? 0 > 0) ? 0.1 : 0.4;
+        const roll = math.random(0, 100) * 0.01;
+
+        if (roll > hitChance) return; // missed
+
+        const unitHp = unit.getHp() / unit.getMaxHp();
+        const orgDieSize = unit.getArmor() > target.getPiercing() ? 6 : 4
+        const hpDamage = (math.random(1, 2) * 0.06) * unitHp;
+        const orgDamage = (math.random(1, orgDieSize) * 0.053) * unitHp;
+
+        target.setHp(target.getHp() - hpDamage);
+        target.setOrganisation((target.getOrganisation() - orgDamage));
+    }
+
+    private allocateAttacks(unit: Unit, targets: Unit[], count: number) {
+        if (count <= 0) return new Map<Unit, number>();
+        const coordinatedShare = 0.35 * (1 + unit.getInitiative());
+        const coordinatedCount = math.clamp(math.floor(count * coordinatedShare),
+            0, count);
+        const normalCount = count - coordinatedCount;
+
+        const priority = this.chooseBestTarget(unit, targets);
+
+        let totalWidth = 0;
+        targets.forEach((t) => totalWidth += t.getCombatWidth());
+
+        let uncoordinatedCount = 0;
+        const uncoordinated = new Map<Unit, number>();
+        targets.forEach((target) => {
+            const share = target.getCombatWidth() / totalWidth;
+            uncoordinated.set(target, math.floor(normalCount * share));
+            uncoordinatedCount += math.floor(normalCount * share);
+        })
+
+        uncoordinated.set(priority, (uncoordinated.get(priority) ?? 0) + coordinatedCount);
+        return uncoordinated;
+    }
+
+    private chooseBestTarget(attacker: Unit, targets: Unit[]) {
+        let best: Unit | undefined;
+        let bestScore = -math.huge;
+
+        targets.forEach((target) => {
+            const hardnessFactor =
+                ((attacker.getHardAttack() * (1 - target.getHardness())) +
+                    (attacker.getHardAttack() * target.getHardness()))  // bias for hard attacks
+                / math.max(target.getCombatWidth(), 1);
+
+            const armorMultiplier = target.getArmor() > attacker.getPiercing() ? 0.5 : 1;
+
+            const orgRatio = target.getOrganisation() / target.getMaxOrganisation();
+            const orgBonus = 1 - (orgRatio / 4);
+
+            const score = hardnessFactor * armorMultiplier * orgBonus;
+
+            if (score > bestScore) {
+                bestScore = score;
+                best = target;
+            }
+        })
+
+        return best!;
+    }
+
+    private selectTargets(attacker: Unit, enemies: Unit[]) {
+        if (enemies.size() === 0) return [];
+        const engagementWidth = attacker.getCombatWidth() * 2;
+        const shuffled = ArrayShuffle.shuffle([...enemies]) as Unit[];
+        const fit: Unit[] = [];
+        let used = 0;
+
+        shuffled.forEach((enemy) => {
+            if (used + enemy.getCombatWidth() <= engagementWidth) {
+                fit.push(enemy);
+                used += enemy.getCombatWidth();
+            }
+        })
+
+        if (fit.size() > 0) {
+            return fit;
+        } else {
+            return [shuffled[math.random(0, shuffled.size() - 1)]];
+        }
+    }
+
+    private buildDefences() {
+        this.defences.clear();
+        const frontline = [ ...this.attackingUnits, ...this.defendingUnits ];
+        frontline.forEach((unit) => {
+            this.defences.set(unit, math.floor(unit.getDefence() / 10));
+        })
     }
 
     private end() {
@@ -141,17 +277,17 @@ export class Battle {
     }
 
     public removeUnit(unit: Unit) {
-        if (this.getAttackingNations().has(unit.getOwner())) {
-            if (this.attackingUnits.includes(unit)) {
-                this.attackingUnits.remove(this.attackingUnits.indexOf(unit));
-            } else if (this.attackingReserve.includes(unit)) {
-                this.attackingReserve.remove(this.attackingReserve.indexOf(unit));
+        if (this.attackers.has(unit.getOwner())) {
+            if (this.attackingUnits.find((u) => unit.getId() === u.getId())) {
+                this.attackingUnits.remove(this.attackingUnits.findIndex((u) => unit.getId() === u.getId()));
+            } else if (this.attackingReserve.find((u) => unit.getId() === u.getId())) {
+                this.attackingReserve.remove(this.attackingReserve.findIndex((u) => unit.getId() === u.getId()));
             }
         } else {
-            if (this.defendingUnits.includes(unit)) {
-                this.defendingUnits.remove(this.defendingUnits.indexOf(unit));
-            } else if (this.defendingReserve.includes(unit)) {
-                this.defendingReserve.remove(this.defendingReserve.indexOf(unit));
+            if (this.defendingUnits.find((u) => unit.getId() === u.getId())) {
+                this.defendingUnits.remove(this.defendingUnits.findIndex((u) => unit.getId() === u.getId()));
+            } else if (this.defendingReserve.find((u) => unit.getId() === u.getId())) {
+                this.defendingReserve.remove(this.defendingReserve.findIndex((u) => unit.getId() === u.getId()));
             }
         }
     }

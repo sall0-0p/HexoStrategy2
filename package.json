@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@rbxts/bridge": "^1.0.7",
+    "@rbxts/jsnatives": "^1.1.5",
     "@rbxts/services": "^1.5.5",
     "npm": "^11.3.0",
     "rbxts-transformer-instances": "^1.0.1"

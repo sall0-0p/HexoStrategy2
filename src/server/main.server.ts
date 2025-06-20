@@ -41,7 +41,8 @@ let fungaria: Nation = nationRepository.getById("FNG")!;
 
 let pnlCapital = hexRepository.getById("H009")!;
 let brdCapital = hexRepository.getById("H002")!;
-let fngCapital = hexRepository.getById("H005")!;
+const fngInferiorHex    = hexRepository.getById("H005")!;   // weak enemy
+const fngSuperiorHex    = hexRepository.getById("H006")!;
 
 const infantryStats: StatsTemplate = {
     speed: 4,
@@ -99,23 +100,27 @@ let plnMotorised: UnitTemplate = new UnitTemplate("Motorised", motorisedStats, n
 let brdUnit: UnitTemplate = new UnitTemplate("Militia", militiaStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
 let fngUnit: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", fungaria);
 
-const pln1 = new Unit(plnMotorised, pnlCapital);
-const pln2 = new Unit(plnMotorised, pnlCapital);
-const pln3 = new Unit(plnMotorised, pnlCapital);
-const brd1 = new Unit(brdUnit, brdCapital);
-const brd2 = new Unit(brdUnit, brdCapital);
-const brd3 = new Unit(brdUnit, brdCapital);
-const brd4 = new Unit(brdUnit, brdCapital);
-const brd5 = new Unit(brdUnit, brdCapital);
-new Unit(brdUnit, brdCapital);
-const fng1 = new Unit(fngUnit, fngCapital);
+// → your own “ponylandia” group (at PNL capital)
+new Unit(plnMotorised, pnlCapital);
+new Unit(plnMotorised, pnlCapital);
+new Unit(plnMotorised, pnlCapital);
+
+// → inferior fungaria group (2 divisions)
+new Unit(fngUnit, fngInferiorHex);
+new Unit(fngUnit, fngInferiorHex);
+
+// → superior fungaria group (5 divisions)
+new Unit(fngUnit, fngSuperiorHex);
+new Unit(fngUnit, fngSuperiorHex);
+new Unit(fngUnit, fngSuperiorHex);
+new Unit(fngUnit, fngSuperiorHex);
+new Unit(fngUnit, fngSuperiorHex);
 
 wait(5);
 print("Making an enemy!");
 const pnlRelations = ponylandia.getRelations();
 pnlRelations.setRelationStatus(fungaria, DiplomaticRelationStatus.Enemy)
 pnlRelations.setRelationStatus(byrdlands, DiplomaticRelationStatus.Allied);
-print(ponylandia.getRelations());
 
 const timeManager = WorldTime.getInstance();
 timeManager.setPaused(false);
