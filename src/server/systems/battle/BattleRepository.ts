@@ -109,6 +109,16 @@ export class BattleRepository {
         }
     }
 
+    public remove(battle: Battle) {
+        const units = [...battle.getAttackingUnits(), ...battle.getDefendingUnits()];
+        units.forEach((u) =>
+            this.unregisterUnitFromBattle(u, battle));
+
+        const container = this.battlesPerHex.get(battle.getHex())!;
+        container.remove(container.indexOf(battle));
+        this.battlesPerHex.set(battle.getHex(), container);
+    }
+
     private onTick() {
         this.battlesPerHex.forEach((battles) =>
             battles.forEach((battle) => {

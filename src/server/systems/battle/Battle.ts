@@ -3,6 +3,7 @@ import {Nation} from "../../world/nation/Nation";
 import {Unit} from "../unit/Unit";
 import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
 import {BattleRepository} from "./BattleRepository";
+import {ModifiableProperty} from "../modifier/ModifiableProperty";
 
 export class Battle {
     private id: string;
@@ -28,7 +29,6 @@ export class Battle {
     private defendingHardness = 0;
 
     private battleRepository: BattleRepository;
-
     constructor(location: Hex, defenders: Unit[], attackers: Unit[], battleRepository: BattleRepository) {
         this.id = BattleIdCounter.getNextId();
         this.location = location;
@@ -52,26 +52,59 @@ export class Battle {
             if (unit.isDead()) this.removeUnit(unit);
         })
 
+        this.tickReserves();
+
         this.defendingUnits.forEach((u) => {
-            const debuff = (20 * this.attackingUnits.size());
+            const debuff = (1 * this.attackingUnits.size());
             u.setOrganisation(u.getOrganisation() - debuff);
         })
 
         this.defendingUnits.forEach((unit) => {
             if (unit.getOrganisation() < (unit.getMaxOrganisation() * 0.05)) {
                 unit.retreat();
+                this.removeUnit(unit);
             }
         })
 
         if (this.defendingUnits.size() === 0 || this.attackingUnits.size() === 0) {
+            print(`ENDING BATTLE ${this.id}`);
             this.end();
         }
     }
 
+    private tickReserves() {
+        this.defendingReserve.forEach((unit) => this.tickUnitInReserve(unit, true));
+        this.attackingReserve.forEach((unit) => this.tickUnitInReserve(unit, false));
+    }
+
+    private tickUnitInReserve(unit: Unit, isDefender: boolean) {
+        let combatWidth = 0;
+        if (isDefender) {
+            this.defendingUnits.forEach((u) => combatWidth += u.getCombatWidth());
+        } else {
+            this.attackingUnits.forEach((u) => combatWidth += u.getCombatWidth());
+        }
+
+        const potentialWidth = combatWidth + unit.getCombatWidth();
+        if (potentialWidth > 70) return;
+
+        const roll = math.random(1, 100) * 0.01;
+        const chance = 0.02 * (1 + unit.getInitiative());
+        print(roll, chance);
+        if (roll < chance) {
+            print(`${unit.getId()} joining battle!`)
+            if (isDefender) {
+                this.defendingReserve.remove(this.defendingReserve.indexOf(unit));
+                this.defendingUnits.push(unit);
+            } else {
+                this.attackingReserve.remove(this.attackingReserve.indexOf(unit));
+                this.attackingUnits.push(unit);
+            }
+        }
+    }
+
     public end() {
-        const units = [...this.defendingUnits, ...this.defendingReserve, ...this.attackingUnits, ...this.attackingReserve];
-        units.forEach((u) =>
-            this.battleRepository.unregisterUnitFromBattle(u, this));
+        this.battleRepository.remove(this);
     }
 
     public addAttacker(unit: Unit) {
