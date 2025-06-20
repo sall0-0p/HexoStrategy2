@@ -5,6 +5,10 @@ import {MovementSubscriptionManager} from "./MovementSubscriptionManager";
 import {TimeSignalType, WorldTime} from "../../time/WorldTime";
 import {ModifiableProperty} from "../../modifier/ModifiableProperty";
 import {BattleRepository} from "../../battle/BattleRepository";
+import {BattleService} from "../../battle/BattleService";
+import {Nation} from "../../../world/nation/Nation";
+import {UnitRepository} from "../UnitRepository";
+import {DiplomaticRelationStatus} from "../../diplomacy/DiplomaticRelation";
 
 type MovementData = {
     from: Hex;
@@ -16,8 +20,9 @@ type MovementData = {
 export class MovementTicker {
     private unitsInMovement = new Map<Unit, MovementData>();
     private movementSubscriptionManager;
-    private battleRepository = BattleRepository.getInstance();
 
+    private battleService = BattleService.getInstance();
+    private unitRepository = UnitRepository.getInstance();
     private worldTime = WorldTime.getInstance();
     private static instance: MovementTicker;
     private constructor() {
@@ -35,36 +40,14 @@ export class MovementTicker {
     }
 
     private tickUnit(unit: Unit, data: MovementData) {
-        const repo = this.battleRepository;
         const hex = data.to;
-        const hexBattles = repo.getBattlesByHex(hex);
-        const inAnyBattle = repo.isUnitInBattle(unit);
 
-        if (inAnyBattle && hexBattles.size() === 0) {
-            const enemiesHere = repo.getEnemiesInHex(unit.getOwner(), hex);
-            if (enemiesHere.size() === 0) {
-                repo.removeUnitFromAllBattles(unit);
-            }
-        }
+        const isHexOwnerByEnemy =
+            hex.getOwner()?.getRelations().getRelationStatus(unit.getOwner()) === DiplomaticRelationStatus.Enemy;
+        if (unit.getCurrentMovemementOrder()?.retreating && isHexOwnerByEnemy) unit.die();
 
-        if (hexBattles.some(b => repo.isUnitInBattle(unit, b))) {
+        if (this.handleBattleFor(unit, hex, data)) {
             return;
-        }
-
-        if (hex.getOwner() !== unit.getOwner()) {
-            const enemies = this.battleRepository.getEnemiesInHex(unit.getOwner(), hex);
-            if (enemies.size() > 0) {
-                this.battleRepository.engage([unit], hex);
-                return;
-            }
-        }
-
-        if (data.to.getOwner() !== unit.getOwner()) {
-            const enemies = this.battleRepository.getEnemiesInHex(unit.getOwner(), data.to);
-            if (enemies.size() > 0) {
-                this.battleRepository.engage([unit], data.to);
-                return;
-            }
         }
 
         if (data.progress > 100) {
@@ -74,6 +57,47 @@ export class MovementTicker {
 
         data.progress += unit.getSpeed() * 0.10 * this.worldTime.getGameSpeed();
         unit.setOrganisation(unit.getOrganisation() - unit.getModifierContainer().getEffectiveValue(0, [ModifiableProperty.UnitOrganisationLossInMovement]));
+    }
+
+    private handleBattleFor(unit: Unit, hex: Hex, data: MovementData): boolean {
+        const battlesHere = this.battleService.getBattlesByHex(hex);
+        const inAny = this.battleService.isUnitInBattle(unit);
+
+        if (inAny && battlesHere.size() === 0) {
+            const foes = this.battleService.getEnemiesInHex(unit.getOwner(), hex);
+            if (foes.size() === 0) {
+                this.battleService.removeUnitFromAllBattles(unit);
+            }
+        }
+
+        if (battlesHere.some(b => this.battleService.isUnitInBattle(unit, b))) {
+            return true;
+        }
+
+        if (hex.getOwner() !== unit.getOwner()) {
+            const foes = this.battleService.getEnemiesInHex(unit.getOwner(), hex);
+            if (foes.size() > 0) {
+                const friendlies = this.getFriendlyUnitsMovingInto(hex, unit.getOwner());
+                if (friendlies.size() === 0) return false;
+
+                this.battleService.engage(friendlies, hex);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private getFriendlyUnitsMovingInto(hex: Hex, nation: Nation) {
+        const units = this.unitRepository.getByOwner(nation);
+        const movingInto: Unit[] = [];
+
+        units?.forEach((unit) => {
+            const path = unit.getCurrentMovemementOrder()?.path;
+            if (path && path[path.size() - 1] === hex) movingInto.push(unit);
+        })
+
+        return movingInto;
     }
 
     public scheduleMovement(unit: Unit, destination: Hex) {
@@ -94,7 +118,6 @@ export class MovementTicker {
     }
 
     public cancelMovement(unit: Unit) {
-        print("Cancel Movement Called!");
         this.unitsInMovement.delete(unit);
         this.movementSubscriptionManager.recordEnd(unit);
     }

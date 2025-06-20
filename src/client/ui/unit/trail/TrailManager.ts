@@ -93,6 +93,7 @@ export class TrailManager {
             const unit = this.queryUnit(unitId);
             const trail = this.trails.get(unit);
             trail?.update(this.queryPath(data.path), this.queryHex(data.current));
+            trail?.updateProgress(0);
         })
     }
 

@@ -3,7 +3,7 @@ import {Nation} from "../../world/nation/Nation";
 import {Unit} from "../unit/Unit";
 import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
 import {BattleRepository} from "./BattleRepository";
-import {ModifiableProperty} from "../modifier/ModifiableProperty";
+import {Signal} from "../../../shared/classes/Signal";
 
 export class Battle {
     private id: string;
@@ -28,29 +28,30 @@ export class Battle {
     private attackingHardness = 0;
     private defendingHardness = 0;
 
-    private battleRepository: BattleRepository;
-    constructor(location: Hex, defenders: Unit[], attackers: Unit[], battleRepository: BattleRepository) {
+    public onUnitAdded = new Signal<[unit: Unit, isAttacker: boolean]>();
+    public onBattleEnded = new Signal<[battle: Battle]>();
+
+    constructor(location: Hex, initialDefenders: Unit[], initialAttackers: Unit[]) {
         this.id = BattleIdCounter.getNextId();
         this.location = location;
 
-        attackers.forEach((u) => this.attackers.add(u.getOwner()));
-        defenders.forEach((u) => this.defenders.add(u.getOwner()));
+        initialAttackers.forEach((u) => this.attackers.add(u.getOwner()));
+        initialDefenders.forEach((u) => this.defenders.add(u.getOwner()));
 
-        this.attackingReserve = attackers;
-        this.defendingReserve = defenders;
+        this.attackingReserve = [...initialAttackers];
+        this.defendingReserve = [...initialDefenders];
 
         const powers = this.computePowers();
         this.selectUnits(this.attackingReserve, this.attackingUnits, powers);
         this.selectUnits(this.defendingReserve, this.defendingUnits, powers);
-
-        this.battleRepository = battleRepository;
     }
 
     public tick() {
-        const units = [...this.defendingReserve, ...this.defendingUnits, ...this.attackingUnits, ...this.attackingReserve];
-        units.forEach((unit) => {
-            if (unit.isDead()) this.removeUnit(unit);
-        })
+        const all = [
+            ...this.defendingReserve, ...this.defendingUnits,
+            ...this.attackingUnits, ...this.attackingReserve,
+        ];
+        all.forEach(u => u.isDead() && this.removeUnit(u));
 
         this.tickReserves();
 
@@ -67,7 +68,6 @@ export class Battle {
         })
 
         if (this.defendingUnits.size() === 0 || this.attackingUnits.size() === 0) {
-            print(`ENDING BATTLE ${this.id}`);
             this.end();
         }
     }
@@ -90,7 +90,6 @@ export class Battle {
 
         const roll = math.random(1, 100) * 0.01;
         const chance = 0.02 * (1 + unit.getInitiative());
-        print(roll, chance);
         if (roll < chance) {
             print(`${unit.getId()} joining battle!`)
             if (isDefender) {
@@ -103,22 +102,22 @@ export class Battle {
         }
     }
 
-    public end() {
-        this.battleRepository.remove(this);
+    private end() {
+        this.onBattleEnded.fire(this);
     }
 
     public addAttacker(unit: Unit) {
         this.attackingReserve.push(unit);
         this.updateMaxes(unit);
         this.recomputeHardness();
-        this.battleRepository.registerUnitInBattle(unit, this);
+        this.onUnitAdded.fire(unit, true);
     }
 
     public addDefender(unit: Unit) {
         this.defendingReserve.push(unit);
         this.updateMaxes(unit);
         this.recomputeHardness();
-        this.battleRepository.registerUnitInBattle(unit, this);
+        this.onUnitAdded.fire(unit, false);
     }
 
     public getDefendingNations() {

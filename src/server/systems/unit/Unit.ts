@@ -193,6 +193,7 @@ export class Unit {
     }
 
     public die() {
+        this.getCurrentMovemementOrder()?.cancel();
         this.dead = true;
         this.unitRepository.deleteUnit(this);
         this.unitReplicator.addToDeadQueue(this);

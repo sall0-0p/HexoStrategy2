@@ -1,20 +1,42 @@
-import {Battle} from "./Battle";
-import {Hex} from "../../world/hex/Hex";
-import {Unit} from "../unit/Unit";
-import {UnitRepository} from "../unit/UnitRepository";
-import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
-import {Nation} from "../../world/nation/Nation";
-import {TimeSignalType, WorldTime} from "../time/WorldTime";
+import { Hex } from "../../world/hex/Hex";
+import { Unit } from "../unit/Unit";
+import { DiplomaticRelationStatus } from "../diplomacy/DiplomaticRelation";
+import { Nation } from "../../world/nation/Nation";
+import { UnitRepository } from "../unit/UnitRepository";
+import { Battle } from "./Battle";
 
 export class BattleRepository {
+    private static instance: BattleRepository;
     private battlesPerHex = new Map<Hex, Battle[]>();
     private unitBattleMap = new Map<Unit, Set<Battle>>();
+    private unitRepo = UnitRepository.getInstance();
 
-    private worldTime = WorldTime.getInstance();
-    private unitRepository = UnitRepository.getInstance();
-    private static instance: BattleRepository;
-    private constructor() {
-        this.worldTime.on(TimeSignalType.Hour).connect(() => this.onTick());
+    private constructor() {}
+
+    public static getInstance() {
+        if (!this.instance) {
+            this.instance = new BattleRepository();
+        }
+        return this.instance;
+    }
+
+    public add(battle: Battle) {
+        const hex = battle.getHex();
+        const arr = this.battlesPerHex.get(hex) ?? [];
+        arr.push(battle);
+        this.battlesPerHex.set(hex, arr);
+
+        battle.getAttackingUnits().forEach(u => this.registerUnitInBattle(u, battle));
+        battle.getDefendingUnits().forEach(u => this.registerUnitInBattle(u, battle));
+    }
+
+    public remove(battle: Battle) {
+        battle.getAttackingUnits().forEach(u => this.unregisterUnitFromBattle(u, battle));
+        battle.getDefendingUnits().forEach(u => this.unregisterUnitFromBattle(u, battle));
+
+        const arr = this.battlesPerHex.get(battle.getHex())!;
+        arr.remove(arr.indexOf(battle));
+        this.battlesPerHex.set(battle.getHex(), arr);
     }
 
     public registerUnitInBattle(unit: Unit, battle: Battle) {
@@ -35,32 +57,16 @@ export class BattleRepository {
         }
     }
 
-    public add(battle: Battle) {
-        const hex = battle.getHex();
-        const arr = this.battlesPerHex.get(hex) ?? [];
-        arr.push(battle);
-        this.battlesPerHex.set(hex, arr);
-
-        // register all existing participants
-        battle.getAttackingUnits().forEach(u => this.registerUnitInBattle(u, battle));
-        battle.getDefendingUnits().forEach(u => this.registerUnitInBattle(u, battle));
-    }
-
-    public isUnitInBattle(unit: Unit, battle?: Battle): boolean {
+    public isUnitInBattle(unit: Unit, battle?: Battle) {
         const set = this.unitBattleMap.get(unit);
         if (!set) return false;
-        if (battle) {
-            return set.has(battle);
-        }
-        // any battle?
-        return set.size() > 0;
+        return battle ? set.has(battle) : set.size() > 0;
     }
 
     public removeUnitFromAllBattles(unit: Unit) {
         const set = this.unitBattleMap.get(unit);
         if (!set) return;
-        // tell each battle to drop this unit
-        set.forEach(battle => battle.removeUnit(unit));
+        set.forEach(b => b.removeUnit(unit));
         this.unitBattleMap.delete(unit);
     }
 
@@ -68,69 +74,27 @@ export class BattleRepository {
         return this.battlesPerHex.get(hex) ?? [];
     }
 
-    public getEnemiesInHex(nation: Nation, hex: Hex) {
-        const units = [...this.unitRepository.getByHex(hex) ?? new Set()];
+    public getAllBattles(): Battle[] {
+        let result: Battle[] = [];
+        this.battlesPerHex.forEach((battles) => {
+            result = [
+                ...result,
+                ...battles,
+            ]
+        });
+        return result;
+    }
 
-        return units.filter(enemy => {
-            // only enemies…
-            const isEnemy = enemy
+    public getEnemiesInHex(nation: Nation, hex: Hex) {
+        const units = [...this.unitRepo.getByHex(hex) ?? new Set<Unit>()];
+        return units.filter(u => {
+            const isEnemy = u
                 .getOwner()
                 .getRelations()
                 .getRelationStatus(nation) === DiplomaticRelationStatus.Enemy;
             if (!isEnemy) return false;
-
-            // …and only those not currently retreating
-            const order = enemy.getCurrentMovemementOrder();
-            const isRetreating = order?.retreating ?? false;
-
-            return !isRetreating;
+            const order = u.getCurrentMovemementOrder();
+            return !(order?.retreating ?? false);
         });
-    }
-
-    public engage(units: Unit[], hex: Hex) {
-        const nation = units[0].getOwner();
-        const enemies = this.getEnemiesInHex(nation, hex);
-
-        const candidates = this.getBattlesByHex(hex).filter(b =>
-            b.canJoinAsAttacker(nation) ||
-            b.canJoinAsDefender(nation)
-        );
-
-        if (candidates.size() > 0) {
-            const battle = candidates[0];
-            if (battle.canJoinAsAttacker(nation)) {
-                units.forEach(u => battle.addAttacker(u));
-            } else {
-                units.forEach(u => battle.addDefender(u));
-            }
-        } else {
-            // constructor should call repo.add(this) internally
-            this.add(new Battle(hex, enemies, units, this));
-        }
-    }
-
-    public remove(battle: Battle) {
-        const units = [...battle.getAttackingUnits(), ...battle.getDefendingUnits()];
-        units.forEach((u) =>
-            this.unregisterUnitFromBattle(u, battle));
-
-        const container = this.battlesPerHex.get(battle.getHex())!;
-        container.remove(container.indexOf(battle));
-        this.battlesPerHex.set(battle.getHex(), container);
-    }
-
-    private onTick() {
-        this.battlesPerHex.forEach((battles) =>
-            battles.forEach((battle) => {
-                battle.tick();
-            }))
-    }
-
-    // singleton
-    public static getInstance() {
-        if (!this.instance) {
-            this.instance = new BattleRepository();
-        }
-        return this.instance;
     }
 }
