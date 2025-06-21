@@ -147,7 +147,7 @@ export class Battle {
     }
 
     private attack(unit: Unit, target: Unit) {
-        const hitChance = (this.defences.get(unit) ?? 0 > 0) ? 0.1 : 0.4;
+        const hitChance = (this.defences.get(target) ?? 0 > 0) ? 0.1 : 0.4;
         const roll = math.random(0, 100) * 0.01;
 
         if (roll > hitChance) return; // missed
@@ -397,6 +397,8 @@ export class Battle {
     private recomputeHardness() {
         const attackers = [ ...this.attackingUnits, ...this.attackingReserve ];
         const defenders = [ ...this.defendingUnits, ...this.defendingReserve ];
+        const allAttackers = [ ...this.attackingUnits, ...this.attackingReserve ];
+        const allDefenders = [ ...this.defendingUnits, ...this.defendingReserve ];
 
         let attackersHardnessSum = 0;
         let defendersHardnessSum = 0;
@@ -404,8 +406,8 @@ export class Battle {
         attackers.forEach((u) => attackersHardnessSum += u.getHardness());
         defenders.forEach((u) => defendersHardnessSum += u.getHardness());
 
-        this.attackingHardness = attackersHardnessSum / attackers.size();
-        this.defendingHardness = defendersHardnessSum / defenders.size();
+        this.attackingHardness = attackersHardnessSum / allAttackers.size();
+        this.defendingHardness = defendersHardnessSum / allDefenders.size();
     }
 
     // Runs only once, to determine initial unit pool;
@@ -413,6 +415,8 @@ export class Battle {
         this.attackingReserve.forEach((u) => this.updateMaxes(u));
         this.defendingReserve.forEach((u) => this.updateMaxes(u));
         const powers = new Map<Unit, number>;
+
+        this.recomputeHardness();
 
         this.attackingReserve.forEach((unit) => {
             let firepower = 0;
