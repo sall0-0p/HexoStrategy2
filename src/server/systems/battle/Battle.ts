@@ -4,6 +4,7 @@ import {Unit} from "../unit/Unit";
 import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
 import {Signal} from "../../../shared/classes/Signal";
 import {ArrayShuffle} from "../../../shared/classes/ArrayShuffle";
+import {ModifiableProperty} from "../modifier/ModifiableProperty";
 
 let dumped = false;
 export class Battle {
@@ -131,8 +132,9 @@ export class Battle {
         targets.forEach((t) => sumHardness += t.getHardness());
         const averageHardness = sumHardness / targets.size();
 
-        const totalAttack = averageHardness * unit.getHardAttack()
+        const baseAttack = averageHardness * unit.getHardAttack()
             + (1 - averageHardness) * unit.getSoftAttack();
+        const totalAttack = unit.getModifiers().getEffectiveValue(baseAttack, [ModifiableProperty.UnitTotalAttack]);
         const attackCount = math.round(totalAttack / 10);
 
         const attacks = this.allocateAttacks(unit, targets, attackCount);
@@ -232,9 +234,14 @@ export class Battle {
 
     private buildDefences() {
         this.defences.clear();
-        const frontline = [ ...this.attackingUnits, ...this.defendingUnits ];
-        frontline.forEach((unit) => {
-            this.defences.set(unit, math.floor(unit.getDefence() / 10));
+        this.defendingUnits.forEach((unit) => {
+            const base = unit.getDefence() / 10;
+            this.defences.set(unit, math.round(base));
+        })
+
+        this.attackingUnits.forEach((unit) => {
+            const base = unit.getBreakthrough() / 10;
+            this.defences.set(unit, math.round(base));
         })
     }
 

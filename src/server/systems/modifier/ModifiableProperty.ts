@@ -5,6 +5,7 @@ export enum ModifiableProperty {
     UnitSoftAttack = "softAttack",
     UnitHardAttack = "hardAttack",
     UnitDefence = "defence",
+    UnitTotalAttack = "totalAttack",
     UnitBreakthrough = "breakthrough",
     UnitArmor = "armor",
     UnitPiercing = "piercing",

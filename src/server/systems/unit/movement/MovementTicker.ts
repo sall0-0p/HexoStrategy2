@@ -56,7 +56,7 @@ export class MovementTicker {
         }
 
         data.progress += unit.getSpeed() * 0.10 * this.worldTime.getGameSpeed();
-        unit.setOrganisation(unit.getOrganisation() - unit.getModifierContainer().getEffectiveValue(0, [ModifiableProperty.UnitOrganisationLossInMovement]));
+        unit.setOrganisation(unit.getOrganisation() - unit.getModifiers().getEffectiveValue(0, [ModifiableProperty.UnitOrganisationLossInMovement]));
     }
 
     private handleBattleFor(unit: Unit, hex: Hex, data: MovementData): boolean {

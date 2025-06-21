@@ -468,7 +468,7 @@ export class Unit {
         return this.currentMovement;
     }
 
-    public getModifierContainer() {
+    public getModifiers() {
         return this.modifierContainer;
     }
 
