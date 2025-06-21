@@ -3,7 +3,7 @@ import {ModifiableProperty} from "./ModifiableProperty";
 export enum ModifierType {
     Additive = "add",
     Multiplicative = "mul",
-    Constant = "value",
+    Flat = "value",
 }
 
 export interface Modifier {

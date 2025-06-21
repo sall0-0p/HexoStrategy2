@@ -48,7 +48,7 @@ export class ModifierContainer {
 
         modifiers.forEach((mod) => {
             switch (mod.type) {
-                case ModifierType.Constant:
+                case ModifierType.Flat:
                     flatSum += mod.value;
                     break;
                 case ModifierType.Additive:
