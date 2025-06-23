@@ -17,6 +17,7 @@ import {Modifier, ModifierType} from "./systems/modifier/Modifier";
 import {ModifiableProperty} from "./systems/modifier/ModifiableProperty";
 import {WorldTime} from "./systems/time/WorldTime";
 import {Battle} from "./systems/battle/Battle";
+import {UnitRecoveryTicker} from "./systems/unit/UnitRecoveryTicker";
 
 WorldTime.getInstance();
 NationRepository.getInstance();
@@ -29,6 +30,7 @@ HexReplicator.getInstance();
 RegionReplicator.getInstance(RegionRepository.getInstance());
 UnitReplicator.getInstance(UnitRepository.getInstance());
 UnitController.getInstance();
+UnitRecoveryTicker.getInstance();
 NationPicker.getInstance();
 
 wait(1);

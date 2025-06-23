@@ -48,7 +48,7 @@ export class WorldTime {
 
     private onTick(dt: number) {
         if (this.onPause) return;
-        this.ticksSinceGameStart += dt * 120 * this.gameSpeed;
+        this.ticksSinceGameStart += dt * 180 * this.gameSpeed;
         const timestamp = EPOCH.UnixTimestamp + this.ticksSinceGameStart * 60;
         const time = DateTime.fromUnixTimestamp(timestamp).ToUniversalTime();
 

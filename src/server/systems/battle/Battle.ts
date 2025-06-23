@@ -31,6 +31,7 @@ export class Battle {
     private defendingHardness = 0;
 
     private defences = new Map<Unit, number>();
+    private maxWidth = 0;
 
     public onUnitAdded = new Signal<[unit: Unit, isAttacker: boolean]>();
     public onBattleEnded = new Signal<[battle: Battle]>();
@@ -45,6 +46,7 @@ export class Battle {
         this.attackingReserve = [...initialAttackers];
         this.defendingReserve = [...initialDefenders];
 
+        this.recomputeMaxWidth();
         const powers = this.computePowers();
         this.selectUnits(this.attackingReserve, this.attackingUnits, powers);
         this.selectUnits(this.defendingReserve, this.defendingUnits, powers);
@@ -64,6 +66,9 @@ export class Battle {
         this.defendingUnits.forEach((unit) => this.tickAttack(unit, true));
 
         this.disengageLosers();
+
+        const prediction = this.predictOutcome();
+        print(`Battle will finish in ${prediction.hours} hours. Winning side: ${prediction.score > 0 ? "Attackers" : "Defenders"} (${prediction.score}`);
 
         if (this.defendingUnits.size() === 0 || this.attackingUnits.size() === 0) {
             this.end();
@@ -91,13 +96,6 @@ export class Battle {
         })
     }
 
-    private verifyAttackability(unit: Unit) {
-        const path = unit.getCurrentMovemementOrder()?.path;
-        if (!(path && path[path.size() - 1] === this.location)) {
-            this.removeUnit(unit);
-        }
-    }
-
     private tickUnitInReserve(unit: Unit, isDefender: boolean) {
         let combatWidth = 0;
         if (isDefender) {
@@ -107,10 +105,11 @@ export class Battle {
         }
 
         const potentialWidth = combatWidth + unit.getCombatWidth();
-        if (potentialWidth > 70) return;
+        if (potentialWidth > this.maxWidth * 1.33) return;
+        const overflow = potentialWidth > this.maxWidth;
 
         const roll = math.random(1, 100) * 0.01;
-        const chance = 0.02 * (1 + unit.getInitiative());
+        const chance = 0.02 * (1 + unit.getInitiative()) * (overflow ? 0.5 : 0);
         if (roll < chance) {
             if (isDefender) {
                 this.defendingReserve.remove(this.defendingReserve.indexOf(unit));
@@ -252,6 +251,7 @@ export class Battle {
     public addAttacker(unit: Unit) {
         this.attackingReserve.push(unit);
         this.updateMaxes(unit);
+        this.recomputeMaxWidth();
         this.recomputeHardness();
         this.onUnitAdded.fire(unit, true);
     }
@@ -297,6 +297,9 @@ export class Battle {
                 this.defendingReserve.remove(this.defendingReserve.findIndex((u) => unit.getId() === u.getId()));
             }
         }
+
+        this.recomputeMaxWidth();
+        this.recomputeHardness();
     }
 
     public canJoinAsAttacker(nation: Nation) {
@@ -325,8 +328,8 @@ export class Battle {
     // Runs on start of battle, to pick fighting units that forces start fighting with,
     // reinforcements are based on initiative and are ticker hourly in other method.
     private selectUnits(reserves: Unit[], frontline: Unit[], powers: Map<Unit, number>) {
-        const baseWidth = 70; // TODO: Implement different width with terrain, when terrain is added;
-        const overlapLimit = 70 * 1.33;
+        const baseWidth = this.maxWidth; // TODO: Implement different width with terrain, when terrain is added;
+        const overlapLimit = baseWidth * 1.33;
         let currentWidth = this.computeWidth(frontline);
 
         while (currentWidth < baseWidth) {
@@ -360,6 +363,19 @@ export class Battle {
 
             currentWidth += pick.getCombatWidth();
         }
+    }
+
+    private recomputeMaxWidth() {
+        // Determine by terrain.
+        const baseWidth = 70;
+        const flankWidth = baseWidth / 2;
+
+        const allAttackers = [ ...this.attackingUnits, ...this.attackingReserve ];
+        const directions: Set<Hex> = new Set();
+
+        allAttackers.forEach((unit) => directions.add(unit.getPosition()));
+        const flankingDirections = directions.size() - 1;
+        this.maxWidth = baseWidth + (flankWidth * flankingDirections);
     }
 
     private computeWidth(units: Unit[]) {
@@ -453,6 +469,67 @@ export class Battle {
         })
         return powers;
     }
+
+    // Prediction
+    private predictOutcome(): BattlePrediction {
+        const attackingOrganisation = this.attackingUnits.reduce(
+            (sum, u) => sum + u.getOrganisation(), 0);
+        const defendingOrganisation = this.defendingUnits.reduce(
+            (sum, u) => sum + u.getOrganisation(), 0);
+
+        const attackingDamageApproximation = this.approximateDamagePerHour(this.attackingUnits, this.defendingUnits, false);
+        const defendingDamageApproximation = this.approximateDamagePerHour(this.defendingUnits, this.attackingUnits, true);
+
+        const hoursToKillDefenders = defendingOrganisation / attackingDamageApproximation;
+        const hoursToKillAttackers = attackingOrganisation / defendingDamageApproximation;
+
+        const hours = math.min(hoursToKillDefenders, hoursToKillAttackers);
+        const score = (hoursToKillAttackers - hoursToKillDefenders)
+            / math.max(hoursToKillAttackers, hoursToKillDefenders);
+
+        return {
+            hours,
+            score,
+        }
+    }
+
+    private approximateDamagePerHour(attackers: Unit[], defenders: Unit[], useBreakthrough: boolean) {
+        let totalAttacks = 0;
+        let totalDefences = 0;
+
+        attackers.forEach(u => {
+            const hardness = this.averageHardness(defenders);
+            const base = hardness * u.getHardAttack() + (1 - hardness) * u.getSoftAttack();
+            const totalAtk = u.getModifiers()
+                .getEffectiveValue(base, [ModifiableProperty.UnitTotalAttack]);
+            totalAttacks += math.round(totalAtk / 10);
+        });
+
+        defenders.forEach(u => {
+            const defence = useBreakthrough ? u.getBreakthrough() : u.getDefence();
+            totalDefences += math.round(defence / 10);
+        });
+
+        const hitsWithDefence = math.min(totalAttacks, totalDefences);
+        const hitsWithout = math.max(0, totalAttacks - totalDefences);
+        const expectedHits = hitsWithDefence * 0.1 + hitsWithout * 0.4;
+
+        const averageOrganisationDie = 2.5;
+        const damageMultiplier = 0.053;
+        const averageHpFactor = 1;
+        const orgPerHit = averageOrganisationDie * damageMultiplier * averageHpFactor;
+
+        return math.max(expectedHits * orgPerHit, 0.01);
+    }
+
+    private averageHardness(units: Unit[]) {
+        return units.reduce((sum, u) => sum += u.getHardness(), 0) / units.size();
+    }
+}
+
+export interface BattlePrediction {
+    hours: number,
+    score: number,
 }
 
 namespace BattleIdCounter {
