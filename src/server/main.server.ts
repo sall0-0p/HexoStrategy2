@@ -13,11 +13,9 @@ import {RegionReplicator} from "./world/region/RegionReplicator";
 import {UnitController} from "./systems/unit/UnitController";
 import {DiplomaticRelationStatus} from "./systems/diplomacy/DiplomaticRelation";
 import {NationPicker} from "./world/nation/NationPicker";
-import {Modifier, ModifierType} from "./systems/modifier/Modifier";
-import {ModifiableProperty} from "./systems/modifier/ModifiableProperty";
 import {WorldTime} from "./systems/time/WorldTime";
-import {Battle} from "./systems/battle/Battle";
 import {UnitRecoveryTicker} from "./systems/unit/UnitRecoveryTicker";
+import {BattleReplicator} from "./systems/battle/BattleReplicator";
 
 WorldTime.getInstance();
 NationRepository.getInstance();

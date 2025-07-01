@@ -26,13 +26,13 @@ export class BattleRepository {
         arr.push(battle);
         this.battlesPerHex.set(hex, arr);
 
-        battle.getAttackingUnits().forEach(u => this.registerUnitInBattle(u, battle));
-        battle.getDefendingUnits().forEach(u => this.registerUnitInBattle(u, battle));
+        battle.getUnits().attackers.forEach(u => this.registerUnitInBattle(u, battle));
+        battle.getUnits().defenders.forEach(u => this.registerUnitInBattle(u, battle));
     }
 
     public remove(battle: Battle) {
-        battle.getAttackingUnits().forEach(u => this.unregisterUnitFromBattle(u, battle));
-        battle.getDefendingUnits().forEach(u => this.unregisterUnitFromBattle(u, battle));
+        battle.getUnits().attackers.forEach(u => this.unregisterUnitFromBattle(u, battle));
+        battle.getUnits().defenders.forEach(u => this.unregisterUnitFromBattle(u, battle));
 
         const arr = this.battlesPerHex.get(battle.getHex())!;
         arr.remove(arr.indexOf(battle));
@@ -74,7 +74,7 @@ export class BattleRepository {
         const set = this.unitBattleMap.get(unit);
         if (!set) return;
         set.forEach(b => {
-            if (b.getAttackingUnits().includes(unit)) {
+            if (b.getUnits().attackers.includes(unit)) {
                 b.removeUnit(unit);
             }
         });

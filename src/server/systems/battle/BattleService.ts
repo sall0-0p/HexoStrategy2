@@ -5,11 +5,13 @@ import { Unit } from "../unit/Unit";
 import { Nation } from "../../world/nation/Nation";
 import { Hex } from "../../world/hex/Hex";
 import { WorldTime, TimeSignalType } from "../time/WorldTime";
+import {BattleReplicator} from "./BattleReplicator";
 
 export class BattleService {
     private static instance: BattleService;
     private repo = BattleRepository.getInstance();
     private worldTime = WorldTime.getInstance();
+    private battleReplicator = BattleReplicator.getInstance();
 
     private constructor() {
         this.worldTime.on(TimeSignalType.Hour).connect(() => this.tickAll());
@@ -92,8 +94,8 @@ export class BattleService {
 
     private tickAll() {
         this.repo.getAllBattles().forEach(b => {
-            // Hook: replication on tick
             b.tick();
         });
+        this.battleReplicator.onTick();
     }
 }

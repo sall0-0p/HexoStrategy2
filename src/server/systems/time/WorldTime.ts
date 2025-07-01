@@ -1,5 +1,6 @@
 import {RunService} from "@rbxts/services";
 import {Signal} from "../../../shared/classes/Signal";
+import {PrioritySignal} from "../../../shared/classes/PrioritySignal";
 
 const GAME_START_DATE = "5500-01-01T00:00:00.000Z";
 const EPOCH = DateTime.fromIsoDate(GAME_START_DATE)!;
@@ -23,7 +24,7 @@ export enum TimeSignalType {
 
 interface Alarm {
     timestamp: number;
-    signal: Signal<[]>;
+    signal: PrioritySignal<[]>;
 }
 
 export class WorldTime {
@@ -31,11 +32,11 @@ export class WorldTime {
     private gameSpeed = GameSpeed.Normal;
     private onPause = true;
 
-    private tickEvent = new Signal<[number, TimeValueTable]>();
-    private hourEvent = new Signal<[number, TimeValueTable]>();
-    private dayEvent = new Signal<[number, TimeValueTable]>();
-    private monthEvent = new Signal<[number, TimeValueTable]>();
-    private yearEvent = new Signal<[number, TimeValueTable]>();
+    private tickEvent = new PrioritySignal<[number, TimeValueTable]>();
+    private hourEvent = new PrioritySignal<[number, TimeValueTable]>();
+    private dayEvent = new PrioritySignal<[number, TimeValueTable]>();
+    private monthEvent = new PrioritySignal<[number, TimeValueTable]>();
+    private yearEvent = new PrioritySignal<[number, TimeValueTable]>();
 
     private time: TimeValueTable = DateTime.fromUnixTimestamp(0).ToUniversalTime();
     private timestamp: number = 0;
@@ -107,7 +108,7 @@ export class WorldTime {
 
         const alarm = {
             timestamp: timestamp,
-            signal: new Signal(),
+            signal: new PrioritySignal(),
         } as Alarm;
 
         this.alarmQueue.push(alarm);

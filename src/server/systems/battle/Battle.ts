@@ -5,6 +5,7 @@ import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
 import {Signal} from "../../../shared/classes/Signal";
 import {ArrayShuffle} from "../../../shared/classes/ArrayShuffle";
 import {ModifiableProperty} from "../modifier/ModifiableProperty";
+import {BattleSummaryDTO} from "../../../shared/dto/BattleDTO";
 
 let dumped = false;
 export class Battle {
@@ -30,6 +31,7 @@ export class Battle {
     private attackingHardness = 0;
     private defendingHardness = 0;
 
+    private lastPrediction?: BattlePrediction;
     private defences = new Map<Unit, number>();
     private maxWidth = 0;
 
@@ -67,8 +69,8 @@ export class Battle {
 
         this.disengageLosers();
 
-        const prediction = this.predictOutcome();
-        print(`Battle will finish in ${prediction.hours} hours. Winning side: ${prediction.score > 0 ? "Attackers" : "Defenders"} (${prediction.score}`);
+        this.lastPrediction = this.predictOutcome();
+        print(`Battle will finish in ${this.lastPrediction.hours} hours. Winning side: ${this.lastPrediction.score > 0 ? "Attackers" : "Defenders"} (${this.lastPrediction.score}`);
         print(`Attackers: ${this.attackingUnits.size()}:${this.attackingReserve.size()}; Defenders: ${this.defendingUnits.size()}:${this.defendingReserve.size()}`);
 
         if (this.defendingUnits.size() === 0 || this.attackingUnits.size() === 0) {
@@ -270,6 +272,8 @@ export class Battle {
             attackingReserve: this.attackingReserve,
             defendingFrontline: this.defendingUnits,
             defendingReserve: this.defendingReserve,
+            attackers: [...this.attackingUnits, ...this.attackingReserve],
+            defenders: [...this.defendingUnits, ...this.defendingReserve],
         }
     }
 
@@ -277,16 +281,8 @@ export class Battle {
         return this.defenders;
     }
 
-    public getDefendingUnits() {
-        return [...this.defendingUnits, ...this.defendingReserve];
-    }
-
     public getAttackingNations() {
         return this.attackers;
-    }
-
-    public getAttackingUnits() {
-        return [...this.attackingUnits, ...this.attackingReserve];
     }
 
     public getHex() {
@@ -534,6 +530,22 @@ export class Battle {
 
     private averageHardness(units: Unit[]) {
         return units.reduce((sum, u) => sum += u.getHardness(), 0) / units.size();
+    }
+
+    public toSummaryDTO() {
+        const units = this.getUnits();
+        return {
+            id: this.id,
+            location: this.location.getId(),
+            attackers: units.attackers.map((u) => u.getId()),
+            defenders: units.defenders.map((u) => u.getId()),
+            approximation: this.lastPrediction!.score,
+            hoursTillEnded: this.lastPrediction!.hours,
+        } as BattleSummaryDTO;
+    }
+
+    public toDTO() {
+
     }
 }
 
