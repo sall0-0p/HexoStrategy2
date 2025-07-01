@@ -122,6 +122,7 @@ export class MovementTicker {
     public cancelMovement(unit: Unit) {
         this.unitsInMovement.delete(unit);
         this.movementSubscriptionManager.recordEnd(unit);
+        this.battleService.removeUnitFromAllOffensives(unit);
     }
 
     private finishMovement(unit: Unit) {

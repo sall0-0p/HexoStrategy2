@@ -11,6 +11,7 @@ import {MovementPathfinder} from "./movement/MovementPathfinder";
 import {ModifierContainer} from "../modifier/ModifierContainer";
 import {ModifiableProperty} from "../modifier/ModifiableProperty";
 import findPath = MovementPathfinder.findPath;
+import {BattleRepository} from "../battle/BattleRepository";
 
 const movementTicker = MovementTicker.getInstance();
 export class Unit {
@@ -44,6 +45,7 @@ export class Unit {
     private dead = false;
     private unitReplicator = UnitReplicator.getInstance();
     private unitRepository = UnitRepository.getInstance();
+    // private battleRepository = BattleRepository.getInstance();
 
     private changedSignal?: Signal<[string, unknown]>;
 

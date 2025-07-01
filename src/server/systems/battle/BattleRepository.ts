@@ -70,6 +70,17 @@ export class BattleRepository {
         this.unitBattleMap.delete(unit);
     }
 
+    public removeUnitFromAllOffensives(unit: Unit) {
+        const set = this.unitBattleMap.get(unit);
+        if (!set) return;
+        set.forEach(b => {
+            if (b.getAttackingUnits().includes(unit)) {
+                b.removeUnit(unit);
+            }
+        });
+        this.unitBattleMap.delete(unit);
+    }
+
     public getBattlesByHex(hex: Hex): Battle[] {
         return this.battlesPerHex.get(hex) ?? [];
     }

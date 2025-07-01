@@ -97,8 +97,26 @@ const motorisedStats: StatsTemplate = {
     unitType: UnitType.Motorised,
 };
 
+const opTankStats: StatsTemplate = {
+    speed: 6,
+    hp: 216,
+    organisation: 27.5,
+    recovery: 0.30,
+    softAttack: 564,
+    hardAttack: 558,
+    defence: 525,
+    breakthrough: 934,
+    armor: 100,
+    piercing: 107,
+    hardness: 0.8,
+    initiative: 0.5,
+    combatWidth: 40,
+    unitType: UnitType.Armored,
+}
+
 let plnInfantry: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", ponylandia);
 let plnMotorised: UnitTemplate = new UnitTemplate("Motorised", motorisedStats, new Instance("Model"), "rbxassetid://72306001883478", ponylandia);
+let plnArmored: UnitTemplate = new UnitTemplate("Armored", opTankStats, new Instance("Model"), "rbxassetid://111943619870880", ponylandia);
 let brdUnit: UnitTemplate = new UnitTemplate("Militia", militiaStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
 let fngUnit: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", fungaria);
 
@@ -106,6 +124,7 @@ let fngUnit: UnitTemplate = new UnitTemplate("Infantry", infantryStats, new Inst
 new Unit(plnMotorised, pnlCapital);
 new Unit(plnMotorised, pnlCapital);
 new Unit(plnMotorised, pnlCapital);
+new Unit(plnArmored, pnlCapital);
 
 // → inferior fungaria group (2 divisions)
 new Unit(fngUnit, fngInferiorHex);

@@ -69,6 +69,7 @@ export class Battle {
 
         const prediction = this.predictOutcome();
         print(`Battle will finish in ${prediction.hours} hours. Winning side: ${prediction.score > 0 ? "Attackers" : "Defenders"} (${prediction.score}`);
+        print(`Attackers: ${this.attackingUnits.size()}:${this.attackingReserve.size()}; Defenders: ${this.defendingUnits.size()}:${this.defendingReserve.size()}`);
 
         if (this.defendingUnits.size() === 0 || this.attackingUnits.size() === 0) {
             this.end();
@@ -109,7 +110,7 @@ export class Battle {
         const overflow = potentialWidth > this.maxWidth;
 
         const roll = math.random(1, 100) * 0.01;
-        const chance = 0.02 * (1 + unit.getInitiative()) * (overflow ? 0.5 : 0);
+        const chance = 0.02 * (1 + unit.getInitiative()) * (overflow ? 0.5 : 1);
         if (roll < chance) {
             if (isDefender) {
                 this.defendingReserve.remove(this.defendingReserve.indexOf(unit));
@@ -263,6 +264,15 @@ export class Battle {
         this.onUnitAdded.fire(unit, false);
     }
 
+    public getUnits() {
+        return {
+            attackingFrontline: this.attackingUnits,
+            attackingReserve: this.attackingReserve,
+            defendingFrontline: this.defendingUnits,
+            defendingReserve: this.defendingReserve,
+        }
+    }
+
     public getDefendingNations() {
         return this.defenders;
     }
@@ -328,7 +338,7 @@ export class Battle {
     // Runs on start of battle, to pick fighting units that forces start fighting with,
     // reinforcements are based on initiative and are ticker hourly in other method.
     private selectUnits(reserves: Unit[], frontline: Unit[], powers: Map<Unit, number>) {
-        const baseWidth = this.maxWidth; // TODO: Implement different width with terrain, when terrain is added;
+        const baseWidth = this.maxWidth;
         const overlapLimit = baseWidth * 1.33;
         let currentWidth = this.computeWidth(frontline);
 

@@ -34,6 +34,10 @@ export class BattleService {
 
         if (existing.size() > 0) {
             const battle = existing[0];
+
+            units = units.filter((u) =>
+                !this.isUnitInBattle(u, battle)); // Filter units that are already in that battle.
+
             if (battle.canJoinAsAttacker(nation)) {
                 units.forEach(u => this.addAttacker(battle, u));
             } else {
@@ -82,8 +86,11 @@ export class BattleService {
         this.repo.removeUnitFromAllBattles(unit);
     }
 
+    public removeUnitFromAllOffensives(unit: Unit) {
+        this.repo.removeUnitFromAllOffensives(unit);
+    }
+
     private tickAll() {
-        print(this.repo.getAllBattles().size());
         this.repo.getAllBattles().forEach(b => {
             // Hook: replication on tick
             b.tick();
