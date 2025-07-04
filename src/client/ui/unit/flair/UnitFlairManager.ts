@@ -2,8 +2,8 @@ import {UnitStack} from "./UnitStack";
 import {Hex} from "../../../world/hex/Hex";
 import {Unit} from "../../../systems/unit/Unit";
 import {Container} from "./container/Container";
+import {RunService} from "@rbxts/services";
 
-let version = 0;
 export class UnitFlairManager {
     public stacks = new Map<Hex, UnitStack[]>;
     public stacksById = new Map<string, UnitStack>;
@@ -11,13 +11,9 @@ export class UnitFlairManager {
     public containers = new Map<Hex, Container>;
 
     public static instance: UnitFlairManager;
-    private constructor() {
-        print("Creating flairs!");
-        version++;
-    }
+    private constructor() {}
 
     public addUnitToTheMap(unit: Unit) {
-        print(`Adding ${unit.getId()} to the map via ${version}!`);
         let stacks = this.stacks.get(unit.getPosition());
         if (!stacks) {
             this.stacks.set(unit.getPosition(), []);
@@ -64,6 +60,7 @@ export class UnitFlairManager {
         this.containers.forEach((container) => {
             container.getFrame().Destroy();
         })
+        RunService.UnbindFromRenderStep("ContainerRendering")
     }
 
     public static resetInstance() {

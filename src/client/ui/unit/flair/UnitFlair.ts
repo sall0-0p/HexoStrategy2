@@ -9,7 +9,7 @@ const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("Map")
     .WaitForChild("UnitFlair") as Frame;
 
-export class Flair {
+export class UnitFlair {
     private id: string;
     private frame: Frame;
     private containers: Map<Hex, Container>;
@@ -113,14 +113,5 @@ export class Flair {
         const container = new Container(hex);
         this.containers.set(hex, container);
         return container;
-    }
-}
-
-class FlairCounter {
-    private static currentId = 0
-
-    public static getNextId() {
-        this.currentId++
-        return tostring(this.currentId);
     }
 }

@@ -10,6 +10,7 @@ import {ReplicatedStorage} from "@rbxts/services";
 import {NationHeatmap} from "../ui/heatmap/heatmaps/NationHeatmap";
 import {Bind} from "../ui/Bind";
 import {MoveBind} from "../ui/unit/order/MoveBind";
+import {BattleFlairManager} from "../ui/battle/flair/BattleFlairManager";
 
 const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("SelectNation") as RemoteFunction;
@@ -52,6 +53,7 @@ export class GameState {
 
         // UI
         UnitFlairManager.resetInstance();
+        BattleFlairManager.resetInstance();
         HeatmapManager.resetInstance();
         SelectionManager.resetInstance();
 
@@ -68,6 +70,7 @@ export class GameState {
 
         // UI
         UnitFlairManager.getInstance();
+        BattleFlairManager.getInstance();
         HeatmapManager.getInstance();
         SelectionManager.getInstance();
 

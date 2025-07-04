@@ -1,6 +1,6 @@
 import { Unit } from "../../../systems/unit/Unit";
 import { Hex } from "../../../world/hex/Hex";
-import { Flair } from "./Flair";
+import { UnitFlair } from "./UnitFlair";
 import { Connection } from "../../../../shared/classes/Signal";
 import { UnitFlairManager } from "./UnitFlairManager";
 import {NationRepository} from "../../../world/nation/NationRepository";
@@ -9,7 +9,7 @@ import {Nation} from "../../../world/nation/Nation";
 export class UnitStack {
     private id: string;
     private units: Unit[] = [];
-    private flair: Flair;
+    private flair: UnitFlair;
     private templateId: number;
     private hex: Hex;
     private selected: boolean = false;
@@ -24,7 +24,7 @@ export class UnitStack {
         this.templateId = units[0].getTemplate();
         this.hex = hex ?? units[0].getPosition();
         this.unitFlairManager = unitFlairManager;
-        this.flair = new Flair(this, units);
+        this.flair = new UnitFlair(this, units);
 
         units.forEach((unit) => this.addUnit(unit));
 

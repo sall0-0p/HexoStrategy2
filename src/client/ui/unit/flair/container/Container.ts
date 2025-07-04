@@ -1,6 +1,6 @@
 import {Players, ReplicatedStorage, RunService, Workspace} from "@rbxts/services";
 import {Hex} from "../../../../world/hex/Hex";
-import {Flair} from "../Flair";
+import {UnitFlair} from "../UnitFlair";
 import {ContainerRenderer} from "./ContainerRenderer";
 
 const containerTemplate = ReplicatedStorage.WaitForChild("Assets")
@@ -17,7 +17,7 @@ export class Container {
     private id: string = ContainerCounter.getNextId();
     private hex: Hex;
     private frame: Frame;
-    private flairs: Flair[] = [];
+    private flairs: UnitFlair[] = [];
 
     public _visible: boolean = true;
     public _lastPosition: Vector2 = new Vector2();
@@ -31,12 +31,12 @@ export class Container {
         containerRenderer.addContainer(this);
     }
 
-    public addFlair(flair: Flair) {
+    public addFlair(flair: UnitFlair) {
         this.flairs.push(flair);
         this.updateSize();
     }
 
-    public removeFlair(flair: Flair) {
+    public removeFlair(flair: UnitFlair) {
         this.flairs = this.flairs.filter((f) => {
             return (flair.getId() !== f.getId());
         })
