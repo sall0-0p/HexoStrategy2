@@ -12,6 +12,7 @@ import {ModifierContainer} from "../modifier/ModifierContainer";
 import {ModifiableProperty} from "../modifier/ModifiableProperty";
 import findPath = MovementPathfinder.findPath;
 import {BattleRepository} from "../battle/BattleRepository";
+import {CombatantSummaryDTO} from "../../../shared/dto/BattleSubscription";
 
 const movementTicker = MovementTicker.getInstance();
 export class Unit {

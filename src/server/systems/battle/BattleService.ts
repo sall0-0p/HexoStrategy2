@@ -5,13 +5,15 @@ import { Unit } from "../unit/Unit";
 import { Nation } from "../../world/nation/Nation";
 import { Hex } from "../../world/hex/Hex";
 import { WorldTime, TimeSignalType } from "../time/WorldTime";
-import {BattleReplicator} from "./BattleReplicator";
+import { BattleReplicator } from "./BattleReplicator";
+import { BattleSubscription } from "./BattleSubscription";
 
 export class BattleService {
     private static instance: BattleService;
     private repo = BattleRepository.getInstance();
     private worldTime = WorldTime.getInstance();
     private battleReplicator = BattleReplicator.getInstance();
+    private battleSubscription = new BattleSubscription();
 
     private constructor() {
         this.worldTime.on(TimeSignalType.Hour).connect(() => this.tickAll());
@@ -97,5 +99,6 @@ export class BattleService {
             b.tick();
         });
         this.battleReplicator.onTick();
+        this.battleSubscription.onTick();
     }
 }

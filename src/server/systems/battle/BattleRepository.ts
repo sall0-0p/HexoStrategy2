@@ -7,6 +7,7 @@ import { Battle } from "./Battle";
 
 export class BattleRepository {
     private static instance: BattleRepository;
+    private battles = new Map<string, Battle>();
     private battlesPerHex = new Map<Hex, Battle[]>();
     private unitBattleMap = new Map<Unit, Set<Battle>>();
     private unitRepo = UnitRepository.getInstance();
@@ -25,6 +26,7 @@ export class BattleRepository {
         const arr = this.battlesPerHex.get(hex) ?? [];
         arr.push(battle);
         this.battlesPerHex.set(hex, arr);
+        this.battles.set(battle.getId(), battle);
 
         battle.getUnits().attackers.forEach(u => this.registerUnitInBattle(u, battle));
         battle.getUnits().defenders.forEach(u => this.registerUnitInBattle(u, battle));
@@ -33,6 +35,7 @@ export class BattleRepository {
     public remove(battle: Battle) {
         battle.getUnits().attackers.forEach(u => this.unregisterUnitFromBattle(u, battle));
         battle.getUnits().defenders.forEach(u => this.unregisterUnitFromBattle(u, battle));
+        this.battles.delete(battle.getId());
 
         const arr = this.battlesPerHex.get(battle.getHex())!;
         arr.remove(arr.indexOf(battle));
@@ -79,6 +82,10 @@ export class BattleRepository {
             }
         });
         this.unitBattleMap.delete(unit);
+    }
+
+    public getById(id: string): Battle | undefined {
+        return this.battles.get(id);
     }
 
     public getBattlesByHex(hex: Hex): Battle[] {

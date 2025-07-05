@@ -6,8 +6,8 @@ import {Signal} from "../../../shared/classes/Signal";
 import {ArrayShuffle} from "../../../shared/classes/ArrayShuffle";
 import {ModifiableProperty} from "../modifier/ModifiableProperty";
 import {BattleSummaryDTO} from "../../../shared/dto/BattleDTO";
+import {BattleUpdate, CombatantSummaryDTO} from "../../../shared/dto/BattleSubscription";
 
-let dumped = false;
 export class Battle {
     private id: string;
     private location: Hex;
@@ -32,6 +32,7 @@ export class Battle {
     private defendingHardness = 0;
 
     private lastPrediction?: BattlePrediction;
+    private attacks = new Map<Unit, number>();
     private defences = new Map<Unit, number>();
     private maxWidth = 0;
 
@@ -266,7 +267,11 @@ export class Battle {
         this.onUnitAdded.fire(unit, false);
     }
 
-    public getUnits() {
+    public getId() {
+        return this.id;
+    }
+
+    public getUnits(): Units {
         return {
             attackingFrontline: this.attackingUnits,
             attackingReserve: this.attackingReserve,
@@ -532,7 +537,7 @@ export class Battle {
         return units.reduce((sum, u) => sum += u.getHardness(), 0) / units.size();
     }
 
-    public toSummaryDTO() {
+    public toSummaryDTO(): BattleSummaryDTO {
         const units = this.getUnits();
         return {
             id: this.id,
@@ -544,12 +549,54 @@ export class Battle {
         } as BattleSummaryDTO;
     }
 
+    public toSubscriptionEvent(): BattleUpdate {
+        const units = this.getUnits();
+
+        return {
+            type: "update",
+            battleId: this.id,
+            location: this.location.getId(),
+            attackingLine: this.toCombatantDTOs(units.attackingFrontline, true),
+            attackingReserve: this.toCombatantDTOs(units.attackingReserve, true),
+            defendingLine: this.toCombatantDTOs(units.defendingFrontline, false),
+            defendingReserve: this.toCombatantDTOs(units.defendingReserve, false),
+            approximation: this.lastPrediction?.score ?? 0.5,
+            hoursTillEnded: this.lastPrediction?.hours ?? 24,
+            maxWidth: this.maxWidth,
+            attackingWidth: this.attackingUnits.reduce((prev, unit) => prev + unit.getCombatWidth(), 0),
+            defendingWidth: this.defendingUnits.reduce((prev, unit) => prev + unit.getCombatWidth(), 0),
+            attackingNation: [...this.attackers][0].getId(),
+            defendingNation: [...this.defenders][0].getId(),
+        }
+    }
+
+    private toCombatantDTOs(units: Unit[], isAttacking: boolean) {
+        return units.map((unit): CombatantSummaryDTO => {
+            const defence = isAttacking ? unit.getBreakthrough() : unit.getDefence();
+            const attack = this.attacks.get(unit) ?? 0;
+
+            return {
+                unitId: unit.getId(),
+                defence, attack
+            }
+        })
+    }
+
     public toDTO() {
 
     }
 }
 
-export interface BattlePrediction {
+interface Units {
+    attackers: Unit[];
+    defenders: Unit[];
+    attackingFrontline: Unit[];
+    defendingFrontline: Unit[];
+    attackingReserve: Unit[];
+    defendingReserve: Unit[];
+}
+
+interface BattlePrediction {
     hours: number,
     score: number,
 }
