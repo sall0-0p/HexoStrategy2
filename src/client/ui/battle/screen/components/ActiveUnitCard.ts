@@ -1,0 +1,80 @@
+import {CombatantSummaryDTO} from "../../../../../shared/dto/BattleSubscription";
+import {ReplicatedStorage} from "@rbxts/services";
+import {Unit} from "../../../../systems/unit/Unit";
+import {UnitRepository} from "../../../../systems/unit/UnitRepository";
+
+const attackerPosition = UDim2.fromScale(0.089,0);
+const defenderPosition = UDim2.fromScale(0.03, 0);
+
+const template = ReplicatedStorage
+    .WaitForChild("Assets")
+    .WaitForChild("UI")
+    .WaitForChild("Battle")
+    .WaitForChild("ActiveUnitCard") as Frame;
+
+export class ActiveUnitCard {
+    private frame: Frame;
+    private unit: Unit;
+    private isAttacker: boolean;
+
+    public constructor(parent: GuiObject, data: CombatantSummaryDTO, isAttacker: boolean) {
+        const candidate = UnitRepository.getInstance().getById(data.id);
+        if (!candidate) error("Trying to add unexistent unit!");
+
+        this.frame = template.Clone();
+        this.frame.Parent = parent;
+        this.isAttacker = isAttacker;
+        this.unit = candidate;
+
+        const item = this.frame.WaitForChild("Item") as ImageLabel;
+        item.Position = isAttacker ? attackerPosition : defenderPosition;
+
+        this.update(data);
+    }
+
+    public update(data: CombatantSummaryDTO) {
+        const item = this.frame.WaitForChild("Item") as ImageLabel;
+
+        // Flag
+        item.Image = this.unit.getOwner().getFlag();
+
+        // Name
+        const nameField = item.WaitForChild("Center")
+            .WaitForChild("Name") as TextLabel;
+        nameField.Text = this.unit.getName();
+
+        // Icon
+        const iconLabel = item.WaitForChild("Left")
+            .WaitForChild("TemplateIcon") as ImageLabel;
+        iconLabel.Image = this.unit.getIcon();
+
+        // Stats (Defence & Attack)
+        const statsCnt = item.WaitForChild("Center")
+            .WaitForChild("Stats") as Frame;
+        const attack = statsCnt.WaitForChild("Attack")
+            .WaitForChild("Value") as TextLabel;
+        const defence = statsCnt.WaitForChild("Defence")
+            .WaitForChild("Value") as TextLabel;
+
+        attack.Text = tostring(data.attack);
+        defence.Text = tostring(data.defence);
+
+        // Bars
+        this.updateBars();
+    }
+
+    private updateBars() {
+        const bars = this.frame.WaitForChild("Item")
+            .WaitForChild("Left")
+            .WaitForChild("Bars") as Frame;
+        const orgBar = bars.WaitForChild("Org").WaitForChild("Value") as Frame;
+        const hpBar = bars.WaitForChild("HP").WaitForChild("Value") as Frame;
+
+        orgBar.Size = UDim2.fromScale(1, this.unit.getOrganisation() / this.unit.getMaxOrg());
+        hpBar.Size = UDim2.fromScale(1, this.unit.getHp() / this.unit.getMaxHp());
+    }
+
+    public destroy() {
+        this.frame.Destroy();
+    };
+}

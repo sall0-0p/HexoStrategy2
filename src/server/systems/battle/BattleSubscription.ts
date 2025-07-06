@@ -3,20 +3,26 @@ import { ReplicatedStorage } from "@rbxts/services";
 import { ControlPayload, BattleEnded, BattleUpdate } from "../../../shared/dto/BattleSubscription";
 import { BattleRepository } from "./BattleRepository";
 
+const event = ReplicatedStorage
+    .WaitForChild("Events")
+    .WaitForChild("BattleSubscriptionEvent") as RemoteEvent;
+
 export class BattleSubscription {
-    private subscriptionEvent: RemoteEvent;
     private subscriptions = new Map<Player, Set<string>>();
 
     constructor() {
-        this.subscriptionEvent = ReplicatedStorage
-            .WaitForChild("Events")
-            .WaitForChild("BattleSubscriptionEvent") as RemoteEvent;
-
         // control channel: subscribe / unsubscribe requests from clients
-        this.subscriptionEvent.OnServerEvent.Connect((player: Player, payload: unknown) => {
+        event.OnServerEvent.Connect((player: Player, payload: unknown) => {
             switch ((payload as ControlPayload).type) {
                 case "subscribe":
                     this.subscribe(player, (payload as ControlPayload).battleId);
+
+                    // Transmit first message to shorten load times.
+                    const battle = BattleRepository.getInstance().getById((
+                        (payload as ControlPayload).battleId));
+                    if (!battle) return;
+                    event.FireClient(player, battle.toSubscriptionEvent());
+
                     break;
                 case "unsubscribe":
                     this.unsubscribe(player, (payload as ControlPayload).battleId);
@@ -50,7 +56,7 @@ export class BattleSubscription {
                 type: "ended",
                 battleId,
             };
-            this.subscriptionEvent.FireClient(player, endedEvent);
+            event.FireClient(player, endedEvent);
         });
     }
 
@@ -68,7 +74,7 @@ export class BattleSubscription {
             sub.forEach((battleId) => {
                 const battle = BattleRepository.getInstance().getById((battleId));
                 if (!battle) return;
-                this.subscriptionEvent.FireClient(plr, battle.toSubscriptionEvent());
+                event.FireClient(plr, battle.toSubscriptionEvent());
             })
         })
     }

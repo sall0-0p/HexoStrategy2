@@ -1,33 +1,41 @@
 import {Players, ReplicatedStorage, Workspace} from "@rbxts/services";
 import {Hex} from "../../../world/hex/Hex";
+import {BattleWindowManager} from "../screen/BattleWindowManager";
 
 const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
     .WaitForChild("Map")
-    .WaitForChild("BattleFlair") as Frame;
+    .WaitForChild("BattleFlair") as TextButton;
 
 const battlesContainer = Players.LocalPlayer
     .WaitForChild("PlayerGui")
     .WaitForChild("Battles") as ScreenGui;
 
 export class BattleFlair {
-    private frame: Frame;
+    private battleId: string;
+    private frame: TextButton;
     private parentHex: Hex;
-    private attackingHex: Hex;
     private position: Vector3;
+    private connection: RBXScriptConnection;
 
     private camera = Workspace.CurrentCamera!;
-    constructor(parentHex: Hex, attackingHex: Hex) {
+    constructor(id: string, parentHex: Hex, attackingHex: Hex) {
+        this.battleId = id;
         this.frame = flairTemplate.Clone();
         this.parentHex = parentHex;
-        this.attackingHex = attackingHex;
         this.position = this.calculatePosition(parentHex, attackingHex);
 
         this.frame.Parent = battlesContainer;
+
+        this.connection = this.frame.MouseButton1Click.Connect(() => {
+            BattleWindowManager.getInstance().display(this.battleId);
+        })
     }
 
     // progress is at 0-1
-    public updateProgress(progress: number) {
+    public update(progress: number, attackingHex: Hex) {
+        this.position = this.calculatePosition(this.parentHex, attackingHex);
+
         const field = this.frame.WaitForChild("Indicator")
             .WaitForChild("Container")
             .WaitForChild("Progress") as TextLabel;
@@ -56,6 +64,7 @@ export class BattleFlair {
 
     public destroy() {
         this.frame.Destroy();
+        this.connection.Disconnect();
     }
 
     private calculatePosition(hexA: Hex, hexB: Hex): Vector3 {

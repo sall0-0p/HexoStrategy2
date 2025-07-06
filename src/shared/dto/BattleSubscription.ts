@@ -9,7 +9,7 @@ export interface BattlePayload {
     type: BattlePayloadType;
 }
 
-export interface BattleUpdate {
+export interface BattleUpdate extends BattlePayload {
     type: "update",
     battleId: string,
     location: string,
@@ -26,13 +26,13 @@ export interface BattleUpdate {
     defendingNation: string;
 }
 
-export interface BattleEnded {
+export interface BattleEnded extends BattlePayload {
     type: "ended",
     battleId: string,
 }
 
 export interface CombatantSummaryDTO {
-    unitId: string,
+    id: string,
     defence: number,
     attack: number,
 }

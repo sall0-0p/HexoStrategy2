@@ -8,12 +8,7 @@ declare global {
     }
 }
 
-print("Getting GameState")
+print("Getting GameState");
 const gameState = GameState.getInstance();
-print("Selecting PNL")
-gameState.switchNation("PNL")
-
-
-const replicator = ReplicatedStorage.WaitForChild("Events")
-    .WaitForChild("BattleReplicator") as RemoteEvent;
-replicator.OnClientEvent.Connect((payload: BattleSummaryDTO[]) => print(payload));
+print("Selecting PNL");
+gameState.switchNation("PNL");

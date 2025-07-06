@@ -43,7 +43,7 @@ export class BattleFlairManager {
         const defendingHex = HexRepository.getInstance().getById(data.location);
         if (!defendingHex) error("Failed to determine defending hex!");
 
-        const flair = new BattleFlair(defendingHex, attackingHex!);
+        const flair = new BattleFlair(data.id, defendingHex, attackingHex!);
         this.flairs.set(data.id, flair);
     }
 
@@ -54,8 +54,10 @@ export class BattleFlairManager {
 
     private updateBattle(data: BattleSummaryDTO) {
         if (!this.flairs.has(data.id)) { warn("Trying to update non existing battle!"); return; }
+        const attackingUnit = UnitRepository.getInstance().getById(data.attackers[0]);
+        if (!attackingUnit) return;
 
-        this.flairs.get(data.id)!.updateProgress((data.approximation + 1) / 2);
+        this.flairs.get(data.id)!.update((data.approximation + 1) / 2, attackingUnit.getPosition());
     }
 
     private splitPayload(payload: BattleSummaryDTO[]): SplitPayload {

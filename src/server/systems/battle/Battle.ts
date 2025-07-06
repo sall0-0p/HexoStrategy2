@@ -71,8 +71,8 @@ export class Battle {
         this.disengageLosers();
 
         this.lastPrediction = this.predictOutcome();
-        print(`Battle will finish in ${this.lastPrediction.hours} hours. Winning side: ${this.lastPrediction.score > 0 ? "Attackers" : "Defenders"} (${this.lastPrediction.score}`);
-        print(`Attackers: ${this.attackingUnits.size()}:${this.attackingReserve.size()}; Defenders: ${this.defendingUnits.size()}:${this.defendingReserve.size()}`);
+        // print(`Battle will finish in ${this.lastPrediction.hours} hours. Winning side: ${this.lastPrediction.score > 0 ? "Attackers" : "Defenders"} (${this.lastPrediction.score}`);
+        // print(`Attackers: ${this.attackingUnits.size()}:${this.attackingReserve.size()}; Defenders: ${this.defendingUnits.size()}:${this.defendingReserve.size()}`);
 
         if (this.defendingUnits.size() === 0 || this.attackingUnits.size() === 0) {
             this.end();
@@ -139,6 +139,7 @@ export class Battle {
             + (1 - averageHardness) * unit.getSoftAttack();
         const totalAttack = unit.getModifiers().getEffectiveValue(baseAttack, [ModifiableProperty.UnitTotalAttack]);
         const attackCount = math.round(totalAttack / 10);
+        this.attacks.set(unit, totalAttack);
 
         const attacks = this.allocateAttacks(unit, targets, attackCount);
 
@@ -488,11 +489,26 @@ export class Battle {
         const defendingOrganisation = this.defendingUnits.reduce(
             (sum, u) => sum + u.getOrganisation(), 0);
 
-        const attackingDamageApproximation = this.approximateDamagePerHour(this.attackingUnits, this.defendingUnits, false);
-        const defendingDamageApproximation = this.approximateDamagePerHour(this.defendingUnits, this.attackingUnits, true);
+        const attackingReserveOrg = this.attackingReserve.reduce(
+            (sum, u) => sum + math.floor(u.getOrganisation() * 0.25), 0);
+        const defendingReserveOrg  = this.defendingReserve.reduce(
+            (sum, u) => sum + math.floor(u.getOrganisation() * 0.25), 0);
 
-        const hoursToKillDefenders = defendingOrganisation / attackingDamageApproximation;
-        const hoursToKillAttackers = attackingOrganisation / defendingDamageApproximation;
+        const frontAtkDmg = this.approximateDamagePerHour(
+            this.attackingUnits, this.defendingUnits, false);
+        const frontDefDmg = this.approximateDamagePerHour(
+            this.defendingUnits, this.attackingUnits, true);
+
+        const reserveAtkDmg = this.approximateDamagePerHour(
+            this.attackingReserve, this.defendingUnits, false) * 0.25;
+        const reserveDefDmg = this.approximateDamagePerHour(
+            this.defendingReserve, this.attackingUnits, true) * 0.25;
+
+        const attackingDamageApproximation = frontAtkDmg + reserveAtkDmg;
+        const defendingDamageApproximation = frontDefDmg + reserveDefDmg;
+
+        const hoursToKillDefenders = (defendingOrganisation + defendingReserveOrg) / attackingDamageApproximation;
+        const hoursToKillAttackers = (attackingOrganisation + attackingReserveOrg) / defendingDamageApproximation;
 
         const hours = math.min(hoursToKillDefenders, hoursToKillAttackers);
         const score = (hoursToKillAttackers - hoursToKillDefenders)
@@ -573,10 +589,10 @@ export class Battle {
     private toCombatantDTOs(units: Unit[], isAttacking: boolean) {
         return units.map((unit): CombatantSummaryDTO => {
             const defence = isAttacking ? unit.getBreakthrough() : unit.getDefence();
-            const attack = this.attacks.get(unit) ?? 0;
+            const attack = math.round(this.attacks.get(unit) ?? -1);
 
             return {
-                unitId: unit.getId(),
+                id: unit.getId(),
                 defence, attack
             }
         })
