@@ -12,6 +12,8 @@ import {Bind} from "../ui/Bind";
 import {MoveBind} from "../ui/unit/order/MoveBind";
 import {BattleFlairManager} from "../ui/battle/flair/BattleFlairManager";
 import {BattleWindowManager} from "../ui/battle/screen/BattleWindowManager";
+import {TooltipService} from "../ui/generic/tooltip/TooltipService";
+import {Tooltip} from "../ui/generic/tooltip/Tooltip";
 
 const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("SelectNation") as RemoteFunction;
@@ -58,6 +60,7 @@ export class GameState {
         BattleWindowManager.resetInstance();
         HeatmapManager.resetInstance();
         SelectionManager.resetInstance();
+        TooltipService.resetInstance();
 
         this.binds.forEach((bind) => bind.unbind());
         this.binds.clear();
@@ -76,6 +79,7 @@ export class GameState {
         BattleWindowManager.getInstance();
         HeatmapManager.getInstance();
         SelectionManager.getInstance();
+        TooltipService.getInstance();
 
         this.binds.push(new MoveBind());
 

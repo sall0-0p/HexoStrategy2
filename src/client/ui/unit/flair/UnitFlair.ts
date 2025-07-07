@@ -3,6 +3,8 @@ import {Hex} from "../../../world/hex/Hex";
 import {Unit} from "../../../systems/unit/Unit";
 import {Container} from "./container/Container";
 import {UnitStack} from "./UnitStack";
+import {TooltipService} from "../../generic/tooltip/TooltipService";
+import {TextComponent} from "../../generic/tooltip/components/TextComponent";
 
 const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -30,6 +32,14 @@ export class UnitFlair {
         this.setQuantity(units.size());
         this.setIcon(units[0].getIcon());
         this.container.addFlair(this);
+
+        TooltipService.getInstance().bind(this.frame,
+            () => {
+                return {
+                    text: "Hello World!"
+                }
+            },
+            [TextComponent]);
     }
 
     public setColor(color: Color3) {
