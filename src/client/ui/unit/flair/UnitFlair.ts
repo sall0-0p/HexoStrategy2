@@ -5,6 +5,9 @@ import {Container} from "./container/Container";
 import {UnitStack} from "./UnitStack";
 import {TooltipService} from "../../generic/tooltip/TooltipService";
 import {TextComponent} from "../../generic/tooltip/components/TextComponent";
+import {TooltipEntry} from "../../generic/tooltip/Tooltip";
+import {HeaderComponent} from "../../generic/tooltip/components/HeaderComponent";
+import {SeparatorComponent} from "../../generic/tooltip/components/SeparatorComponent";
 
 const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -34,12 +37,12 @@ export class UnitFlair {
         this.container.addFlair(this);
 
         TooltipService.getInstance().bind(this.frame,
-            () => {
-                return {
-                    text: "Hello World!"
-                }
-            },
-            [TextComponent]);
+            [
+                { class: HeaderComponent, get: () => ({ text: "This is tooltip header!" })},
+                { class: SeparatorComponent },
+                { class: TextComponent, get: () => ({ text: "This is description of this component, \n it can be defined and updated on every tick. Isn`t that cool? I also added separator above!"})},
+            ]
+        );
     }
 
     public setColor(color: Color3) {

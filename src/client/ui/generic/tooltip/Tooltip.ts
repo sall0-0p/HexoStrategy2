@@ -11,40 +11,43 @@ const screen = Players.LocalPlayer
     .WaitForChild("Tooltips") as ScreenGui;
 
 export interface TooltipEntry<Props> {
-    componentClass: new () => TooltipComponent<Props>;
-    getProps: () => Props;
+    class: new () => TooltipComponent<Props>;
+    get?: () => Props;
 }
 
 export class Tooltip<Props = any> {
     private frame: Frame;
     private comps = new Array<TooltipComponent<Props>>();
-    private getProps: () => Props;
+    private getters: (() => any)[] = [];
     private tickConn?: RBXScriptConnection;
 
-    constructor(components: (new () => TooltipComponent<Props>)[],
-                getProps: () => Props) {
-        this.getProps = getProps;
-
+    constructor(entries: TooltipEntry<Props>[]) {
         this.frame = template.Clone();
         this.frame.Parent = screen;
         this.frame.Visible = false;
 
-        components.forEach((Comp) => {
-            const component = new Comp();
-            component.mount(this.frame.WaitForChild("Container") as Frame);
-            this.comps.push(component);
+        entries.forEach((entry) => {
+            const c = new entry.class();
+            c.mount(this.frame.WaitForChild("Container") as Frame);
+            this.comps.push(c);
+            this.getters.push(entry.get ?? (() => ({})));
         })
     }
 
     public show() {
+        this.update();
         this.frame.Visible = true;
 
-        this.tickConn = RunService.RenderStepped.Connect(() => {
-            const props = this.getProps();
-            this.comps.forEach((c) => c.update(props));
-            const mouse = UserInputService.GetMouseLocation();
-            this.frame.Position = UDim2.fromOffset(mouse.X + 10, mouse.Y + 10);
-        })
+        this.tickConn = RunService.RenderStepped.Connect(() => this.update());
+    }
+
+    private update() {
+        for (let i = 0; i < this.comps.size(); i++) {
+            this.comps[i].update(this.getters[i]());
+        }
+
+        const mouse = UserInputService.GetMouseLocation();
+        this.frame.Position = UDim2.fromOffset(mouse.X + 12, mouse.Y + 12);
     }
 
     public hide() {

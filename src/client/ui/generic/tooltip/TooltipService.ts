@@ -1,5 +1,5 @@
 import {TooltipComponent} from "./TooltipComponent";
-import {Tooltip} from "./Tooltip";
+import {Tooltip, TooltipEntry} from "./Tooltip";
 
 export class TooltipService {
     private active?: Tooltip;
@@ -10,14 +10,13 @@ export class TooltipService {
 
     public bind<Props>(
         target: GuiObject,
-        getProps: () => Props,
-        componentClasses: (new () => TooltipComponent<Props>)[],
+        entries: TooltipEntry<Props>[],
         hoverDelay = 0.3,
     ) {
         let hoverTask: thread;
         const enterConn = target.MouseEnter.Connect(() => {
             hoverTask = task.delay(hoverDelay, () => {
-                this.active = new Tooltip(componentClasses, getProps);
+                this.active = new Tooltip(entries);
                 this.active.show();
             })
         })
