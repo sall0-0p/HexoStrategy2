@@ -15,4 +15,19 @@ export namespace TextUtils {
             : (pluralForm ?? `${singular}s`);
         return `${count} ${word}`;
     }
+
+    /**
+     * Returns a string of `num` trimmed to at most `decimals` places after the dot.
+     * Does NOT round—just cuts extra digits.
+     */
+    export function trimDecimals(num: number, decimals: number): string {
+        const s = tostring(num);
+        const parts = s.split(".");
+        if (decimals <= 0 || parts.size() === 1) {
+            return parts[0];
+        }
+        const intPart = parts[0];
+        const decPart = parts[1].sub(0, decimals);
+        return `${intPart}.${decPart}`;
+    }
 }

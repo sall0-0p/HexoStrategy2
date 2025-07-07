@@ -1,100 +1,111 @@
-import {TooltipComponent} from "./TooltipComponent";
-import {Tooltip, TooltipEntry} from "./Tooltip";
+import { Players, UserInputService, RunService, GuiService, CollectionService } from "@rbxts/services";
+import { Tooltip, TooltipEntry } from "./Tooltip";
+
+interface TooltipBinding {
+    tooltipEntries: TooltipEntry<any>[];
+    hoverDelay: number;
+    elapsedHoverTime: number;
+    activeTooltip?: Tooltip;
+    unbind: () => void;
+}
 
 export class TooltipService {
-    private active?: Tooltip;
-    private binds: TooltipBind[] = [];
-
     private static instance: TooltipService;
-    private constructor() {}
+    private bindings: Map<GuiObject, TooltipBinding> = new Map();
+
+    private constructor() {
+        RunService.RenderStepped.Connect((dt) => this.update(dt));
+    }
+
+    private update(deltaTime: number) {
+        const inset = GuiService.GetGuiInset()[0];
+        const mousePos = UserInputService.GetMouseLocation();
+        const cursorX = mousePos.X - inset.X;
+        const cursorY = mousePos.Y - inset.Y;
+
+        const playerGui = Players.LocalPlayer.WaitForChild("PlayerGui") as PlayerGui;
+        const guiUnderCursor = playerGui.GetGuiObjectsAtPosition(cursorX, cursorY);
+
+        let resolvedTarget: GuiObject | undefined;
+        let blocked = false;
+
+        for (const gui of guiUnderCursor) {
+            if (!gui.Visible) continue;
+            if (gui.BackgroundTransparency === 1) continue;
+            if (CollectionService.HasTag(gui, "TooltipPassthrough")) continue;
+
+            if (this.bindings.has(gui)) {
+                resolvedTarget = gui;
+                break;
+            }
+
+            const ancestor = guiUnderCursor.find(other =>
+                this.bindings.has(other) &&
+                gui.IsDescendantOf(other)
+            );
+            if (ancestor) {
+                resolvedTarget = ancestor;
+                break;
+            }
+
+            blocked = true;
+            break;
+        }
+
+        this.bindings.forEach((binding, target) => {
+            if (target === resolvedTarget && !blocked) {
+                binding.elapsedHoverTime += deltaTime;
+                if (!binding.activeTooltip && binding.elapsedHoverTime >= binding.hoverDelay) {
+                    binding.activeTooltip = new Tooltip(binding.tooltipEntries);
+                    binding.activeTooltip.show();
+                }
+            } else {
+                binding.elapsedHoverTime = 0;
+                if (binding.activeTooltip) {
+                    binding.activeTooltip.hide();
+                    binding.activeTooltip.destroy();
+                    binding.activeTooltip = undefined;
+                }
+            }
+        });
+    }
 
     public bind<Props>(
         target: GuiObject,
         entries: TooltipEntry<Props>[],
         hoverDelay = 0.3,
-    ) {
-        let hoverTask: thread;
-        const enterConn = target.MouseEnter.Connect(() => {
-            hoverTask = task.delay(hoverDelay, () => {
-                this.active = new Tooltip(entries);
-                this.active.show();
-            })
-        })
-
-        const leaveConn = target.MouseLeave.Connect(() => {
-            task.cancel(hoverTask);
-            this.active?.hide();
-            this.active?.destroy();
-            this.active = undefined;
-        });
-
-        const destroyConn = target.Destroying.Connect(() => {
-            unbind();
-        })
-
-        const binding = {
-            target, enterConn, destroyConn, leaveConn, hoverTask: hoverTask!
-        } as TooltipBind;
-        this.binds.push(binding);
-
-        // I hate this one;
-        const unbind = () => {
-            if (binding.hoverTask) {
-                task.cancel(binding.hoverTask);
-            }
-
-            binding.enterConn.Disconnect();
-            binding.leaveConn.Disconnect();
-            binding.destroyConn.Disconnect();
-
-            if (this.active) {
-                this.active.hide();
-                this.active.destroy();
-                this.active = undefined;
-            }
-            this.binds = this.binds.filter(b => b !== b);
+    ): () => void {
+        const binding: TooltipBinding = {
+            tooltipEntries: entries as TooltipEntry<any>[],
+            hoverDelay,
+            elapsedHoverTime: 0,
+            activeTooltip: undefined,
+            unbind: () => {},
         };
 
-        return unbind;
-    }
+        binding.unbind = () => {
+            if (binding.activeTooltip) {
+                binding.activeTooltip.hide();
+                binding.activeTooltip.destroy();
+            }
+            this.bindings.delete(target);
+        };
 
-    // singleton shenanigans
-    private clear() {
-        for (const b of this.binds) {
-            if (b.hoverTask) task.cancel(b.hoverTask);
-
-            b.enterConn.Disconnect();
-            b.leaveConn.Disconnect();
-            b.destroyConn.Disconnect();
-        }
-        this.binds = [];
-
-        if (this.active) {
-            this.active.hide();
-            this.active.destroy();
-            this.active = undefined;
-        }
-    };
-
-    public static resetInstance() {
-        if (!this.instance) return;
-        this.instance.clear();
-        this.instance = undefined!;
+        this.bindings.set(target, binding);
+        return binding.unbind;
     }
 
     public static getInstance() {
         if (!this.instance) {
             this.instance = new TooltipService();
         }
-
         return this.instance;
     }
-}
 
-interface TooltipBind {
-    target: GuiObject,
-    enterConn: RBXScriptConnection,
-    leaveConn: RBXScriptConnection,
-    destroyConn: RBXScriptConnection,
-    hoverTask?: thread,
+    public static resetInstance() {
+        if (this.instance) {
+            this.instance.bindings.forEach(b => b.unbind());
+            this.instance = undefined!;
+        }
+    }
 }
