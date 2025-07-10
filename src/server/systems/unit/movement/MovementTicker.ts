@@ -56,7 +56,7 @@ export class MovementTicker {
         }
 
         const organisation = unit.getOrganisation() / unit.getMaxOrganisation();
-        const organisationPenalty = organisation > 0.2 ? 1 : 0.2;
+        const organisationPenalty = organisation > 0.2 ? 1 : 0.5;
         data.progress += unit.getSpeed() * 0.10 * this.worldTime.getGameSpeed() * organisationPenalty;
         unit.setOrganisation(unit.getOrganisation() - unit.getModifiers().getEffectiveValue(0, [ModifiableProperty.UnitOrganisationLossInMovement]));
     }

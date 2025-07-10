@@ -18,17 +18,13 @@ export class UnitRecoveryTicker {
         units.forEach((unit) => {
             if (unit.getOrganisation() / unit.getMaxOrganisation() === 1) return;
             const inBattle = this.battleRepository.isUnitInBattle(unit);
-
-            if (unit.getCurrentMovemementOrder() && !inBattle) {
-                unit.setOrganisation(math.clamp(unit.getOrganisation() - 0.2, 0, unit.getMaxOrganisation()));
-                return;
-            }
+            const isMoving = unit.getCurrentMovemementOrder() && !inBattle;
 
             if (inBattle) return;
 
             const recoveryRate = 0.25 + unit.getRecoveryRate();
             unit.setOrganisation(math.clamp(
-                unit.getOrganisation() + recoveryRate,
+                unit.getOrganisation() + recoveryRate * (isMoving ? 0.25 : 1),
                 0, unit.getMaxOrganisation()))
         })
     }
