@@ -584,7 +584,7 @@ export class Battle {
             attackers: units.attackers.map((u) => u.getId()),
             defenders: units.defenders.map((u) => u.getId()),
             approximation: this.lastPrediction!.score,
-            hoursTillEnded: this.lastPrediction!.hours,
+            hoursRemaining: this.lastPrediction!.hours,
         } as BattleSummaryDTO;
     }
 
@@ -641,10 +641,6 @@ export class Battle {
                 hardness: unit.getHardness(),
             }
         })
-    }
-
-    public toDTO() {
-
     }
 }
 

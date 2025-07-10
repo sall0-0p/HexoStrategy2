@@ -57,7 +57,7 @@ export class BattleFlairManager {
         const attackingUnit = UnitRepository.getInstance().getById(data.attackers[0]);
         if (!attackingUnit) return;
 
-        this.flairs.get(data.id)!.update((data.approximation + 1) / 2, attackingUnit.getPosition());
+        this.flairs.get(data.id)!.update(data, attackingUnit.getPosition());
     }
 
     private splitPayload(payload: BattleSummaryDTO[]): SplitPayload {

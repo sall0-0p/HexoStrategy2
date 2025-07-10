@@ -9,11 +9,12 @@ export namespace TextUtils {
         count: number,
         singular: string,
         pluralForm?: string,
+        includeNumber = true,
     ): string {
         const word = count === 1
             ? singular
             : (pluralForm ?? `${singular}s`);
-        return `${count} ${word}`;
+        return includeNumber ? `${count} ${word}` : word;
     }
 
     /**
