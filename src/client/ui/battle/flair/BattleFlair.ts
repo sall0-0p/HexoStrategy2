@@ -11,6 +11,7 @@ import {RTColor, RTWidth} from "../../../../shared/classes/RichText";
 import {TextUtils} from "../../../../shared/classes/TextUtils";
 import {EmptyComponent} from "../../generic/tooltip/components/EmptyComponent";
 import {SeparatorComponent} from "../../generic/tooltip/components/SeparatorComponent";
+import {TooltipDelay} from "../../../../shared/classes/TooltipDelay";
 
 const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -187,8 +188,8 @@ export class BattleFlair {
                     return { text: `We approximate that battle will end in ${math.ceil(remaining / 24)} days`};
                 }
             }},
-            { class: SeparatorComponent },
-            { class: TextComponent, get: () => {
+            { class: SeparatorComponent, delay: TooltipDelay.Controls },
+            { class: TextComponent, delay: TooltipDelay.Controls, get: () => {
                 return { text: `<font color="${RTColor.Green}">Click</font> to open detailed menu`};
             }}
         ])

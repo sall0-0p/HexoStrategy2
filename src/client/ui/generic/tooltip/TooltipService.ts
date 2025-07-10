@@ -1,11 +1,12 @@
 import { Players, UserInputService, RunService, GuiService, CollectionService } from "@rbxts/services";
 import { Tooltip, TooltipEntry } from "./Tooltip";
+import {TooltipComponent} from "./TooltipComponent";
 
 interface TooltipBinding {
     tooltipEntries: TooltipEntry<any>[];
     hoverDelay: number;
     elapsedHoverTime: number;
-    activeTooltip?: Tooltip;
+    activeTooltip?: Tooltip<any>;
     unbind: () => void;
 }
 
@@ -70,10 +71,10 @@ export class TooltipService {
         });
     }
 
-    public bind<Props = any>(
+    public bind<C extends TooltipComponent<any>>(
         target: GuiObject,
-        entries: TooltipEntry<Props>[],
-        hoverDelay = 0.3,
+        entries: TooltipEntry<C>[],
+        hoverDelay = 0.1,
     ): () => void {
         const binding: TooltipBinding = {
             tooltipEntries: entries as TooltipEntry<any>[],

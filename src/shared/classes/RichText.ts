@@ -2,7 +2,7 @@ export enum RTColor {
     Default = "rgb(255, 255, 255)",
     Important = "rgb(255, 203, 54)",
     Green = "rgb(83, 193, 86)",
-    Red = "rgb(218, 84, 78)",
+    Red = "rgb(255,73,66)",
 }
 
 export enum RTWidth {

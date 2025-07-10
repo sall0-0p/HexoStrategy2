@@ -11,6 +11,7 @@ export class EmptyComponent implements TooltipComponent<{ height?: number }> {
 
     mount(container: Frame) {
         this.frame = template.Clone();
+        this.frame.Visible = false;
         this.frame.Parent = container;
     }
 
@@ -18,6 +19,7 @@ export class EmptyComponent implements TooltipComponent<{ height?: number }> {
         if (props.height) {
             this.frame.Size = UDim2.fromOffset(0, props.height);
         }
+        this.frame.Visible = true;
     }
 
     destroy() {

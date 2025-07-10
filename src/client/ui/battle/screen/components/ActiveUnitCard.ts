@@ -9,6 +9,7 @@ import {HeaderComponent} from "../../../generic/tooltip/components/HeaderCompone
 import {EmptyComponent} from "../../../generic/tooltip/components/EmptyComponent";
 import {SeparatorComponent} from "../../../generic/tooltip/components/SeparatorComponent";
 import {RTColor} from "../../../../../shared/classes/RichText";
+import {TooltipDelay} from "../../../../../shared/classes/TooltipDelay";
 
 const attackerPosition = UDim2.fromScale(0.089,0);
 const defenderPosition = UDim2.fromScale(0.03, 0);
@@ -134,8 +135,8 @@ export class ActiveUnitCard {
                 { class: HeaderComponent, get: () => {
                     return { text: `Breakthrough: ${brt}`};
                 }},
-                { class: SeparatorComponent },
-                { class: TextComponent, get: () => {
+                { class: SeparatorComponent, delay: TooltipDelay.MoreInfo },
+                { class: TextComponent, delay: TooltipDelay.MoreInfo, get: () => {
                     return { text: `Determines how effectively a unit can punch through enemy defensive lines—higher breakthrough lets you ignore more of the target’s defence and deal extra damage`};
                 }},
             ])
@@ -146,8 +147,8 @@ export class ActiveUnitCard {
                 { class: HeaderComponent, get: () => {
                     return { text: `Defence: ${def}`};
                 }},
-                { class: SeparatorComponent },
-                { class: TextComponent, get: () => {
+                { class: SeparatorComponent, delay: TooltipDelay.MoreInfo },
+                { class: TextComponent, delay: TooltipDelay.MoreInfo, get: () => {
                     return { text: `Measures a unit’s ability to absorb incoming attacks—higher defence reduces the number of successful hits that actually damage your division`};
                 }},
             ])
@@ -165,8 +166,8 @@ export class ActiveUnitCard {
             { class: TextComponent, get: () => {
                 return { text: `Hard Attack: <font color="${RTColor.Important}">${this.data.hardAttack}</font>`};
             }},
-            { class: SeparatorComponent },
-            { class: TextComponent, get: () => {
+            { class: SeparatorComponent, delay: TooltipDelay.MoreInfo },
+            { class: TextComponent, delay: TooltipDelay.MoreInfo, get: () => {
                 return { text: `Soft attack hurts unarmored troops; hard attack tears through tanks. They’re merged by enemy hardness to form your final attack value.`};
             }},
         ])

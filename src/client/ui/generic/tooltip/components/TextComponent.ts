@@ -11,11 +11,13 @@ export class TextComponent implements TooltipComponent<{ text: string }> {
 
     mount(container: Frame) {
         this.frame = template.Clone();
+        this.frame.Visible = false;
         this.frame.Parent = container;
     }
 
     update(props: { text: string }) {
         this.frame.Text = props.text;
+        this.frame.Visible = true;
     }
 
     destroy() {
