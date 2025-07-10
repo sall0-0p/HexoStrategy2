@@ -8,6 +8,7 @@ import {TextUtils} from "../../../../../shared/classes/TextUtils";
 import {HeaderComponent} from "../../../generic/tooltip/components/HeaderComponent";
 import {EmptyComponent} from "../../../generic/tooltip/components/EmptyComponent";
 import {SeparatorComponent} from "../../../generic/tooltip/components/SeparatorComponent";
+import {RTColor} from "../../../../../shared/classes/RichText";
 
 const attackerPosition = UDim2.fromScale(0.089,0);
 const defenderPosition = UDim2.fromScale(0.03, 0);
@@ -108,7 +109,7 @@ export class ActiveUnitCard {
             { class: TextComponent, get: () => {
                 const org = TextUtils.trimDecimals(this.unit.getOrganisation(), 1);
                 const maxOrg = TextUtils.trimDecimals(this.unit.getMaxOrg(), 1);
-                const text = `Organisation: <font color="rgb(255, 203, 54)" >${org}/${maxOrg}</font>`;
+                const text = `Organisation: <font color="${RTColor.Important}" >${org}/${maxOrg}</font>`;
                 return {text};
             }}
         ]);
@@ -120,7 +121,7 @@ export class ActiveUnitCard {
                 const maxHp = this.unit.getMaxHp()
                 const percentage = math.clamp((hp / maxHp) * 100, 0, 100);
                 const trimmedPercentage = TextUtils.trimDecimals(percentage, 1);
-                const text = `Strength: <font color="rgb(255, 203, 54)">${trimmedPercentage}%</font>`;
+                const text = `Strength: <font color="${RTColor.Important}">${trimmedPercentage}%</font>`;
                 return {text};
             }}
         ]);
@@ -130,8 +131,8 @@ export class ActiveUnitCard {
             // Breakthrough tooltip is displayed
             const brt = TextUtils.trimDecimals(this.data.breakthrough, 1);
             tooltipService.bind(defenceBox, [
-                { class: TextComponent, get: () => {
-                    return { text: `<font color="rgb(255, 203, 54)">Breakthrough: ${brt}</font>`};
+                { class: HeaderComponent, get: () => {
+                    return { text: `Breakthrough: ${brt}`};
                 }},
                 { class: SeparatorComponent },
                 { class: TextComponent, get: () => {
@@ -142,8 +143,8 @@ export class ActiveUnitCard {
             // Defence tooltip is displayed
             const def = TextUtils.trimDecimals(this.data.defence, 1);
             tooltipService.bind(defenceBox, [
-                { class: TextComponent, get: () => {
-                    return { text: `<font color="rgb(255, 203, 54)">Defence: ${def}</font>`};
+                { class: HeaderComponent, get: () => {
+                    return { text: `Defence: ${def}`};
                 }},
                 { class: SeparatorComponent },
                 { class: TextComponent, get: () => {
@@ -154,15 +155,15 @@ export class ActiveUnitCard {
 
         // Stats (Attack)
         tooltipService.bind(attackBox, [
-            { class: TextComponent, get: () => {
-                return { text: `<font color="rgb(255, 203, 54)">Total Attack: ${this.data.attack}</font>`};
+            { class: HeaderComponent, get: () => {
+                return { text: `Total Attack: ${this.data.attack}`};
             }},
             { class: EmptyComponent },
             { class: TextComponent, get: () => {
-                return { text: `Soft Attack: <font color="rgb(255, 203, 54)">${this.data.softAttack}</font>`};
+                return { text: `Soft Attack: <font color="${RTColor.Important}">${this.data.softAttack}</font>`};
             }},
             { class: TextComponent, get: () => {
-                return { text: `Hard Attack: <font color="rgb(255, 203, 54)">${this.data.hardAttack}</font>`};
+                return { text: `Hard Attack: <font color="${RTColor.Important}">${this.data.hardAttack}</font>`};
             }},
             { class: SeparatorComponent },
             { class: TextComponent, get: () => {
@@ -178,24 +179,24 @@ export class ActiveUnitCard {
                 return { text: `${name} (${this.isAttacker ? "Attackers" : "Defenders"})` };
             }},
             { class: SeparatorComponent },
-            { class: TextComponent, get: () => {
+            { class: HeaderComponent, get: () => {
                 const armor = TextUtils.trimDecimals(this.data.armor, 1);
-                return { text: `<font color="rgb(255, 203, 54)">Armor: ${armor}</font>`};
+                return { text: `Armor: ${armor}`};
             }},
             { class: EmptyComponent },
-            { class: TextComponent, get: () => {
-                return { text: `Hardness: <font color="rgb(255, 203, 54)">${hardness}%</font>`};
+            { class: HeaderComponent, get: () => {
+                return { text: `Hardness: ${hardness}%`};
             }},
             { class: TextComponent, get: () => {
-                return { text: `Receiving <font color="rgb(255, 203, 54)">${100 - hardness}%</font> damage from all soft attacks`};
+                return { text: `Receiving <font color="${RTColor.Important}">${100 - hardness}%</font> damage from all soft attacks`};
             }},
             { class: TextComponent, get: () => {
-                return { text: `Receiving <font color="rgb(255, 203, 54)">${hardness}%</font> damage from all hard attacks`};
+                return { text: `Receiving <font color="${RTColor.Important}">${hardness}%</font> damage from all hard attacks`};
             }},
             { class: EmptyComponent },
-            { class: TextComponent, get: () => {
+            { class: HeaderComponent, get: () => {
                 const piercing = TextUtils.trimDecimals(this.data.piercing, 1);
-                return { text: `<font color="rgb(255, 203, 54)">Piercing: ${piercing}</font>`};
+                return { text: `Piercing: ${piercing}`};
             }},
             { class: TextComponent, get: () => {
                 return { text: `Units whose piercing is lower than the target’s armor suffer a damage penalty`};

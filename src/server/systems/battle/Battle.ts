@@ -35,6 +35,7 @@ export class Battle {
     private attacks = new Map<Unit, number>();
     private defences = new Map<Unit, number>();
     private maxWidth = 0;
+    private flankingDirections = 0;
 
     public onUnitAdded = new Signal<[unit: Unit, isAttacker: boolean]>();
     public onBattleEnded = new Signal<[battle: Battle]>();
@@ -408,8 +409,8 @@ export class Battle {
         const directions: Set<Hex> = new Set();
 
         allAttackers.forEach((unit) => directions.add(unit.getPosition()));
-        const flankingDirections = directions.size() - 1;
-        this.maxWidth = baseWidth + (flankWidth * flankingDirections);
+        this.flankingDirections = directions.size() - 1;
+        this.maxWidth = baseWidth + (flankWidth * this.flankingDirections);
     }
 
     private computeWidth(units: Unit[]) {
@@ -532,7 +533,7 @@ export class Battle {
         const hoursToKillDefenders = (defendingOrganisation + defendingReserveOrg) / attackingDamageApproximation;
         const hoursToKillAttackers = (attackingOrganisation + attackingReserveOrg) / defendingDamageApproximation;
 
-        const hours = math.min(hoursToKillDefenders, hoursToKillAttackers);
+        const hours = math.min(hoursToKillDefenders, hoursToKillAttackers) * 0.75;
         const score = (hoursToKillAttackers - hoursToKillDefenders)
             / math.max(hoursToKillAttackers, hoursToKillDefenders);
 
@@ -593,18 +594,34 @@ export class Battle {
         return {
             type: "update",
             battleId: this.id,
-            location: this.location.getId(),
-            attackingLine: this.toCombatantDTOs(units.attackingFrontline),
-            attackingReserve: this.toCombatantDTOs(units.attackingReserve),
-            defendingLine: this.toCombatantDTOs(units.defendingFrontline),
-            defendingReserve: this.toCombatantDTOs(units.defendingReserve),
-            approximation: this.lastPrediction?.score ?? 0.5,
-            hoursTillEnded: this.lastPrediction?.hours ?? 24,
-            maxWidth: this.maxWidth,
-            attackingWidth: this.attackingUnits.reduce((prev, unit) => prev + unit.getCombatWidth(), 0),
-            defendingWidth: this.defendingUnits.reduce((prev, unit) => prev + unit.getCombatWidth(), 0),
-            attackingNation: [...this.attackers][0].getId(),
-            defendingNation: [...this.defenders][0].getId(),
+            locationId: this.location.getId(),
+            forces: {
+                attackers: {
+                    frontline: this.toCombatantDTOs(units.attackingFrontline),
+                    reserve: this.toCombatantDTOs(units.attackingReserve),
+                },
+                defenders: {
+                    frontline: this.toCombatantDTOs(units.defendingFrontline),
+                    reserve: this.toCombatantDTOs(units.defendingReserve),
+                },
+            },
+            prediction: {
+                approximation: this.lastPrediction?.score ?? 0.5,
+                hoursRemaining: this.lastPrediction?.hours ?? 24,
+            },
+            width: {
+                max: this.maxWidth,
+                base: 70,
+                flanks: this.flankingDirections,
+                attackers: this.attackingUnits.reduce((prev, unit) =>
+                    prev + unit.getCombatWidth(), 0),
+                defenders: this.defendingUnits.reduce((prev, unit) =>
+                    prev + unit.getCombatWidth(), 0),
+            },
+            nations: {
+                attackers: [...this.attackers].map((n) => n.getId()),
+                defenders: [...this.defenders].map((n) => n.getId()),
+            }
         }
     }
 

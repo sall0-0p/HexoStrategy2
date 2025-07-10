@@ -6,6 +6,7 @@ import {TextUtils} from "../../../../shared/classes/TextUtils";
 import {ReserveUnitCard} from "./components/ReserveUnitCard";
 import {NationRepository} from "../../../world/nation/NationRepository";
 import {Draggable} from "../../generic/Draggable";
+import {BattleWindowTooltips} from "./BattleWindowTooltips";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")
@@ -40,6 +41,9 @@ export class BattleWindow {
     // Dragging
     private draggable: Draggable;
 
+    // Latest payload for tooltips
+    private latestPayload?: BattleUpdate;
+
     constructor() {
         this.frame = template.Clone();
         this.frame.Parent = screen;
@@ -64,6 +68,7 @@ export class BattleWindow {
         });
 
         this.draggable = new Draggable(this.frame, this.frame.WaitForChild("Header") as Frame);
+        BattleWindowTooltips.applyTooltips(this);
 
         // close button
         const button = this.frame.WaitForChild("Header")
@@ -78,6 +83,7 @@ export class BattleWindow {
         this.updateFlags(payload);
         this.updateBar(payload);
         this.updateQtyLabels();
+        this.latestPayload = payload;
     }
 
     public close() {
@@ -129,15 +135,15 @@ export class BattleWindow {
         const defendersCombatWidth = progressContainer.WaitForChild("DefendersCombatWidth")
             .WaitForChild("Value") as TextLabel;
 
-        totalCombatWidth.Text = tostring(payload.maxWidth);
-        attackersCombatWidth.Text = tostring(payload.attackingWidth);
-        defendersCombatWidth.Text = tostring(payload.defendingWidth);
+        totalCombatWidth.Text = tostring(payload.width.max);
+        attackersCombatWidth.Text = tostring(payload.width.attackers);
+        defendersCombatWidth.Text = tostring(payload.width.defenders);
     }
 
     private updateFlags(payload: BattleUpdate) {
         const nationRepository = NationRepository.getInstance();
-        const nationAttacking = nationRepository.getById(payload.attackingNation);
-        const nationDefending = nationRepository.getById(payload.defendingNation);
+        const nationAttacking = nationRepository.getById(payload.nations.attackers[0]);
+        const nationDefending = nationRepository.getById(payload.nations.defenders[0]);
 
         if (!nationAttacking || !nationDefending) {
             error("Cannot recognise attacking/defending nation.");
@@ -155,7 +161,7 @@ export class BattleWindow {
     }
 
     private updateBar(payload: BattleUpdate) {
-        this.targetBarPos = (payload.approximation + 1) / 2;
+        this.targetBarPos = (payload.prediction.approximation + 1) / 2;
         this.targetPointerRot    = this.targetBarPos < 0.5 ? 0 : 180;
     }
 
@@ -180,7 +186,7 @@ export class BattleWindow {
     private processActiveCards(container: ScrollingFrame, payload: BattleUpdate, isAttacker: boolean) {
         const line = isAttacker ? this.attackingLine : this.defendingLine;
         const split = this.splitPayload(line,
-            isAttacker ? payload.attackingLine : payload.defendingLine);
+            isAttacker ? payload.forces.attackers.frontline : payload.forces.defenders.frontline);
 
         split.toUpdate.forEach((data) => line.get(data.id)?.update(data));
         split.toAdd.forEach((data) => {
@@ -211,7 +217,7 @@ export class BattleWindow {
     private processReserveCards(container: Frame, payload: BattleUpdate, isAttacker: boolean) {
         const reserve = isAttacker ? this.attackingReserve : this.defendingReserve;
         const split = this.splitPayload(reserve,
-            isAttacker ? payload.attackingReserve : payload.defendingReserve);
+            isAttacker ? payload.forces.attackers.reserve : payload.forces.defenders.reserve);
 
         split.toUpdate.forEach((data) => reserve.get(data.id)?.update(data));
         split.toAdd.forEach((data) => {
@@ -245,6 +251,15 @@ export class BattleWindow {
         })
 
         return { toAdd, toRemove, toUpdate };
+    }
+
+    // For external tooltip manager
+    public getLatestPayload() {
+        return this.latestPayload;
+    }
+
+    public getFrame() {
+        return this.frame;
     }
 }
 
