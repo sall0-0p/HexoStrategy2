@@ -34,5 +34,11 @@ export interface BattleEnded extends BattlePayload {
 export interface CombatantSummaryDTO {
     id: string,
     defence: number,
+    breakthrough: number,
     attack: number,
+    softAttack: number,
+    hardAttack: number,
+    armor: number,
+    piercing: number,
+    hardness: number,
 }

@@ -130,6 +130,11 @@ export class Battle {
             isDefender ? this.attackingUnits : this.defendingUnits);
         if (targets.size() === 0) { return; }
 
+        // Combat Width shenanigans
+        const frontline = isDefender ? this.defendingUnits : this.attackingUnits;
+        const totalWidth = frontline.reduce((sum, u) => sum + u.getCombatWidth(), 0);
+        const over = totalWidth - this.maxWidth;
+
         // Determine enemy average hardness
         let sumHardness = 0
         targets.forEach((t) => sumHardness += t.getHardness());
@@ -137,17 +142,23 @@ export class Battle {
 
         const baseAttack = averageHardness * unit.getHardAttack()
             + (1 - averageHardness) * unit.getSoftAttack();
-        const totalAttack = unit.getModifiers().getEffectiveValue(baseAttack, [ModifiableProperty.UnitTotalAttack]);
+        let totalAttack = unit.getModifiers().getEffectiveValue(baseAttack, [ModifiableProperty.UnitTotalAttack]);
+        if (over > 0) { // Combat width penalty
+            const penalty = -1 * over / this.maxWidth;
+            print(penalty);
+            totalAttack *= (1 + penalty);
+        }
+
         const attackCount = math.round(totalAttack / 10);
-        this.attacks.set(unit, totalAttack);
-
         const attacks = this.allocateAttacks(unit, targets, attackCount);
-
         attacks.forEach((count, target) => {
             for (let i = 0; i < count; i++) {
                 this.attack(unit, target);
             }
         });
+
+        // Cache total attacks
+        this.attacks.set(unit, totalAttack);
     }
 
     private attack(unit: Unit, target: Unit) {
@@ -238,14 +249,25 @@ export class Battle {
 
     private buildDefences() {
         this.defences.clear();
+
+        const totalDefWidth = this.defendingUnits.reduce((sum, u) => sum + u.getCombatWidth(), 0);
+        const defOver = totalDefWidth - this.maxWidth;
+        const defPenalty = -1 * defOver / this.maxWidth;
         this.defendingUnits.forEach((unit) => {
             const base = unit.getDefence() / 10;
-            this.defences.set(unit, math.round(base));
+            const combatWidthAdjusted = (defOver < 0) ? base : base * (1 + defPenalty);
+
+            this.defences.set(unit, math.round(combatWidthAdjusted));
         })
 
+        const totalAtkWidth = this.attackingUnits.reduce((sum, u) => sum + u.getCombatWidth(), 0);
+        const atkOver = totalAtkWidth - this.maxWidth;
+        const atkPenalty = -1 * atkOver / this.maxWidth;
         this.attackingUnits.forEach((unit) => {
             const base = unit.getBreakthrough() / 10;
-            this.defences.set(unit, math.round(base));
+            const combatWidthAdjusted = (atkOver < 0) ? base : base * (1 + atkPenalty);
+
+            this.defences.set(unit, math.round(combatWidthAdjusted));
         })
     }
 
@@ -572,10 +594,10 @@ export class Battle {
             type: "update",
             battleId: this.id,
             location: this.location.getId(),
-            attackingLine: this.toCombatantDTOs(units.attackingFrontline, true),
-            attackingReserve: this.toCombatantDTOs(units.attackingReserve, true),
-            defendingLine: this.toCombatantDTOs(units.defendingFrontline, false),
-            defendingReserve: this.toCombatantDTOs(units.defendingReserve, false),
+            attackingLine: this.toCombatantDTOs(units.attackingFrontline),
+            attackingReserve: this.toCombatantDTOs(units.attackingReserve),
+            defendingLine: this.toCombatantDTOs(units.defendingFrontline),
+            defendingReserve: this.toCombatantDTOs(units.defendingReserve),
             approximation: this.lastPrediction?.score ?? 0.5,
             hoursTillEnded: this.lastPrediction?.hours ?? 24,
             maxWidth: this.maxWidth,
@@ -586,14 +608,20 @@ export class Battle {
         }
     }
 
-    private toCombatantDTOs(units: Unit[], isAttacking: boolean) {
+    private toCombatantDTOs(units: Unit[]) {
         return units.map((unit): CombatantSummaryDTO => {
-            const defence = isAttacking ? unit.getBreakthrough() : unit.getDefence();
             const attack = math.round(this.attacks.get(unit) ?? -1);
 
             return {
                 id: unit.getId(),
-                defence, attack
+                attack: attack,
+                softAttack: unit.getSoftAttack(),
+                hardAttack: unit.getHardAttack(),
+                armor: unit.getArmor(),
+                piercing: unit.getPiercing(),
+                defence: unit.getDefence(),
+                breakthrough: unit.getBreakthrough(),
+                hardness: unit.getHardness(),
             }
         })
     }

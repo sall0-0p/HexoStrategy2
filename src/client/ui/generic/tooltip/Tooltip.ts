@@ -11,8 +11,8 @@ const screen = Players.LocalPlayer
     .WaitForChild("Tooltips") as ScreenGui;
 
 export interface TooltipEntry<Props> {
-    class: new () => TooltipComponent<Props>;
-    get?: () => Props;
+    class: new () => TooltipComponent<any>;
+    get?: () => any;
 }
 
 export class Tooltip<Props = any> {

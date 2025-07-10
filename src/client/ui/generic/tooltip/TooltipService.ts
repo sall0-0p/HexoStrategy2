@@ -30,14 +30,14 @@ export class TooltipService {
         let blocked = false;
 
         for (const gui of guiUnderCursor) {
-            if (!gui.Visible) continue;
-            if (gui.BackgroundTransparency === 1) continue;
-            if (CollectionService.HasTag(gui, "TooltipPassthrough")) continue;
-
             if (this.bindings.has(gui)) {
                 resolvedTarget = gui;
                 break;
             }
+
+            if (!gui.Visible) continue;
+            if (gui.BackgroundTransparency === 1) continue;
+            if (CollectionService.HasTag(gui, "TooltipPassthrough")) continue;
 
             const ancestor = guiUnderCursor.find(other =>
                 this.bindings.has(other) &&
@@ -70,7 +70,7 @@ export class TooltipService {
         });
     }
 
-    public bind<Props>(
+    public bind<Props = any>(
         target: GuiObject,
         entries: TooltipEntry<Props>[],
         hoverDelay = 0.3,
