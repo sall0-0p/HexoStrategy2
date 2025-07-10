@@ -1,9 +1,9 @@
-import { Hex } from "../../world/hex/Hex";
-import { Unit } from "../unit/Unit";
-import { DiplomaticRelationStatus } from "../diplomacy/DiplomaticRelation";
-import { Nation } from "../../world/nation/Nation";
-import { UnitRepository } from "../unit/UnitRepository";
-import { Battle } from "./Battle";
+import { Hex } from "../../../world/hex/Hex";
+import { Unit } from "../../unit/Unit";
+import { DiplomaticRelationStatus } from "../../diplomacy/DiplomaticRelation";
+import { Nation } from "../../../world/nation/Nation";
+import { UnitRepository } from "../../unit/UnitRepository";
+import { Battle } from "../Battle";
 
 export class BattleRepository {
     private static instance: BattleRepository;

@@ -1,6 +1,6 @@
 import {UnitRepository} from "./UnitRepository";
 import {TimeSignalType, WorldTime} from "../time/WorldTime";
-import {BattleRepository} from "../battle/BattleRepository";
+import {BattleRepository} from "../battle/misc/BattleRepository";
 
 export class UnitRecoveryTicker {
 

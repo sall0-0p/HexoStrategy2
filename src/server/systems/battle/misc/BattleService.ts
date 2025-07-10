@@ -1,10 +1,10 @@
 // src/game/battle/BattleService.ts
-import { Battle } from "./Battle";
+import { Battle } from "../Battle";
 import { BattleRepository } from "./BattleRepository";
-import { Unit } from "../unit/Unit";
-import { Nation } from "../../world/nation/Nation";
-import { Hex } from "../../world/hex/Hex";
-import { WorldTime, TimeSignalType } from "../time/WorldTime";
+import { Unit } from "../../unit/Unit";
+import { Nation } from "../../../world/nation/Nation";
+import { Hex } from "../../../world/hex/Hex";
+import { WorldTime, TimeSignalType } from "../../time/WorldTime";
 import { BattleReplicator } from "./BattleReplicator";
 import { BattleSubscription } from "./BattleSubscription";
 

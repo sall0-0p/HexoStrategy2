@@ -15,7 +15,7 @@ import {DiplomaticRelationStatus} from "./systems/diplomacy/DiplomaticRelation";
 import {NationPicker} from "./world/nation/NationPicker";
 import {WorldTime} from "./systems/time/WorldTime";
 import {UnitRecoveryTicker} from "./systems/unit/UnitRecoveryTicker";
-import {BattleReplicator} from "./systems/battle/BattleReplicator";
+import {BattleReplicator} from "./systems/battle/misc/BattleReplicator";
 
 WorldTime.getInstance();
 NationRepository.getInstance();

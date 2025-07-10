@@ -11,7 +11,7 @@ import {MovementPathfinder} from "./movement/MovementPathfinder";
 import {ModifierContainer} from "../modifier/ModifierContainer";
 import {ModifiableProperty} from "../modifier/ModifiableProperty";
 import findPath = MovementPathfinder.findPath;
-import {BattleRepository} from "../battle/BattleRepository";
+import {BattleRepository} from "../battle/misc/BattleRepository";
 import {CombatantSummaryDTO} from "../../../shared/dto/BattleSubscription";
 
 const movementTicker = MovementTicker.getInstance();

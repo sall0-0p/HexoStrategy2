@@ -1,6 +1,6 @@
 // src/network/BattleSubscriptionManager.ts
 import { ReplicatedStorage } from "@rbxts/services";
-import { ControlPayload, BattleEnded, BattleUpdate } from "../../../shared/dto/BattleSubscription";
+import { ControlPayload, BattleEnded, BattleUpdate } from "../../../../shared/dto/BattleSubscription";
 import { BattleRepository } from "./BattleRepository";
 
 const event = ReplicatedStorage
