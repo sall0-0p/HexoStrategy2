@@ -13,11 +13,25 @@ export class Signal<Args extends unknown[]> {
 
     public connect(fn: Callback<Args>): Connection {
         this.listeners.add(fn);
-        const listeners = this.listeners
+        const listeners = this.listeners;
         return {
             disconnect() {
                 listeners.delete(fn);
             },
+        }
+    }
+
+    public once(fn: Callback<Args>): Connection {
+        this.listeners.add((...args) => {
+            fn(...args);
+            listeners.delete(fn);
+        });
+        
+        const listeners = this.listeners;
+        return {
+            disconnect() {
+                listeners.delete(fn);
+            }
         }
     }
 
