@@ -16,6 +16,10 @@ import {NationPicker} from "./world/nation/NationPicker";
 import {WorldTime} from "./systems/time/WorldTime";
 import {UnitRecoveryTicker} from "./systems/unit/UnitRecoveryTicker";
 import {BattleReplicator} from "./systems/battle/misc/BattleReplicator";
+import {UnitService} from "./systems/unit/UnitService";
+import {MovementTicker} from "./systems/unit/movement/MovementTicker";
+import {Battle} from "./systems/battle/Battle";
+import {BattleService} from "./systems/battle/misc/BattleService";
 
 WorldTime.getInstance();
 NationRepository.getInstance();
@@ -29,6 +33,9 @@ RegionReplicator.getInstance(RegionRepository.getInstance());
 UnitReplicator.getInstance(UnitRepository.getInstance());
 UnitController.getInstance();
 UnitRecoveryTicker.getInstance();
+const bs = BattleService.getInstance();
+const us = UnitService.getInstance();
+MovementTicker.getInstance((u: Unit) => us.kill(u), bs);
 NationPicker.getInstance();
 
 wait(1);

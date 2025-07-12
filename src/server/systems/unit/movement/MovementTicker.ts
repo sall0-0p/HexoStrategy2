@@ -1,14 +1,14 @@
-import {Hex} from "../../../world/hex/Hex";
-import {Unit} from "../Unit";
-import {Signal} from "../../../../shared/classes/Signal";
-import {MovementSubscriptionManager} from "./MovementSubscriptionManager";
-import {TimeSignalType, WorldTime} from "../../time/WorldTime";
-import {ModifiableProperty} from "../../modifier/ModifiableProperty";
-import {BattleRepository} from "../../battle/misc/BattleRepository";
-import {BattleService} from "../../battle/misc/BattleService";
-import {Nation} from "../../../world/nation/Nation";
-import {UnitRepository} from "../UnitRepository";
-import {DiplomaticRelationStatus} from "../../diplomacy/DiplomaticRelation";
+import { Hex } from "../../../world/hex/Hex";
+import { Unit } from "../Unit";
+import { Signal } from "../../../../shared/classes/Signal";
+import { MovementSubscriptionManager } from "./MovementSubscriptionManager";
+import { TimeSignalType, WorldTime } from "../../time/WorldTime";
+import { ModifiableProperty } from "../../modifier/ModifiableProperty";
+import { BattleService } from "../../battle/misc/BattleService";
+import { Nation } from "../../../world/nation/Nation";
+import { UnitRepository } from "../UnitRepository";
+import { DiplomaticRelationStatus } from "../../diplomacy/DiplomaticRelation";
+import { MovementOrder } from "../order/MovementOrder";
 
 type MovementData = {
     from: Hex;
@@ -20,12 +20,13 @@ type MovementData = {
 export class MovementTicker {
     private unitsInMovement = new Map<Unit, MovementData>();
     private movementSubscriptionManager;
-
-    private battleService = BattleService.getInstance();
-    private unitRepository = UnitRepository.getInstance();
     private worldTime = WorldTime.getInstance();
     private static instance: MovementTicker;
-    private constructor() {
+
+    private constructor(
+        private readonly onKill: (unit: Unit) => void,
+        private readonly battleService: BattleService
+    ) {
         this.movementSubscriptionManager = new MovementSubscriptionManager(this);
         this.worldTime.on(TimeSignalType.Tick).connect(() => this.onTick());
     }
@@ -35,16 +36,23 @@ export class MovementTicker {
             this.tickUnit(unit, data);
             this.movementSubscriptionManager.recordProgress(unit, data.progress);
         });
-
         this.movementSubscriptionManager.flushProgress();
     }
 
     private tickUnit(unit: Unit, data: MovementData) {
         const hex = data.to;
+        const unitId = unit.getId();
+        const hexId = hex.getId();
+        const key = unitId + "@" + hexId;
 
-        const isHexOwnerByEnemy =
-            hex.getOwner()?.getRelations().getRelationStatus(unit.getOwner()) === DiplomaticRelationStatus.Enemy;
-        if (unit.getCurrentMovemementOrder()?.retreating && isHexOwnerByEnemy) unit.die();
+        const currentOrder = unit.getOrderQueue().getCurrent() as MovementOrder | undefined;
+        const isRetreating = currentOrder?.retreating === true;
+        const isHexEnemy = hex.getOwner()?.getRelations().getRelationStatus(unit.getOwner()) === DiplomaticRelationStatus.Enemy;
+
+        if (isRetreating && isHexEnemy) {
+            this.onKill(unit);
+            return;
+        }
 
         if (this.handleBattleFor(unit, hex, data)) {
             return;
@@ -55,13 +63,18 @@ export class MovementTicker {
             return;
         }
 
-        const organisation = unit.getOrganisation() / unit.getMaxOrganisation();
-        const organisationPenalty = organisation > 0.2 ? 1 : 0.5;
-        data.progress += unit.getSpeed() * 0.10 * this.worldTime.getGameSpeed() * organisationPenalty;
-        unit.setOrganisation(unit.getOrganisation() - unit.getModifiers().getEffectiveValue(0, [ModifiableProperty.UnitOrganisationLossInMovement]));
+        const orgRatio = unit.getOrganisation() / unit.getMaxOrganisation();
+        const penalty = orgRatio > 0.2 ? 1 : 0.5;
+        data.progress += unit.getSpeed() * 0.1 * this.worldTime.getGameSpeed() * penalty;
+        unit.setOrganisation(
+            unit.getOrganisation() -
+            unit.getModifiers().getEffectiveValue(0, [ModifiableProperty.UnitOrganisationLossInMovement])
+        );
     }
 
     private handleBattleFor(unit: Unit, hex: Hex, data: MovementData): boolean {
+        const unitId = unit.getId();
+        const hexId = hex.getId();
         const battlesHere = this.battleService.getBattlesByHex(hex);
         const inAny = this.battleService.isUnitInBattle(unit);
 
@@ -72,7 +85,7 @@ export class MovementTicker {
             }
         }
 
-        if (battlesHere.some(b => this.battleService.isUnitInBattle(unit, b))) {
+        if (battlesHere.some(b => this.battleService.isUnitInBattle(unit))) {
             return true;
         }
 
@@ -80,8 +93,9 @@ export class MovementTicker {
             const foes = this.battleService.getEnemiesInHex(unit.getOwner(), hex);
             if (foes.size() > 0) {
                 const friendlies = this.getFriendlyUnitsMovingInto(hex, unit.getOwner());
-                if (friendlies.size() === 0) return false;
-
+                if (friendlies.size() === 0) {
+                    return false;
+                }
                 this.battleService.engage(friendlies, hex);
                 return true;
             }
@@ -90,15 +104,13 @@ export class MovementTicker {
         return false;
     }
 
-    private getFriendlyUnitsMovingInto(hex: Hex, nation: Nation) {
-        const units = this.unitRepository.getByOwner(nation);
+    private getFriendlyUnitsMovingInto(hex: Hex, nation: Nation): Unit[] {
         const movingInto: Unit[] = [];
-
-        units?.forEach((unit) => {
-            const path = unit.getCurrentMovemementOrder()?.path;
-            if (path && path[path.size() - 1] === hex) movingInto.push(unit);
-        })
-
+        for (const [u, data] of this.unitsInMovement) {
+            if (u.getOwner() === nation && data.to === hex) {
+                movingInto.push(u);
+            }
+        }
         return movingInto;
     }
 
@@ -110,7 +122,6 @@ export class MovementTicker {
             progress: 0,
             finished: new Signal<[]>(),
         };
-
         this.unitsInMovement.set(unit, data);
         return data;
     }
@@ -128,11 +139,9 @@ export class MovementTicker {
     private finishMovement(unit: Unit) {
         const data = this.unitsInMovement.get(unit);
         if (!data) error("Trying to finish unexistent movement!");
-
         this.unitsInMovement.delete(unit);
         unit.setPosition(data.to);
         data.finished.fire();
-
         this.movementSubscriptionManager.recordUpdate(unit);
     }
 
@@ -148,21 +157,20 @@ export class MovementTicker {
         current: string;
     } | undefined {
         const data = this.unitsInMovement.get(unit);
-        const order = unit.getCurrentMovemementOrder();
+        const order = unit.getOrderQueue().getCurrent() as MovementOrder | undefined;
         if (!data || !order) return undefined;
-
         return {
-            from: order.from.getId(),
-            to: order.to.getId(),
-            path: order.path.map((hex) => hex.getId()),
+            from: order.getSource()?.getId() ?? "",
+            to: order.getDestination().getId(),
+            path: order.getPath().map(h => h.getId()),
             progress: data.progress,
-            current: order.current.getId(),
+            current: order.getCurrentHex().getId(),
         };
     }
 
-    public static getInstance() {
-        if (!this.instance) {
-            this.instance = new MovementTicker();
+    public static getInstance(onKill?: (u: Unit) => void, battleService?: BattleService) {
+        if (!this.instance && onKill && battleService) {
+            this.instance = new MovementTicker(onKill, battleService);
         }
         return this.instance;
     }

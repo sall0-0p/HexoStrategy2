@@ -2,6 +2,8 @@ import {UnitMoveRequest, UnitOrderRequest, UnitOrderResponse} from "../../../sha
 import {ReplicatedStorage} from "@rbxts/services";
 import {UnitRepository} from "./UnitRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
+import {UnitService} from "./UnitService";
+import {MovementOrder} from "./order/MovementOrder";
 
 const orderRequestRemote = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("UnitOrder") as RemoteFunction;
@@ -33,9 +35,10 @@ export class UnitController {
                 warn(`Invalid unitId ${unitId}. Aborting`);
                 return { success: false } as UnitOrderResponse;
             }
-            const nation = unit.getOwner();
 
-            unit.moveTo(hex);
+            const unitService = UnitService.getInstance();
+            unitService.clearOrders(unit);
+            unitService.pushOrder(unit, new MovementOrder(unit, hex));
         })
 
         return { success: true } as UnitOrderResponse;

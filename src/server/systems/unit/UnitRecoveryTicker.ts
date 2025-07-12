@@ -18,7 +18,7 @@ export class UnitRecoveryTicker {
         units.forEach((unit) => {
             if (unit.getOrganisation() / unit.getMaxOrganisation() === 1) return;
             const inBattle = this.battleRepository.isUnitInBattle(unit);
-            const isMoving = unit.getCurrentMovemementOrder() && !inBattle;
+            const isMoving = unit.getOrderQueue().getCurrent() !== undefined && !inBattle;
 
             if (inBattle) return;
 

@@ -1,9 +1,11 @@
-import { Hex } from "../../../world/hex/Hex";
-import { Unit } from "../../unit/Unit";
-import { DiplomaticRelationStatus } from "../../diplomacy/DiplomaticRelation";
-import { Nation } from "../../../world/nation/Nation";
-import { UnitRepository } from "../../unit/UnitRepository";
-import { Battle } from "../Battle";
+import {Hex} from "../../../world/hex/Hex";
+import {Unit} from "../../unit/Unit";
+import {DiplomaticRelationStatus} from "../../diplomacy/DiplomaticRelation";
+import {Nation} from "../../../world/nation/Nation";
+import {UnitRepository} from "../../unit/UnitRepository";
+import {Battle} from "../Battle";
+import {MovementOrder} from "../../unit/order/MovementOrder";
+import {OrderType} from "../../unit/order/Order";
 
 export class BattleRepository {
     private static instance: BattleRepository;
@@ -111,8 +113,13 @@ export class BattleRepository {
                 .getRelations()
                 .getRelationStatus(nation) === DiplomaticRelationStatus.Enemy;
             if (!isEnemy) return false;
-            const order = u.getCurrentMovemementOrder();
-            return !(order?.retreating ?? false);
+
+            const order = u.getOrderQueue().getCurrent();
+            if (order && order.type === OrderType.Movement && (order as MovementOrder).retreating) {
+                return false;
+            }
+
+            return true;
         });
     }
 }

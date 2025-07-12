@@ -1,6 +1,7 @@
 import {Unit} from "../../unit/Unit";
 import {Battle} from "../Battle";
 import {Accountant} from "./Accountant";
+import {UnitService} from "../../unit/UnitService";
 
 export namespace ReserveManager {
     // Reserves
@@ -112,17 +113,18 @@ export namespace ReserveManager {
 
     // Losers
     export function disengage(battle: Battle) {
+        const unitService = UnitService.getInstance();
         const units = battle.getUnits();
         units.defendingFrontline.forEach((unit) => {
             if (unit.getOrganisation() / unit.getMaxOrganisation() < 0.05) {
-                unit.retreat();
+                unitService.retreat(unit);
                 battle.removeUnit(unit);
             }
         })
 
         units.attackingFrontline.forEach((unit) => {
             if (unit.getOrganisation() / unit.getMaxOrganisation() < 0.05) {
-                unit.getCurrentMovemementOrder()?.cancel();
+                unit.getOrderQueue().getCurrent()?.cancel();
                 battle.removeUnit(unit);
             }
         })

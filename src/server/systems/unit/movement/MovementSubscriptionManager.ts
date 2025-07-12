@@ -1,17 +1,19 @@
-import {ReplicatedStorage, RunService} from "@rbxts/services";
+import { ReplicatedStorage, RunService } from "@rbxts/services";
 import {
+    MovementEndedMessage,
+    MovementProgressMessage,
+    MovementStartedMessage,
+    MovementUpdateMessage,
     SubscribeRequest,
     SubscribeResponse,
-    UnsubscribeRequest,
     UnitPathingData,
-    MovementStartedMessage,
-    MovementProgressMessage,
-    MovementUpdateMessage,
-    MovementEndedMessage,
+    UnsubscribeRequest,
 } from "../../../../shared/dto/MovementDataSubscription";
 import { Unit } from "../Unit";
 import { UnitRepository } from "../UnitRepository";
 import { MovementTicker } from "./MovementTicker";
+import { OrderType } from "../order/Order";
+import { MovementOrder } from "../order/MovementOrder";
 
 const subscriber = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("PathSubscriber") as RemoteFunction;
@@ -36,7 +38,7 @@ export class MovementSubscriptionManager {
             this.flushStarted();
             this.flushUpdate();
             this.flushProgress();
-        })
+        });
 
         subscriber.OnServerInvoke = (player, rawMessage) => {
             const message = rawMessage as SubscribeRequest;
@@ -98,13 +100,14 @@ export class MovementSubscriptionManager {
     }
 
     public recordStarted(unit: Unit): void {
-        const order = unit.getCurrentMovemementOrder();
-        if (!order) return;
+        const order = unit.getOrderQueue().getCurrent();
+        if (!order || order.type !== OrderType.Movement) return;
+        const movementOrder = order as MovementOrder;
 
-        const pathIds = order.path.map((hex) => hex.getId());
+        const pathIds = movementOrder.getPath().map((hex) => hex.getId());
         const info: UnitPathingData = {
-            from: order.from.getId(),
-            to: order.to.getId(),
+            from: movementOrder.getSource()?.getId() ?? "H001",
+            to: movementOrder.getDestination().getId(),
             path: pathIds,
             progress: 0,
             current: pathIds[0],
@@ -122,10 +125,11 @@ export class MovementSubscriptionManager {
     }
 
     public recordProgress(unit: Unit, dataProgress: number): void {
-        const order = unit.getCurrentMovemementOrder();
-        if (!order) return;
+        const order = unit.getOrderQueue().getCurrent();
+        if (!order || order.type !== OrderType.Movement) return;
+        const movementOrder = order as MovementOrder;
 
-        const pathIds = order.path.map((hex) => hex.getId());
+        const pathIds = movementOrder.getPath().map((hex) => hex.getId());
         const info: Partial<UnitPathingData> = {
             progress: dataProgress,
             current: pathIds[0],
@@ -136,23 +140,24 @@ export class MovementSubscriptionManager {
 
         for (const player of trackers) {
             if (!this.progressPayloads.has(player)) {
-                this.progressPayloads.set(player, new Map<string, UnitPathingData>());
+                this.progressPayloads.set(player, new Map<string, Partial<UnitPathingData>>());
             }
             this.progressPayloads.get(player)!.set(unit.getId(), info);
         }
     }
 
     public recordUpdate(unit: Unit): void {
-        const order = unit.getCurrentMovemementOrder();
-        if (!order) return;
+        const order = unit.getOrderQueue().getCurrent();
+        if (!order || order.type !== OrderType.Movement) return;
+        const movementOrder = order as MovementOrder;
 
-        const pathIds = order.path.map((hex) => hex.getId());
+        const pathIds = movementOrder.getPath().map((hex) => hex.getId());
         const info: UnitPathingData = {
-            from: order.from.getId(),
-            to: order.to.getId(),
+            from: movementOrder.getSource()?.getId() ?? "H001",
+            to: movementOrder.getDestination().getId(),
             path: pathIds,
             progress: 0,
-            current: order.current.getId(),
+            current: movementOrder.getCurrentHex().getId(),
         };
 
         const trackers = this.getUnitTrackers(unit);

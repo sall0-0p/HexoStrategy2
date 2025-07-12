@@ -2,19 +2,12 @@ import {Hex} from "../../world/hex/Hex";
 import {Nation} from "../../world/nation/Nation";
 import {UnitTemplate} from "./template/UnitTemplate";
 import {UnitRepository} from "./UnitRepository";
-import {Connection, Signal} from "../../../shared/classes/Signal";
+import {Signal} from "../../../shared/classes/Signal";
 import {UnitDTO} from "../../../shared/dto/UnitDTO";
 import {UnitReplicator} from "./UnitReplicator";
-import {MovementTicker} from "./movement/MovementTicker";
-import {DiplomaticRelationStatus} from "../diplomacy/DiplomaticRelation";
-import {MovementPathfinder} from "./movement/MovementPathfinder";
-import {ModifierContainer} from "../modifier/ModifierContainer";
-import {ModifiableProperty} from "../modifier/ModifiableProperty";
-import findPath = MovementPathfinder.findPath;
-import {BattleRepository} from "../battle/misc/BattleRepository";
-import {CombatantSummaryDTO} from "../../../shared/dto/BattleSubscription";
+import {OrderQueue} from "./order/OrderQueue";
+import {StatKey, StatsComponent} from "./components/StatsComponent";
 
-const movementTicker = MovementTicker.getInstance();
 export class Unit {
     // Base properties
     private id = UnitCounter.getNextId();
@@ -22,33 +15,17 @@ export class Unit {
     private template: UnitTemplate;
     private owner: Nation;
     private position: Hex;
-    private currentMovement?: ActiveMovementOrder;
-    private modifierContainer = new ModifierContainer();
 
-    // Stats
-    private speed: number;
-    private hp: number;
-    private maxHp: number;
-    private organisation: number;
-    private maxOrganisation: number;
-    private recoveryRate: number;
-    private softAttack: number;
-    private hardAttack: number;
-    private defence: number;
-    private breakthrough: number;
-    private armor: number;
-    private piercing: number;
-    private initiative: number;
-    private combatWidth: number;
-    private hardness: number;
+    // Components
+    private statsComponent: StatsComponent;
+    private orderQueue = new OrderQueue(this);
 
     // Meta
     private dead = false;
     private unitReplicator = UnitReplicator.getInstance();
     private unitRepository = UnitRepository.getInstance();
-    // private battleRepository = BattleRepository.getInstance();
 
-    private changedSignal?: Signal<[string, unknown]>;
+    public changed: Signal<[string, unknown]> = new Signal();
 
     constructor(template: UnitTemplate, position: Hex) {
         // Base
@@ -56,163 +33,18 @@ export class Unit {
         this.template = template;
         this.owner = template.getOwner();
         this.position = position;
-
-        // Stats
-        // Do I even need those lol
-        this.speed = template.getSpeed();
-        this.hp = template.getHp();
-        this.maxHp = template.getHp();
-        this.organisation = template.getOrganisation();
-        this.maxOrganisation = template.getOrganisation();
-        this.recoveryRate = template.getRecovery();
-        this.softAttack = template.getSoftAttack();
-        this.hardAttack = template.getHardAttack();
-        this.defence = template.getDefence();
-        this.breakthrough = template.getBreakthrough();
-        this.armor = template.getArmor();
-        this.piercing = template.getPiercing();
-        this.initiative = template.getInitiative();
-        this.combatWidth = template.getCombatWidth();
-        this.hardness = template.getHardness();
+        this.statsComponent = new StatsComponent(template);
 
         this.unitRepository.addUnit(this);
         this.unitReplicator.addToCreateQueue(this);
-        // TODO: Replicate new unit to clients
-    }
 
-    // logic
-    public moveTo(goal: Hex, retreating = false) {
-        if (this.currentMovement) {
-            this.currentMovement.cancel();
-        }
-
-        const start = this.getPosition();
-        const path = findPath(this, start, goal);
-        // const path: Hex[] = [];
-        const unit = this;
-
-        if (!path) {
-            return;
-        }
-
-        // fullPath.forEach((node, index) => {
-        //     if (index !== 0) {
-        //         path.push(node);
-        //     }
-        // })
-
-        let isCancelled = false;
-        let currentConnection: Connection | undefined = undefined;
-        let stepIndex = 1;
-
-        this.currentMovement = {
-            to: goal,
-            from: start,
-            path: path,
-            current: path[0],
-            retreating: retreating,
-            cancel(): void {
-                isCancelled = true;
-                // Cancel whichever movement is in progress, if any.
-                movementTicker.cancelMovement(unit);
-                if (currentConnection) {
-                    currentConnection.disconnect();
-                    currentConnection = undefined;
-                    unit.currentMovement = undefined;
-                }
-            },
-        };
-
-        movementTicker.scheduleOrder(unit);
-
-        const executeNextStep = () => {
-            if (isCancelled || stepIndex >= path.size()) {
-                this.currentMovement = undefined;
-                movementTicker.notifyReached(this);
-                return;
-            }
-
-            const nextHex = path[stepIndex];
-            const data = movementTicker.scheduleMovement(this, nextHex);
-            const unit: Unit = this;
-
-            currentConnection = data.finished.connect(() => {
-                currentConnection!.disconnect();
-                currentConnection = undefined;
-
-                const relations = unit.getOwner().getRelations();
-                if (!nextHex.getOwner() ||
-                    relations.getRelationStatus(nextHex.getOwner()!) === DiplomaticRelationStatus.Enemy
-                ) {
-                    nextHex.setOwner(unit.owner);
-                }
-                this.currentMovement!.current = nextHex;
-
-                stepIndex += 1;
-                executeNextStep();
-            })
-        }
-
-        executeNextStep();
-        return this.currentMovement;
-    }
-
-    public move(hex: Hex) {
-        // This method will move unit from hex A to its neighbor hex B, over time,
-        // and if there are enemy units - engage them.
-        // It will also capture territory on its way.
-        const data = movementTicker.scheduleMovement(this, hex);
-        const unit: Unit = this;
-        const connection: Connection = data.finished.connect(() => {
-            connection.disconnect();
-            hex.setOwner(unit.owner);
+        this.statsComponent.changed.connect((key, value) => {
+            this.changed.fire(key, value);
         })
-
-        return {
-            to: data.to,
-            from: data.from,
-            finished: data.finished,
-            cancel() {
-                movementTicker.cancelMovement(unit);
-                connection.disconnect();
-            }
-        } as ActiveMovement;
-    }
-
-    public retreat() {
-        const position = this.position;
-        const relations = this.getOwner().getRelations();
-        const candidate = position.getNeighbors().find((neighbour) => {
-            const owner = neighbour.getOwner();
-            if (!owner) return true;
-            return relations.getRelationStatus(owner) === DiplomaticRelationStatus.Allied || owner === this.getOwner();
-        });
-
-        if (candidate) {
-            this.moveTo(candidate, true);
-        } else {
-            this.die();
-        }
     }
 
     public die() {
-        this.getCurrentMovemementOrder()?.cancel();
         this.dead = true;
-        this.unitRepository.deleteUnit(this);
-        this.unitReplicator.addToDeadQueue(this);
-    }
-
-    public delete() {
-        this.unitRepository.deleteUnit(this);
-        this.unitReplicator.addToDeletionQueue(this);
-    }
-
-    private updateModifierParents() {
-        this.modifierContainer.setParents([
-            this.owner.getModifierContainer(),
-            this.position.getModifierContainer(),
-            this.position.getRegion().getModifierContainer(),
-        ])
     }
 
     // getters & setters
@@ -229,7 +61,7 @@ export class Unit {
         this.unitReplicator.markDirty(this, {
             name: name,
         });
-        this.changedSignal?.fire("name", name);
+        this.changed.fire("name", name);
     }
 
     public getTemplate() {
@@ -247,7 +79,7 @@ export class Unit {
             ownerId: owner.getId(),
         });
         this.unitRepository.updateUnit(this, "owner", oldOwner, owner);
-        this.changedSignal?.fire("owner", owner);
+        this.changed.fire("owner", owner);
         this.updateModifierParents();
     }
 
@@ -263,188 +95,139 @@ export class Unit {
             positionId: position.getId(),
         });
         this.unitRepository.updateUnit(this, "position", oldPosition, position);
-        this.changedSignal?.fire("position", position);
+        this.changed.fire("position", position);
         this.updateModifierParents();
     }
 
     // Stats getters and setters
-    public getSpeed() {
-        const base = this.template.getSpeed();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitSpeed]);
-
-        if (candidate !== this.speed) {
-            this.changedSignal?.fire("speed", candidate);
-            this.speed = candidate;
-        }
-
-        return candidate;
+    public getSpeed(): number {
+        return this.statsComponent.get(StatKey.Speed);
     }
 
-    public getHp() {
-        return this.hp;
+    public setSpeed(value: number): void {
+        this.statsComponent.set(StatKey.Speed, value);
     }
 
-    public getMaxHp() {
-        // Compute based on present equipment!
-        const candidate = this.template.getHp();
-
-        if (candidate !== this.maxHp) {
-            this.maxHp = candidate;
-            this.changedSignal?.fire("maxHp", candidate);
-
-            this.unitReplicator.markDirty(this, {
-                maxHp: candidate,
-            });
-        }
-
-        return candidate;
+    public getHp(): number {
+        return this.statsComponent.get(StatKey.Hp);
     }
 
-    public setHp(hp: number) {
-        this.hp = hp;
+    public setHp(value: number): void {
+        this.statsComponent.set(StatKey.Hp, value);
         this.unitReplicator.markDirty(this, {
-            hp: hp,
+            hp: this.getHp(),
         });
-        // TODO: Add upper cap and lower cap for HP
-        // TODO: Implement death for no HP
-        this.changedSignal?.fire("hp", hp);
     }
 
-    public getOrganisation() {
-        return this.organisation;
+    public getMaxHp(): number {
+        return this.statsComponent.get(StatKey.MaxHp);
     }
 
-    public getMaxOrganisation() {
-        const base = this.template.getOrganisation();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitOrganisation]);
-
-        if (candidate !== this.maxOrganisation) {
-            this.changedSignal?.fire("maxOrganisation", candidate);
-            this.maxOrganisation = candidate;
-
-            this.unitReplicator.markDirty(this, {
-                maxOrg: candidate,
-            });
-        }
-
-        return candidate;
-    }
-
-    public setOrganisation(organisation: number) {
-        this.organisation = organisation;
+    public setMaxHp(value: number): void {
+        this.statsComponent.set(StatKey.MaxHp, value);
         this.unitReplicator.markDirty(this, {
-            organisation: organisation,
+            maxHp: this.getMaxHp(),
         });
-        // TODO: Add upper cap and lower cap for Org
-        // TODO: Implement retreat here / in battle mechanics
-        this.changedSignal?.fire("organisation", organisation);
     }
 
-    public getRecoveryRate() {
-        const base = this.template.getRecovery();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitRecoveryRate]);
-
-        if (candidate !== this.recoveryRate) {
-            this.recoveryRate = candidate;
-            this.changedSignal?.fire("recoveryRate", candidate);
-        }
-
-        return candidate;
+    public getOrganisation(): number {
+        return this.statsComponent.get(StatKey.Organisation);
     }
 
-    public getSoftAttack() {
-        const base = this.template.getSoftAttack();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitSoftAttack]);
-
-        if (candidate !== this.softAttack) {
-            this.softAttack = candidate;
-            this.changedSignal?.fire("softAttack", candidate);
-        }
-
-        return candidate;
+    public setOrganisation(value: number): void {
+        this.statsComponent.set(StatKey.Organisation, value);
+        this.unitReplicator.markDirty(this, {
+            organisation: this.getOrganisation(),
+        });
     }
 
-    public getHardAttack() {
-        const base = this.template.getHardAttack();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitHardAttack]);
-
-        if (candidate !== this.hardAttack) {
-            this.hardAttack = candidate;
-            this.changedSignal?.fire("hardAttack", candidate);
-        }
-
-        return candidate;
+    public getMaxOrganisation(): number {
+        return this.statsComponent.get(StatKey.MaxOrganisation);
     }
 
-    public getDefence() {
-        const base = this.template.getDefence();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitDefence]);
-
-        if (candidate !== this.defence) {
-            this.defence = candidate;
-            this.changedSignal?.fire("defence", candidate);
-        }
-
-        return candidate;
+    public setMaxOrganisation(value: number): void {
+        this.statsComponent.set(StatKey.MaxOrganisation, value);
+        this.unitReplicator.markDirty(this, {
+            maxOrg: this.getMaxOrganisation(),
+        });
     }
 
-    public getBreakthrough() {
-        const base = this.template.getBreakthrough();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitBreakthrough]);
-
-        if (candidate !== this.breakthrough) {
-            this.breakthrough = candidate;
-            this.changedSignal?.fire("breakthrough", candidate);
-        }
-
-        return candidate;
+    public getRecoveryRate(): number {
+        return this.statsComponent.get(StatKey.RecoveryRate);
     }
 
-    public getArmor() {
-        const base = this.template.getArmor();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitArmor]);
-
-        if (candidate !== this.armor) {
-            this.armor = candidate;
-            this.changedSignal?.fire("armor", candidate);
-        }
-
-        return candidate;
+    public setRecoveryRate(value: number): void {
+        this.statsComponent.set(StatKey.RecoveryRate, value);
     }
 
-    public getPiercing() {
-        const base = this.template.getPiercing();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitPiercing]);
-
-        if (candidate !== this.piercing) {
-            this.piercing = candidate;
-            this.changedSignal?.fire("piercing", candidate);
-        }
-
-        return candidate;
+    public getSoftAttack(): number {
+        return this.statsComponent.get(StatKey.SoftAttack);
     }
 
-    public getInitiative() {
-        const base = this.template.getInitiative();
-        const candidate = this.modifierContainer.getEffectiveValue(base, [ModifiableProperty.UnitInitiative]);
-
-        if (candidate !== this.initiative) {
-            this.initiative = candidate;
-            this.changedSignal?.fire("initiative", candidate);
-        }
-
-        return candidate;
+    public setSoftAttack(value: number): void {
+        this.statsComponent.set(StatKey.SoftAttack, value);
     }
 
-    public getCombatWidth() {
-        const candidate = this.template.getCombatWidth();
+    public getHardAttack(): number {
+        return this.statsComponent.get(StatKey.HardAttack);
+    }
 
-        if (candidate !== this.combatWidth) {
-            this.combatWidth = candidate;
-            this.changedSignal?.fire("combatWidth", candidate);
-        }
+    public setHardAttack(value: number): void {
+        this.statsComponent.set(StatKey.HardAttack, value);
+    }
 
-        return candidate;
+    public getDefence(): number {
+        return this.statsComponent.get(StatKey.Defence);
+    }
+
+    public setDefence(value: number): void {
+        this.statsComponent.set(StatKey.Defence, value);
+    }
+
+    public getBreakthrough(): number {
+        return this.statsComponent.get(StatKey.Breakthrough);
+    }
+    public setBreakthrough(value: number): void {
+        this.statsComponent.set(StatKey.Breakthrough, value);
+    }
+
+    public getArmor(): number {
+        return this.statsComponent.get(StatKey.Armor);
+    }
+    public setArmor(value: number): void {
+        this.statsComponent.set(StatKey.Armor, value);
+    }
+
+    public getPiercing(): number {
+        return this.statsComponent.get(StatKey.Piercing);
+    }
+
+    public setPiercing(value: number): void {
+        this.statsComponent.set(StatKey.Piercing, value);
+    }
+
+    public getInitiative(): number {
+        return this.statsComponent.get(StatKey.Initiative);
+    }
+
+    public setInitiative(value: number): void {
+        this.statsComponent.set(StatKey.Initiative, value);
+    }
+
+    public getCombatWidth(): number {
+        return this.statsComponent.get(StatKey.CombatWidth);
+    }
+
+    public setCombatWidth(value: number): void {
+        this.statsComponent.set(StatKey.CombatWidth, value);
+    }
+
+    public getHardness(): number {
+        return this.statsComponent.get(StatKey.Hardness);
+    }
+
+    public setHardness(value: number): void {
+        this.statsComponent.set(StatKey.Hardness, value);
     }
 
     public isDead() {
@@ -455,32 +238,20 @@ export class Unit {
         return this.template.getUnitType();
     }
 
-    public getHardness() {
-        const candidate = this.template.getHardness();
-
-        if (candidate !== this.hardness) {
-            this.hardness = candidate;
-            this.changedSignal?.fire("hardness", candidate);
-        }
-
-        return candidate;
-    }
-
-    // Meta getters
-    public getCurrentMovemementOrder() {
-        return this.currentMovement;
-    }
-
     public getModifiers() {
-        return this.modifierContainer;
+        return this.statsComponent.getModifierContainer();
     }
 
-    public getChangedSignal() {
-        if (!this.changedSignal) {
-            this.changedSignal = new Signal();
-        }
+    private updateModifierParents() {
+        this.statsComponent.getModifierContainer().setParents([
+            this.owner.getModifierContainer(),
+            this.position.getModifierContainer(),
+            this.position.getRegion().getModifierContainer(),
+        ])
+    }
 
-        return this.changedSignal;
+    public getOrderQueue() {
+        return this.orderQueue;
     }
 
     public toDTO(): UnitDTO {
@@ -488,32 +259,15 @@ export class Unit {
             id: this.id,
             name: this.name,
             templateId: this.template.getId(),
-            hp: this.hp,
-            maxHp: this.maxHp,
-            organisation: this.organisation,
-            maxOrg: this.maxOrganisation,
+            hp: this.getHp(),
+            maxHp: this.getMaxHp(),
+            organisation: this.getOrganisation(),
+            maxOrg: this.getMaxOrganisation(),
             ownerId: this.owner.getId(),
             positionId: this.position.getId(),
             icon: this.template.getIcon(),
         } as UnitDTO;
     }
-}
-
-interface ActiveMovement {
-    to: Hex,
-    from: Hex,
-    retreating: boolean,
-    cancel(): void,
-    finished: Signal<[]>,
-}
-
-export interface ActiveMovementOrder {
-    to: Hex,
-    from: Hex,
-    path: Hex[],
-    current: Hex,
-    retreating: boolean,
-    cancel(): void,
 }
 
 export class UnitCounter {

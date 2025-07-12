@@ -93,7 +93,6 @@ export class UnitReplicator {
     }
 
     // marking logic
-
     public markDirty(unit: Unit, delta: Partial<UnitDTO>) {
         if (!this.dirtyUnits.has(unit.getId())) {
             this.dirtyUnits.set(unit.getId(), delta);
