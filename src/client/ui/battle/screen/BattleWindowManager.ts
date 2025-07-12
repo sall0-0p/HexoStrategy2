@@ -22,6 +22,9 @@ export class BattleWindowManager {
         this.currentSubscription.ended.connect(() => {
             this.currentWindow?.close();
         })
+        this.currentWindow.closed.once(() => {
+            this.currentSubscription?.cancel();
+        })
     }
 
     public close() {
