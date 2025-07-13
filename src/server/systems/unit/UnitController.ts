@@ -6,6 +6,7 @@ import {UnitService} from "./UnitService";
 import {MovementOrder} from "./order/MovementOrder";
 
 const orderRequestRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("Controllers")
     .WaitForChild("UnitController") as RemoteFunction;
 
 const unitRepository = UnitRepository.getInstance();

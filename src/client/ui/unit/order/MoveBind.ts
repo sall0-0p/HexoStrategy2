@@ -8,6 +8,7 @@ import {UnitMoveRequest} from "../../../../shared/dto/UnitOrderRequest";
 import {Bind} from "../../Bind";
 
 const orderRemote = ReplicatedStorage.WaitForChild("Events")
+    .WaitForChild("Controllers")
     .WaitForChild("UnitController") as RemoteFunction;
 
 const localPlayer = Players.LocalPlayer;
