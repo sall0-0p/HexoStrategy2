@@ -1,8 +1,8 @@
 import {Unit} from "./Unit";
 import {Nation} from "../../world/nation/Nation";
 import {Hex} from "../../world/hex/Hex";
-import {UnitDTO} from "../../../shared/dto/UnitDTO";
-import {UnitCreateMessage, UnitReplicatorMessage, UnitUpdateMessage} from "../../../shared/dto/UnitReplicatorMessage";
+import {UnitDTO} from "../../../shared/network/unit/DTO";
+import {UnitCreateMessage, UnitReplicatorMessage, UnitUpdateMessage} from "../../../shared/network/unit/Replicator";
 import {NationRepository} from "../../world/nation/NationRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {ReplicatedStorage} from "@rbxts/services";

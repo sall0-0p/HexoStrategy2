@@ -1,5 +1,5 @@
 import {Signal} from "../../../shared/classes/Signal";
-import {UnitDTO} from "../../../shared/dto/UnitDTO";
+import {UnitDTO} from "../../../shared/network/unit/DTO";
 import {Nation} from "../../world/nation/Nation";
 import {Hex} from "../../world/hex/Hex";
 import {NationRepository} from "../../world/nation/NationRepository";

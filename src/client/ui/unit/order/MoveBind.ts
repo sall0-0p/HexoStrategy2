@@ -4,7 +4,7 @@ import {HexRepository} from "../../../world/hex/HexRepository";
 import {Hex} from "../../../world/hex/Hex";
 import {Unit} from "../../../systems/unit/Unit";
 import {NationRepository} from "../../../world/nation/NationRepository";
-import {UnitMoveRequest} from "../../../../shared/dto/UnitOrderRequest";
+import {UnitMoveRequest} from "../../../../shared/network/unit/Controller";
 import {Bind} from "../../Bind";
 
 const orderRemote = ReplicatedStorage.WaitForChild("Events")

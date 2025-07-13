@@ -1,5 +1,5 @@
 import {Signal} from "../../../../shared/classes/Signal";
-import {BattlePayload, BattleUpdate, ControlPayload} from "../../../../shared/dto/BattleSubscription";
+import {BattlePayload, BattleUpdate, ControlPayload} from "../../../../shared/network/battle/Subscription";
 import {ReplicatedStorage} from "@rbxts/services";
 
 const event = ReplicatedStorage

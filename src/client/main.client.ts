@@ -1,6 +1,6 @@
 import {GameState} from "./core/GameState";
 import {ReplicatedStorage} from "@rbxts/services";
-import {BattleSummaryDTO} from "../shared/dto/BattleDTO";
+import {BattleSummaryDTO} from "../shared/network/battle/DTO";
 
 declare global {
     interface _G {

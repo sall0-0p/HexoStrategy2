@@ -1,7 +1,7 @@
 import {ReplicatedStorage} from "@rbxts/services";
 import {Region} from "./Region";
-import {RegionCreateMessage, RegionReplicatorMessage} from "../../../shared/dto/RegionReplicatorMessage";
-import {RegionDTO} from "../../../shared/dto/RegionDTO";
+import {RegionCreateMessage, RegionReplicatorMessage} from "../../../shared/network/region/Replicator";
+import {RegionDTO} from "../../../shared/network/region/DTO";
 import {NationRepository} from "../nation/NationRepository";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")

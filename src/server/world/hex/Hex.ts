@@ -2,7 +2,7 @@ import {CUBE_DIRECTIONS, CubePosition} from "../../../shared/classes/CubePositio
 import {Workspace, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "../nation/Nation";
 import {NationRepository} from "../nation/NationRepository";
-import {HexDTO} from "../../../shared/dto/HexDTO";
+import {HexDTO} from "../../../shared/network/hex/DTO";
 import {Signal} from "../../../shared/classes/Signal";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 import {Region} from "../region/Region";

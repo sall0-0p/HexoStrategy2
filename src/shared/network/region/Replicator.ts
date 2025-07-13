@@ -1,5 +1,5 @@
-import {RegionDTO} from "./RegionDTO";
-import {HexDTO} from "./HexDTO";
+import {RegionDTO} from "./DTO";
+import {HexDTO} from "../hex/DTO";
 
 export interface RegionCreateMessage {
     source: "start" | "playerAdded",

@@ -1,8 +1,8 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
-import {RegionDTO} from "../../../shared/dto/RegionDTO";
+import {RegionDTO} from "../../../shared/network/region/DTO";
 import {Region} from "./Region";
 import {RegionRepository} from "./RegionRepository";
-import {RegionCreateMessage, RegionUpdateMessage} from "../../../shared/dto/RegionReplicatorMessage";
+import {RegionCreateMessage, RegionUpdateMessage} from "../../../shared/network/region/Replicator";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("RegionReplicator") as RemoteEvent;

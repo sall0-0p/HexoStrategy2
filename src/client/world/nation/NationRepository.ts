@@ -1,7 +1,7 @@
 import {ReplicatedStorage} from "@rbxts/services";
 import {Nation} from "./Nation";
-import {NationReplicatorMessage, NationCreateMessage} from "../../../shared/dto/NationReplicatorMessage";
-import {NationDTO} from "../../../shared/dto/NationDTO";
+import {NationReplicatorMessage, NationCreateMessage} from "../../../shared/network/nation/Replicator";
+import {NationDTO} from "../../../shared/network/nation/DTO";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("NationReplicator") as RemoteEvent;

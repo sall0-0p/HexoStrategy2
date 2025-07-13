@@ -8,8 +8,8 @@ import {CombatEngine} from "./core/CombatEngine";
 import {Accountant} from "./core/Accountant";
 import {BattlePrediction, PredictionEngine} from "./core/PredictionEngine";
 import {DTOFactory} from "./core/DTOFactory";
-import {BattleSummaryDTO} from "../../../shared/dto/BattleDTO";
-import {BattleUpdate} from "../../../shared/dto/BattleSubscription";
+import {BattleSummaryDTO} from "../../../shared/network/battle/DTO";
+import {BattleUpdate} from "../../../shared/network/battle/Subscription";
 
 export class Battle {
     private id: string;

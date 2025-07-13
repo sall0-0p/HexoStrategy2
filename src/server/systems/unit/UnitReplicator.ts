@@ -1,7 +1,7 @@
-import {UnitDTO} from "../../../shared/dto/UnitDTO";
+import {UnitDTO} from "../../../shared/network/unit/DTO";
 import {Unit} from "./Unit";
 import {ReplicatedStorage, RunService} from "@rbxts/services";
-import {UnitCreateMessage, UnitDeleteMessage, UnitUpdateMessage} from "../../../shared/dto/UnitReplicatorMessage";
+import {UnitCreateMessage, UnitDeleteMessage, UnitUpdateMessage} from "../../../shared/network/unit/Replicator";
 import {UnitRepository} from "./UnitRepository";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")

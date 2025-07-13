@@ -1,7 +1,7 @@
 import {Hex} from "./Hex";
 import {ReplicatedStorage} from "@rbxts/services";
-import {HexDTO} from "../../../shared/dto/HexDTO";
-import {HexCreateMessage, HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
+import {HexDTO} from "../../../shared/network/hex/DTO";
+import {HexCreateMessage, HexUpdateMessage} from "../../../shared/network/hex/Replicator";
 import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";
 

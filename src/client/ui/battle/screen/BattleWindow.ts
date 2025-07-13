@@ -1,5 +1,5 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
-import {BattleUpdate, CombatantSummaryDTO} from "../../../../shared/dto/BattleSubscription";
+import {BattleUpdate, CombatantSummaryDTO} from "../../../../shared/network/battle/Subscription";
 import {Signal} from "../../../../shared/classes/Signal";
 import {ActiveUnitCard} from "./components/ActiveUnitCard";
 import {TextUtils} from "../../../../shared/classes/TextUtils";

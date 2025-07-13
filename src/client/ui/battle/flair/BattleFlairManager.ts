@@ -1,6 +1,6 @@
 import {ReplicatedStorage, RunService} from "@rbxts/services";
 import {BattleFlair} from "./BattleFlair";
-import {BattleSummaryDTO} from "../../../../shared/dto/BattleDTO";
+import {BattleSummaryDTO} from "../../../../shared/network/battle/DTO";
 import {UnitRepository} from "../../../systems/unit/UnitRepository";
 import {HexRepository} from "../../../world/hex/HexRepository";
 

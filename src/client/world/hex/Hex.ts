@@ -1,5 +1,5 @@
 import {CubePosition} from "../../../shared/classes/CubePosition";
-import {HexDTO} from "../../../shared/dto/HexDTO";
+import {HexDTO} from "../../../shared/network/hex/DTO";
 import {Nation} from "../nation/Nation";
 import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";

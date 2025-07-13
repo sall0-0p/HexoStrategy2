@@ -3,7 +3,7 @@ import {Nation} from "../../world/nation/Nation";
 import {UnitTemplate} from "./template/UnitTemplate";
 import {UnitRepository} from "./UnitRepository";
 import {Signal} from "../../../shared/classes/Signal";
-import {UnitDTO} from "../../../shared/dto/UnitDTO";
+import {UnitDTO} from "../../../shared/network/unit/DTO";
 import {UnitReplicator} from "./UnitReplicator";
 import {OrderQueue} from "./order/OrderQueue";
 import {StatKey, StatsComponent} from "./components/StatsComponent";

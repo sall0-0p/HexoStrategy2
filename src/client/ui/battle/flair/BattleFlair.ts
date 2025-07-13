@@ -1,7 +1,7 @@
 import {Players, ReplicatedStorage, Workspace} from "@rbxts/services";
 import {Hex} from "../../../world/hex/Hex";
 import {BattleWindowManager} from "../screen/BattleWindowManager";
-import {BattleSummaryDTO} from "../../../../shared/dto/BattleDTO";
+import {BattleSummaryDTO} from "../../../../shared/network/battle/DTO";
 import {TooltipService} from "../../generic/tooltip/TooltipService";
 import {TextComponent} from "../../generic/tooltip/components/TextComponent";
 import {Unit} from "../../../systems/unit/Unit";

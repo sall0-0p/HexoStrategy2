@@ -1,4 +1,4 @@
-import {UnitDTO} from "./UnitDTO";
+import {UnitDTO} from "./DTO";
 
 export interface UnitCreateMessage {
     source: "start" | "playerAdded" | "new"

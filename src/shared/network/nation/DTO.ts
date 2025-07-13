@@ -1,5 +1,3 @@
-import {DiplomaticRelation} from "../../server/systems/diplomacy/DiplomaticRelation";
-
 export interface NationDTO {
     id: string,
     name: string,

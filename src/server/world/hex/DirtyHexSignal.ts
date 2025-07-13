@@ -1,5 +1,5 @@
 import {Hex} from "./Hex";
-import {HexDTO} from "../../../shared/dto/HexDTO";
+import {HexDTO} from "../../../shared/network/hex/DTO";
 import {Signal} from "../../../shared/classes/Signal";
 
 export interface DirtyHexEvent {

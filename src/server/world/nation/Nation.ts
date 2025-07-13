@@ -1,4 +1,4 @@
-import {NationDTO} from "../../../shared/dto/NationDTO";
+import {NationDTO} from "../../../shared/network/nation/DTO";
 import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
 import {Signal} from "../../../shared/classes/Signal";
 import {

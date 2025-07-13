@@ -1,8 +1,8 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
 import {NationRepository} from "./NationRepository";
-import {NationDTO} from "../../../shared/dto/NationDTO";
+import {NationDTO} from "../../../shared/network/nation/DTO";
 import {DirtyNationEvent, dirtyNationSignal} from "./DirtyNationSignal";
-import {HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
+import {HexUpdateMessage} from "../../../shared/network/hex/Replicator";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("NationReplicator") as RemoteEvent;

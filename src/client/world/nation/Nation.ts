@@ -1,4 +1,4 @@
-import {NationDTO} from "../../../shared/dto/NationDTO";
+import {NationDTO} from "../../../shared/network/nation/DTO";
 import {Signal} from "../../../shared/classes/Signal";
 import {DiplomaticRelation} from "../../systems/diplomacy/DiplomaticRelation";
 import {Region} from "../region/Region";

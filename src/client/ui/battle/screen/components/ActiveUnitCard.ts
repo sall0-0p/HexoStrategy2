@@ -1,4 +1,4 @@
-import {CombatantSummaryDTO} from "../../../../../shared/dto/BattleSubscription";
+import {CombatantSummaryDTO} from "../../../../../shared/network/battle/Subscription";
 import {ReplicatedStorage} from "@rbxts/services";
 import {Unit} from "../../../../systems/unit/Unit";
 import {UnitRepository} from "../../../../systems/unit/UnitRepository";

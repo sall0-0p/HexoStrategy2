@@ -2,8 +2,8 @@ import {PredictionEngine} from "./PredictionEngine";
 import {Accountant} from "./Accountant";
 import {Battle} from "../Battle";
 import {Unit} from "../../unit/Unit";
-import {BattleUpdate, CombatantSummaryDTO} from "../../../../shared/dto/BattleSubscription";
-import {BattleSummaryDTO} from "../../../../shared/dto/BattleDTO";
+import {BattleUpdate, CombatantSummaryDTO} from "../../../../shared/network/battle/Subscription";
+import {BattleSummaryDTO} from "../../../../shared/network/battle/DTO";
 
 export namespace DTOFactory {
     export function toSummaryDTO(battle: Battle): BattleSummaryDTO {

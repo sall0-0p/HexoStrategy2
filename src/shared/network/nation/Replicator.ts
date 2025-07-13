@@ -1,4 +1,4 @@
-import {NationDTO} from "./NationDTO";
+import {NationDTO} from "./DTO";
 
 export interface NationCreateMessage {
     source: "start" | "playerAdded",

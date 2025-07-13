@@ -2,7 +2,7 @@ import {Hex} from "../hex/Hex";
 import {Signal} from "../../../shared/classes/Signal";
 import {Nation} from "../nation/Nation";
 import {HexRepository} from "../hex/HexRepository";
-import {RegionDTO} from "../../../shared/dto/RegionDTO";
+import {RegionDTO} from "../../../shared/network/region/DTO";
 import {RegionReplicator} from "./RegionReplicator";
 import {NationRepository} from "../nation/NationRepository";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";

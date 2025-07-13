@@ -1,7 +1,7 @@
 import {BattleRepository} from "./BattleRepository";
 import {TimeSignalType, WorldTime} from "../../time/WorldTime";
 import {ReplicatedStorage} from "@rbxts/services";
-import {BattleSummaryDTO} from "../../../../shared/dto/BattleDTO";
+import {BattleSummaryDTO} from "../../../../shared/network/battle/DTO";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("BattleReplicator") as RemoteEvent;

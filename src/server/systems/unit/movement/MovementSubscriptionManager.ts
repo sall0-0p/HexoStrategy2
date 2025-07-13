@@ -8,7 +8,7 @@ import {
     SubscribeResponse,
     UnitPathingData,
     UnsubscribeRequest,
-} from "../../../../shared/dto/MovementDataSubscription";
+} from "../../../../shared/network/unit/MovementSubscription";
 import { Unit } from "../Unit";
 import { UnitRepository } from "../UnitRepository";
 import { MovementTicker } from "./MovementTicker";

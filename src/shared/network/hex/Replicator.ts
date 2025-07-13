@@ -1,4 +1,4 @@
-import {HexDTO} from "./HexDTO";
+import {HexDTO} from "./DTO";
 
 export interface HexCreateMessage {
     source: "start" | "playerAdded"

@@ -1,7 +1,7 @@
 import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
-import {HexDTO} from "../../../shared/dto/HexDTO";
+import {HexDTO} from "../../../shared/network/hex/DTO";
 import {HexRepository} from "./HexRepository";
-import {HexCreateMessage, HexUpdateMessage} from "../../../shared/dto/HexReplicatorMessage";
+import {HexCreateMessage, HexUpdateMessage} from "../../../shared/network/hex/Replicator";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")

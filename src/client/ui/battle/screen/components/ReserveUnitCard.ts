@@ -1,6 +1,6 @@
 import {ReplicatedStorage} from "@rbxts/services";
 import {Unit} from "../../../../systems/unit/Unit";
-import {CombatantSummaryDTO} from "../../../../../shared/dto/BattleSubscription";
+import {CombatantSummaryDTO} from "../../../../../shared/network/battle/Subscription";
 import {UnitRepository} from "../../../../systems/unit/UnitRepository";
 import {TooltipService} from "../../../generic/tooltip/TooltipService";
 import {TextComponent} from "../../../generic/tooltip/components/TextComponent";

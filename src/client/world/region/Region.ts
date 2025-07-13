@@ -1,6 +1,6 @@
 import {Hex} from "../hex/Hex";
 import {Nation} from "../nation/Nation";
-import {RegionDTO} from "../../../shared/dto/RegionDTO";
+import {RegionDTO} from "../../../shared/network/region/DTO";
 import {HexRepository} from "../hex/HexRepository";
 import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";

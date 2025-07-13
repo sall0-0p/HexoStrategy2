@@ -5,7 +5,7 @@ import {
     MovementEndedMessage, MovementProgressMessage,
     MovementStartedMessage, MovementSubscriptionMessage,
     MovementUpdateMessage, SubscribeRequest, SubscribeResponse, UnsubscribeRequest
-} from "../../../../shared/dto/MovementDataSubscription";
+} from "../../../../shared/network/unit/MovementSubscription";
 import {HexRepository} from "../../../world/hex/HexRepository";
 import {Hex} from "../../../world/hex/Hex";
 import {UnitRepository} from "../../../systems/unit/UnitRepository";

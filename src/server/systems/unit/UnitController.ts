@@ -1,4 +1,4 @@
-import {UnitMoveRequest, UnitOrderRequest, UnitOrderResponse} from "../../../shared/dto/UnitOrderRequest";
+import {UnitMoveRequest, UnitOrderRequest, UnitOrderResponse} from "../../../shared/network/unit/Controller";
 import {ReplicatedStorage} from "@rbxts/services";
 import {UnitRepository} from "./UnitRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
