@@ -5,6 +5,7 @@ import { Connection } from "../../../../shared/classes/Signal";
 import { UnitFlairManager } from "./UnitFlairManager";
 import {NationRepository} from "../../../world/nation/NationRepository";
 import {Nation} from "../../../world/nation/Nation";
+import {UnitStackTooltip} from "./UnitStackTooltip";
 
 export class UnitStack {
     private id: string;
@@ -47,6 +48,8 @@ export class UnitStack {
                 unitFlairManager.updateAllColors();
             }
         });
+
+        UnitStackTooltip.add(this);
     }
 
     public addUnit(unit: Unit) {
