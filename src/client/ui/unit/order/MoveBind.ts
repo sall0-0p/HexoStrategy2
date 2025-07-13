@@ -8,7 +8,7 @@ import {UnitMoveRequest} from "../../../../shared/dto/UnitOrderRequest";
 import {Bind} from "../../Bind";
 
 const orderRemote = ReplicatedStorage.WaitForChild("Events")
-    .WaitForChild("UnitOrder") as RemoteFunction;
+    .WaitForChild("UnitController") as RemoteFunction;
 
 const localPlayer = Players.LocalPlayer;
 const playerGui = localPlayer.WaitForChild("PlayerGui") as PlayerGui;
@@ -17,6 +17,7 @@ const raycastParams = new RaycastParams();
 raycastParams.FilterType = Enum.RaycastFilterType.Whitelist;
 raycastParams.AddToFilter(Workspace.WaitForChild("Heatmaps"));
 raycastParams.AddToFilter(Workspace.WaitForChild("Hexes"));
+
 export class MoveBind implements Bind {
     private selectionManager = SelectionManager.getInstance();
     private nationRepository = NationRepository.getInstance();
