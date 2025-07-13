@@ -11,7 +11,7 @@ import {RTColor, RTWidth} from "../../../../shared/classes/RichText";
 import {TextUtils} from "../../../../shared/classes/TextUtils";
 import {EmptyComponent} from "../../generic/tooltip/components/EmptyComponent";
 import {SeparatorComponent} from "../../generic/tooltip/components/SeparatorComponent";
-import {TooltipDelay} from "../../../../shared/classes/TooltipDelay";
+import {TooltipDelay} from "../../../../shared/config/TooltipDelay";
 
 const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")

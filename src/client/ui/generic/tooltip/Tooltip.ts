@@ -1,6 +1,6 @@
 import { TooltipComponent } from "./TooltipComponent";
 import {Players, ReplicatedStorage, RunService, UserInputService, Workspace} from "@rbxts/services";
-import {TooltipDelay} from "../../../../shared/classes/TooltipDelay";
+import {TooltipDelay} from "../../../../shared/config/TooltipDelay";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")

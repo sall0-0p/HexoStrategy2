@@ -9,7 +9,7 @@ import {HeaderComponent} from "../../../generic/tooltip/components/HeaderCompone
 import {EmptyComponent} from "../../../generic/tooltip/components/EmptyComponent";
 import {SeparatorComponent} from "../../../generic/tooltip/components/SeparatorComponent";
 import {RTColor} from "../../../../../shared/classes/RichText";
-import {TooltipDelay} from "../../../../../shared/classes/TooltipDelay";
+import {TooltipDelay} from "../../../../../shared/config/TooltipDelay";
 
 const attackerPosition = UDim2.fromScale(0.089,0);
 const defenderPosition = UDim2.fromScale(0.03, 0);
