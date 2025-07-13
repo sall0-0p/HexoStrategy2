@@ -6,7 +6,7 @@ interface TooltipBinding {
     tooltipEntries: TooltipEntry<any>[];
     hoverDelay: number;
     elapsedHoverTime: number;
-    activeTooltip?: Tooltip<any>;
+    activeTooltip?: Tooltip;
     unbind: () => void;
 }
 
@@ -71,9 +71,9 @@ export class TooltipService {
         });
     }
 
-    public bind<C extends TooltipComponent<any>>(
+    public bind<Props = any>(
         target: GuiObject,
-        entries: TooltipEntry<C>[],
+        entries: TooltipEntry<any>[],
         hoverDelay = 0.1,
     ): () => void {
         const binding: TooltipBinding = {

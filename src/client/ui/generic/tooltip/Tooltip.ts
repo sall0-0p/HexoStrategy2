@@ -13,25 +13,27 @@ const screen = Players.LocalPlayer
     .WaitForChild("Tooltips") as ScreenGui;
 
 export interface TooltipEntry<Props> {
-    class: new () => TooltipComponent<any>;
-    get?: () => any;
+    class: new () => TooltipComponent<Props>;
+    get?: () => Props;
     delay?: TooltipDelay | number;
+    if? : () => boolean;
 }
 
-type InternalEntry<Props> = {
-    entry: TooltipEntry<Props>;
-    getter: () => Props;
-    comp?: TooltipComponent<Props>;
+type InternalEntry<P> = {
+    entry: TooltipEntry<P>;
+    getter: () => P;
+    comp?: TooltipComponent<P>;
     mountTask?: thread;
+    condition: () => boolean;
 };
 
-export class Tooltip<Props = any> {
+export class Tooltip {
     private frame: Frame;
-    private entries: InternalEntry<Props>[];
+    private entries: InternalEntry<any>[];
 
     private tickConn?: RBXScriptConnection;
 
-    constructor(entries: TooltipEntry<Props>[]) {
+    constructor(entries: TooltipEntry<any>[]) {
         this.frame = template.Clone();
         this.frame.Visible = false;
         this.frame.Parent = screen;
@@ -39,6 +41,7 @@ export class Tooltip<Props = any> {
         this.entries = entries.map(e => ({
             entry: e,
             getter: e.get ?? (() => ({} as any)),
+            condition: e.if ?? (() => true),
         }));
     }
 
@@ -59,7 +62,7 @@ export class Tooltip<Props = any> {
         this.tickConn = RunService.RenderStepped.Connect(() => this.update());
     }
 
-    private mountEntry(item: InternalEntry<Props>) {
+    private mountEntry(item: InternalEntry<any>) {
         if (item.comp) return;
         const comp = new item.entry.class();
         comp.mount(this.frame.WaitForChild("Container") as Frame);
@@ -71,7 +74,12 @@ export class Tooltip<Props = any> {
     private update() {
         for (const item of this.entries) {
             if (item.comp) {
-                item.comp.update(item.getter());
+                if (item.condition()) {
+                    item.comp.frame.Visible = true;
+                    item.comp.update(item.getter());
+                } else {
+                    item.comp.frame.Visible = false;
+                }
             }
         }
         this.updatePosition();

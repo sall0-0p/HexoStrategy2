@@ -7,7 +7,7 @@ const template = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("SeparatorComponent") as TextLabel;
 
 export class SeparatorComponent implements TooltipComponent<{}> {
-    private frame!: TextLabel;
+    public frame!: TextLabel;
 
     mount(container: Frame) {
         this.frame = template.Clone();

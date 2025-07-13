@@ -7,7 +7,7 @@ const template = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("EmptyComponent") as TextLabel;
 
 export class EmptyComponent implements TooltipComponent<{ height?: number }> {
-    private frame!: TextLabel;
+    public frame!: TextLabel;
 
     mount(container: Frame) {
         this.frame = template.Clone();
