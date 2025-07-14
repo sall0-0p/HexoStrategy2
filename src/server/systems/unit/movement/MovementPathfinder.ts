@@ -62,7 +62,8 @@ export namespace MovementPathfinder {
     }
 
     function movementCost(unit: Unit, from: Hex, to: Hex) {
-        if (to.getOwner()?.getId() !== unit.getOwner().getId()) return 1.25;
+        // if (to.getOwner()?.getId() !== unit.getOwner().getId()) return 10;
+        if (to.getOwner()?.getRelations().getRelationStatus(unit.getOwner()) === DiplomaticRelationStatus.Enemy) return 25;
         return 1;
     }
 
