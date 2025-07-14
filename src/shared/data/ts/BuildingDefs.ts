@@ -1,5 +1,5 @@
-import {BuildingDef, BuildingType} from "../classes/BuildingDef";
-import {ModifiableProperty} from "../classes/ModifiableProperty";
+import {BuildingDef, BuildingType} from "../../classes/BuildingDef";
+import {ModifiableProperty} from "../../classes/ModifiableProperty";
 
 export const BuildingDefs: Record<string, BuildingDef> = {
     infrastructure: {

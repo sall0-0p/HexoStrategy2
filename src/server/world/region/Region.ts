@@ -6,6 +6,8 @@ import {RegionDTO} from "../../../shared/network/region/DTO";
 import {RegionReplicator} from "./RegionReplicator";
 import {NationRepository} from "../nation/NationRepository";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
+import {StateCategory} from "../../../shared/classes/StateCategory";
+import {StateCategories} from "../../../shared/data/ts/StateCategories";
 
 const hexRepository = HexRepository.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -14,6 +16,7 @@ export class Region {
     private name: string;
     private hexes: Hex[];
     private owner: Nation;
+    private category: StateCategory;
     private population: number; // in thousands
     private modifierContainer = new ModifierContainer();
 
@@ -22,6 +25,7 @@ export class Region {
     constructor(id: string, data: JsonRegion) {
         this.id = id;
         this.name = data.name;
+        this.category = StateCategories[data.category];
         this.population = data.population;
         this.hexes = data.hexes.map((hexId) => {
             const candidate = hexRepository.getById(hexId);
@@ -42,6 +46,7 @@ export class Region {
         return {
             id: this.getId(),
             name: this.getName(),
+            category: this.getCategory().id,
             hexes: this.getHexes().map((hex) => hex.getId()),
             owner: this.getOwner().getId(),
             population: this.getPopulation(),
@@ -54,6 +59,10 @@ export class Region {
 
     public getName() {
         return this.name;
+    }
+
+    public getCategory() {
+        return this.category;
     }
 
     public getHexes() {
@@ -106,6 +115,14 @@ export class Region {
         this.owner = this.computeOwner();
     };
 
+    public setCategory(category: StateCategory) {
+        const regionReplicator = RegionReplicator.getInstance();
+        regionReplicator?.markAsDirty(this, {
+            category: category.id,
+        })
+        this.category = category;
+    }
+
     public getPopulation() {
         return this.population;
     }
@@ -117,6 +134,7 @@ export class Region {
 
 export interface JsonRegion {
     name: string,
+    category: string,
     hexes: string[],
     owner: string,
     population: number,

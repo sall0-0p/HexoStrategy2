@@ -4,10 +4,13 @@ import {RegionDTO} from "../../../shared/network/region/DTO";
 import {HexRepository} from "../hex/HexRepository";
 import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";
+import {StateCategory} from "../../../shared/classes/StateCategory";
+import {StateCategories} from "../../../shared/data/ts/StateCategories";
 
 export class Region {
     private id: string;
     private name: string;
+    private category: StateCategory;
     private hexes: Hex[];
     private owner: Nation;
     private population: number;
@@ -20,6 +23,7 @@ export class Region {
     constructor(data: RegionDTO) {
         this.id = data.id;
         this.name = data.name;
+        this.category = StateCategories[data.category];
         this.hexes = data.hexes.map((hexId) => {
             const candidate = this.hexRepository.getById(hexId);
             if (!candidate) error(`Failed to find ${hexId} for ${data.id}`);

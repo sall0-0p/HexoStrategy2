@@ -1,36 +1,42 @@
 {
   "R001": {
     "name": "Northern Hexes",
+    "category": "rural",
     "hexes": ["H028", "H027", "H026", "H025", "H024", "H023"],
     "population": 225,
     "owner": "PNL"
   },
   "R002": {
     "name": "Lands of Winter",
+    "category": "rural",
     "hexes": ["H021", "H022", "H020", "H011", "H010", "H009", "H008", "H013"],
     "population": 276,
     "owner": "PNL"
   },
   "R003": {
     "name": "Western Lands",
+    "category": "town",
     "hexes": ["H007", "H006", "H005", "H019", "H012", "H018", "H017"],
     "population": 245,
     "owner": "FNG"
   },
   "R004": {
     "name": "Eastern Approaches",
+    "category": "town",
     "hexes": ["H002", "H003", "H001", "H016", "H015", "H014"],
     "population": 176,
     "owner": "BRD"
   },
   "R005": {
     "name": "Southern Deserts",
+    "category": "rural",
     "hexes": ["H033", "H032", "H031", "H030", "H029", "H037", "H036", "H035", "H034"],
     "population": 344,
     "owner": "BRD"
   },
   "R006": {
     "name": "Wastelands",
+    "category": "wasteland",
     "hexes": ["H004"],
     "population": 105,
     "owner": "FNG"
