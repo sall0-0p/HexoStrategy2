@@ -1,36 +1,14 @@
 import {Nation} from "../../../world/nation/Nation";
 import {TemplateRepository} from "./TemplateRepository";
+import {UnitType} from "../../../../shared/classes/UnitType";
+import {StatsTemplate} from "../../../../shared/classes/StatsTemplate";
+import {UnitTemplateDTO} from "../../../../shared/network/unit/template/DTO";
 
 const templateRepository = TemplateRepository.getInstance();
 
-export interface StatsTemplate {
-    speed: number;
-    hp: number;
-    organisation: number;
-    recovery: number;
-    softAttack: number;
-    hardAttack: number;
-    defence: number;
-    breakthrough: number;
-    armor: number;
-    piercing: number;
-    initiative: number;
-    combatWidth: number;
-    hardness: number;
-    unitType: UnitType;
-}
-
-export enum UnitType {
-    Infantry = "infantry",
-    Motorised = "motorised",
-    Mechanised = "mechanised",
-    Armored = "armored",
-    Cavalry = "cavalry",
-}
-
 export class UnitTemplate {
     // Base properties
-    private id: number;
+    private id: string;
     private name: string;
     private model: Model;
     private icon: string;
@@ -151,6 +129,34 @@ export class UnitTemplate {
     public getOwner() {
         return this.owner;
     }
+
+    public toUnitTemplateDTO(): UnitTemplateDTO {
+        return {
+            id: this.getId(),
+            name: this.getName(),
+            stats: {
+                speed: this.getSpeed(),
+                hp: this.getHp(),
+                organisation: this.getOrganisation(),
+                recovery: this.getRecovery(),
+                softAttack: this.getSoftAttack(),
+                hardAttack: this.getHardAttack(),
+                defence: this.getDefence(),
+                breakthrough: this.getBreakthrough(),
+                armor: this.getArmor(),
+                piercing: this.getPiercing(),
+                initiative: this.getInitiative(),
+                combatWidth: this.getCombatWidth(),
+                hardness: this.getHardness(),
+                unitType: this.getUnitType(),
+            },
+            modelName: this.getModel().Name,
+            icon: this.getIcon(),
+            ownerId: this.getOwner().getId(),
+            ownerName: this.getOwner().getName(),
+            unitType: this.getUnitType(),
+        };
+    }
 }
 
 export class TemplateCounter {
@@ -158,6 +164,6 @@ export class TemplateCounter {
 
     public static getNextId() {
         this.currentId++
-        return this.currentId;
+        return tostring(this.currentId);
     }
 }

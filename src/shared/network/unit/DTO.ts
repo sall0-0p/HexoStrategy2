@@ -2,7 +2,7 @@ export interface UnitDTO {
     // base
     id: string,
     name: string,
-    templateId: number,
+    templateId: string,
     icon: string,
     ownerId: string, // nation id
     positionId: string, // hex id

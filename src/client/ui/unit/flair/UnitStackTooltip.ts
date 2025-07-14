@@ -5,6 +5,7 @@ import {SeparatorComponent} from "../../generic/tooltip/components/SeparatorComp
 import {RTColor} from "../../../../shared/classes/RichText";
 import {TextUtils} from "../../../../shared/classes/TextUtils";
 import {TooltipDelay} from "../../../../shared/config/TooltipDelay";
+import {TemplateRequester} from "../../../systems/unit/template/TemplateRequester";
 
 export namespace UnitStackTooltip {
     const font = `font color="${RTColor.Important}"`
@@ -14,8 +15,9 @@ export namespace UnitStackTooltip {
 
         let name: string;
         if (units.size() > 1) {
-            // TODO: Change to actual template name, and not ID!
-            name = `<${font}>${units.size()}</font> of <${font}>%${units[0].getTemplate()}%</font>`
+            const template = TemplateRequester.getTemplate(units[0].getTemplateId(), true);
+            const templateName  = template?.name ?? "???"
+            name = `<${font}>${units.size()}</font> of <${font}>${templateName}</font>`
         } else if (units.size() === 1) {
             name = `<${font}>${units[0].getName()}</font>`
         } else {

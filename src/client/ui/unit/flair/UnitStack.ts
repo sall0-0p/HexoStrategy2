@@ -11,7 +11,7 @@ export class UnitStack {
     private id: string;
     private units: Unit[] = [];
     private flair: UnitFlair;
-    private templateId: number;
+    private templateId: string;
     private hex: Hex;
     private selected: boolean = false;
     private relationConnection: Connection;
@@ -22,7 +22,7 @@ export class UnitStack {
 
     constructor(units: Unit[], unitFlairManager: UnitFlairManager, selected: boolean, hex?: Hex) {
         this.id = StackCounter.getNextId();
-        this.templateId = units[0].getTemplate();
+        this.templateId = units[0].getTemplateId();
         this.hex = hex ?? units[0].getPosition();
         this.unitFlairManager = unitFlairManager;
         this.flair = new UnitFlair(this, units);
@@ -54,7 +54,7 @@ export class UnitStack {
 
     public addUnit(unit: Unit) {
         if (this.destroyed) error(`Trying to add unit to destroyed stack in hex ${this.hex.getId()} with templateId ${this.templateId}`);
-        if (unit.getTemplate() !== this.templateId) error("Cannot add unit with different template id into the stack!");
+        if (unit.getTemplateId() !== this.templateId) error("Cannot add unit with different template id into the stack!");
         this.units.push(unit);
         this.flair.setQuantity(this.units.size());
         this.updateHp();

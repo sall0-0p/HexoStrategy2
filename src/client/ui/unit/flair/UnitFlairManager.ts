@@ -38,7 +38,7 @@ export class UnitFlairManager {
 
     private findUnitInStacks(stacks: UnitStack[], unit: Unit) {
         return stacks.find((stack) => {
-            if (stack.getTemplate() === unit.getTemplate()) {
+            if (stack.getTemplate() === unit.getTemplateId()) {
                 return true;
             }
         });

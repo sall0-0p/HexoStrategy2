@@ -3,7 +3,7 @@ import {Nation} from "../../../world/nation/Nation";
 import {Unit} from "../Unit";
 
 export class TemplateRepository {
-    private templatesById = new Map<number, UnitTemplate>;
+    private templatesById = new Map<string, UnitTemplate>;
     private templatesByOwner = new Map<Nation, Set<UnitTemplate>>;
 
     public static instance: TemplateRepository;
@@ -19,7 +19,7 @@ export class TemplateRepository {
         this.templatesByOwner.get(template.getOwner())!.add(template);
     }
 
-    public getById(id: number) {
+    public getById(id: string) {
         return this.templatesById.get(id);
     }
 

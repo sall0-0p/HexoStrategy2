@@ -9,7 +9,7 @@ import {UnitFlairManager} from "../../ui/unit/flair/UnitFlairManager";
 export class Unit {
     private id: string;
     private name: string;
-    private template;
+    private template: string;
     private owner: Nation;
     private position: Hex;
     private icon: string;
@@ -75,19 +75,11 @@ export class Unit {
         this.changedSignal?.fire("name", name);
     }
 
-    public getTemplate() {
+    public getTemplateId() {
         return this.template;
     }
 
     // stats
-
-    public getSpeed() {
-
-    }
-
-    public setSpeed() {
-
-    }
 
     public getHp() {
         return this.hp;
