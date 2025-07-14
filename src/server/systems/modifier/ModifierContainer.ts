@@ -1,4 +1,4 @@
-import {ModifiableProperty} from "./ModifiableProperty";
+import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
 import {Modifier, ModifierType} from "./Modifier";
 
 export class ModifierContainer {

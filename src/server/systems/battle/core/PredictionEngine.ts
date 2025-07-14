@@ -1,7 +1,7 @@
 // src/battle/core/PredictionEngine.ts
 import {Battle} from "../Battle";
 import {Unit} from "../../unit/Unit";
-import {ModifiableProperty} from "../../modifier/ModifiableProperty";
+import {ModifiableProperty} from "../../../../shared/classes/ModifiableProperty";
 
 export interface BattlePrediction {
     hours: number;

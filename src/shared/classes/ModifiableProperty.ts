@@ -1,4 +1,5 @@
 export enum ModifiableProperty {
+    // Units
     UnitSpeed = "unitSpeed",
     UnitOrganisation = "maxOrganisation",
     UnitRecoveryRate = "recoveryRate",
@@ -10,5 +11,13 @@ export enum ModifiableProperty {
     UnitArmor = "armor",
     UnitPiercing = "piercing",
     UnitInitiative = "initiative",
-    UnitOrganisationLossInMovement = "movementOrgLoss",
+    UnitOrganisationLossInMovement = "movementOrganisationLoss",
+
+    // Construction
+    GlobalBuildSpeed = "globalBuildSpeed",
+    InfrastructureBuildSpeed = "infrastructureBuildSpeed",
+    CivilianFactoryBuildSpeed = "civilianFactoryBuildSpeed",
+
+    // Region
+    MaxSharedSlotsInRegion = "maxSharedSlotsInRegion",
 }

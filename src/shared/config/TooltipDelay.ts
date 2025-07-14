@@ -1,4 +1,4 @@
 export enum TooltipDelay {
-    Controls = 2,
+    Controls = 1,
     MoreInfo = 0.85,
 }

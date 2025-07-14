@@ -65,7 +65,7 @@ export class Tooltip {
     private mountEntry(item: InternalEntry<any>) {
         if (item.comp) return;
         const comp = new item.entry.class();
-        comp.mount(this.frame.WaitForChild("Container") as Frame);
+        comp.mount(this.frame.WaitForChild("Container", 1) as Frame);
         comp.update(item.getter());
         this.updatePosition();
         item.comp = comp;

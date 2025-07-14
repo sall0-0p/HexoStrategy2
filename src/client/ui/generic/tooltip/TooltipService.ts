@@ -10,12 +10,18 @@ interface TooltipBinding {
     unbind: () => void;
 }
 
+type WorldTooltipFetcher = () => TooltipEntry<any>[] | undefined;
 export class TooltipService {
     private static instance: TooltipService;
     private bindings: Map<GuiObject, TooltipBinding> = new Map();
 
+    private worldTooltip?: Tooltip;
+    private worldTooltipFetcher?: WorldTooltipFetcher;
+    private worldHovering = false;
+
     private constructor() {
         RunService.RenderStepped.Connect((dt) => this.update(dt));
+        this.initWorldLoop();
     }
 
     private update(deltaTime: number) {
@@ -94,6 +100,69 @@ export class TooltipService {
 
         this.bindings.set(target, binding);
         return binding.unbind;
+    }
+
+    // World tooltip
+    public setWorldFetcher(fn: WorldTooltipFetcher) {
+        this.worldTooltipFetcher = fn;
+    }
+
+    private initWorldLoop() {
+        RunService.RenderStepped.Connect(() => {
+            let active = false;
+            this.bindings.forEach((b) => {
+                if (b.activeTooltip) {
+                    active = true;
+                }
+            })
+            if (active) {
+                this.hideWorld();
+                return;
+            }
+
+            const inset = GuiService.GetGuiInset()[0];
+            const m = UserInputService.GetMouseLocation();
+            const guiObjects = (Players.LocalPlayer
+                .WaitForChild("PlayerGui") as PlayerGui)
+                .GetGuiObjectsAtPosition(m.X - inset.X, m.Y - inset.Y);
+            const blocking = guiObjects.find(gui =>
+                gui.Visible
+                && gui.BackgroundTransparency < 1
+                && !CollectionService.HasTag(gui, "TooltipPassthrough")
+            );
+            if (blocking) {
+                this.hideWorld();
+                return;
+            }
+
+            if (!this.worldTooltipFetcher) return;
+            if (this.worldHovering) return;
+            const entries = this.worldTooltipFetcher();
+            if (entries) {
+                this.showWorld(entries);
+            } else {
+                this.hideWorld();
+            }
+        })
+    }
+
+    private showWorld(entries: TooltipEntry<any>[]) {
+        if (this.worldHovering) return;
+
+        this.worldHovering = true;
+        this.worldTooltip = new Tooltip(entries);
+        this.worldTooltip.show();
+    }
+
+    private hideWorld() {
+        if (!this.worldHovering) return;
+
+        this.worldHovering = false;
+        if (this.worldTooltip) {
+            this.worldTooltip.hide();
+            this.worldTooltip.destroy();
+            this.worldTooltip = undefined;
+        }
     }
 
     public static getInstance() {

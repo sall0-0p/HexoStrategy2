@@ -15,10 +15,8 @@ import {DiplomaticRelationStatus} from "./systems/diplomacy/DiplomaticRelation";
 import {NationPicker} from "./world/nation/NationPicker";
 import {WorldTime} from "./systems/time/WorldTime";
 import {UnitRecoveryTicker} from "./systems/unit/UnitRecoveryTicker";
-import {BattleReplicator} from "./systems/battle/misc/BattleReplicator";
 import {UnitService} from "./systems/unit/UnitService";
 import {MovementTicker} from "./systems/unit/movement/MovementTicker";
-import {Battle} from "./systems/battle/Battle";
 import {BattleService} from "./systems/battle/misc/BattleService";
 import {TemplateController} from "./systems/unit/template/TemplateController";
 import {StatsTemplate} from "../shared/classes/StatsTemplate";
@@ -51,7 +49,7 @@ let byrdlands: Nation = nationRepository.getById("BRD")!;
 let fungaria: Nation = nationRepository.getById("FNG")!;
 
 let pnlCapital = hexRepository.getById("H009")!;
-let brdCapital = hexRepository.getById("H002")!;
+let brdCapital = hexRepository.getById("H003")!;
 const fngInferiorHex    = hexRepository.getById("H005")!;   // weak enemy
 const fngSuperiorHex    = hexRepository.getById("H006")!;
 
@@ -126,7 +124,7 @@ const opTankStats: StatsTemplate = {
 let plnInfantry: UnitTemplate = new UnitTemplate("Infantry Division", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", ponylandia);
 let plnMotorised: UnitTemplate = new UnitTemplate("Motorised Division", motorisedStats, new Instance("Model"), "rbxassetid://72306001883478", ponylandia);
 let plnArmored: UnitTemplate = new UnitTemplate("Armored Division", opTankStats, new Instance("Model"), "rbxassetid://111943619870880", ponylandia);
-let brdUnit: UnitTemplate = new UnitTemplate("Militia", militiaStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
+let brdUnit: UnitTemplate = new UnitTemplate("Infantry Division", militiaStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
 let fngUnit: UnitTemplate = new UnitTemplate("Fungarian Militia", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", fungaria);
 
 // → your own “ponylandia” group (at PNL capital)
@@ -134,6 +132,10 @@ new Unit(plnMotorised, pnlCapital).setName("1st Motorised Division");
 new Unit(plnMotorised, pnlCapital).setName("2nd Motorised Division");
 new Unit(plnMotorised, pnlCapital).setName("3rd Motorised Division");
 new Unit(plnArmored, pnlCapital).setName("1st Armored Division");
+
+// Byrdland unit
+new Unit(brdUnit, brdCapital).setName("1st Infantry Division");
+new Unit(brdUnit, brdCapital).setName("2nd Infantry Division");
 
 // → inferior fungaria group (2 divisions)
 new Unit(fngUnit, fngInferiorHex);
@@ -149,8 +151,9 @@ new Unit(fngUnit, fngSuperiorHex);
 wait(5);
 print("Making an enemy!");
 const pnlRelations = ponylandia.getRelations();
-pnlRelations.setRelationStatus(fungaria, DiplomaticRelationStatus.Enemy)
+pnlRelations.setRelationStatus(fungaria, DiplomaticRelationStatus.Enemy);
 pnlRelations.setRelationStatus(byrdlands, DiplomaticRelationStatus.Allied);
+fungaria.getRelations().setRelationStatus(byrdlands, DiplomaticRelationStatus.Enemy);
 
 const timeManager = WorldTime.getInstance();
 timeManager.setPaused(false);

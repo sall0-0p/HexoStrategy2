@@ -2,7 +2,7 @@ import {Battle} from "../Battle";
 import {Unit} from "../../unit/Unit";
 import {ArrayShuffle} from "../../../../shared/classes/ArrayShuffle";
 import {Accountant} from "./Accountant";
-import {ModifiableProperty} from "../../modifier/ModifiableProperty";
+import {ModifiableProperty} from "../../../../shared/classes/ModifiableProperty";
 import {ReserveManager} from "./ReserveManager";
 
 export namespace CombatEngine {
