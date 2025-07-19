@@ -244,9 +244,9 @@ export class Unit {
 
     private updateModifierParents() {
         this.statsComponent.getModifierContainer().setParents([
-            this.owner.getModifierContainer(),
-            this.position.getModifierContainer(),
-            this.position.getRegion().getModifierContainer(),
+            this.owner.getModifiers(),
+            this.position.getModifiers(),
+            this.position.getRegion().getModifiers(),
         ])
     }
 

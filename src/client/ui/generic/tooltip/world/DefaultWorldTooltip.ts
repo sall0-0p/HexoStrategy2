@@ -3,7 +3,7 @@ import {UserInputService, Workspace} from "@rbxts/services";
 import {TextComponent} from "../components/TextComponent";
 import {HexRepository} from "../../../../world/hex/HexRepository";
 import {Hex} from "../../../../world/hex/Hex";
-import {RTColor} from "../../../../../shared/classes/RichText";
+import {RTColor} from "../../../../../shared/config/RichText";
 import {SelectionManager} from "../../../unit/selection/SelectionManager";
 import {SeparatorComponent} from "../components/SeparatorComponent";
 import {EmptyComponent} from "../components/EmptyComponent";

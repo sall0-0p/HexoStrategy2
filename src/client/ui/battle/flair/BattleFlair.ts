@@ -7,7 +7,7 @@ import {TextComponent} from "../../generic/tooltip/components/TextComponent";
 import {Unit} from "../../../systems/unit/Unit";
 import {UnitRepository} from "../../../systems/unit/UnitRepository";
 import {Nation} from "../../../world/nation/Nation";
-import {RTColor, RTWidth} from "../../../../shared/classes/RichText";
+import {RTColor, RTWidth} from "../../../../shared/config/RichText";
 import {TextUtils} from "../../../../shared/classes/TextUtils";
 import {EmptyComponent} from "../../generic/tooltip/components/EmptyComponent";
 import {SeparatorComponent} from "../../generic/tooltip/components/SeparatorComponent";

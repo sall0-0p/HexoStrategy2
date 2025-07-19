@@ -8,6 +8,8 @@ import {NationRepository} from "../nation/NationRepository";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {StateCategory} from "../../../shared/classes/StateCategory";
 import {StateCategories} from "../../../shared/data/ts/StateCategories";
+import {RegionBuildingComponent} from "../building/BuildingComponent";
+import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 
 const hexRepository = HexRepository.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -18,7 +20,8 @@ export class Region {
     private owner: Nation;
     private category: StateCategory;
     private population: number; // in thousands
-    private modifierContainer = new ModifierContainer();
+    private modifiers = new ModifierContainer();
+    private buildings = new RegionBuildingComponent(this);
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -40,6 +43,12 @@ export class Region {
             return candidate;
         });
         this.owner = this.computeOwner();
+
+        if (data.buildings) {
+            for (const [id, count] of pairs(data.buildings)) {
+                this.buildings.setBuilding(id as Building, count);
+            }
+        }
     }
 
     public toDTO(): RegionDTO {
@@ -127,8 +136,12 @@ export class Region {
         return this.population;
     }
 
-    public getModifierContainer() {
-        return this.modifierContainer;
+    public getModifiers() {
+        return this.modifiers;
+    }
+
+    public getBuildings() {
+        return this.buildings;
     }
 }
 
@@ -138,4 +151,5 @@ export interface JsonRegion {
     hexes: string[],
     owner: string,
     population: number,
+    buildings?: Record<string, number>;
 }

@@ -3,7 +3,7 @@ import {TooltipService} from "../../generic/tooltip/TooltipService";
 import {TextComponent} from "../../generic/tooltip/components/TextComponent";
 import {NationRepository} from "../../../world/nation/NationRepository";
 import {BattleUpdate} from "../../../../shared/network/battle/Subscription";
-import {RTWidth, RTColor} from "../../../../shared/classes/RichText";
+import {RTWidth, RTColor} from "../../../../shared/config/RichText";
 import {EmptyComponent} from "../../generic/tooltip/components/EmptyComponent";
 import {HeaderComponent} from "../../generic/tooltip/components/HeaderComponent";
 

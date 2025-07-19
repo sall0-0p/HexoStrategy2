@@ -21,6 +21,7 @@ import {BattleService} from "./systems/battle/misc/BattleService";
 import {TemplateController} from "./systems/unit/template/TemplateController";
 import {StatsTemplate} from "../shared/classes/StatsTemplate";
 import {UnitType} from "../shared/classes/UnitType";
+import {Building, BuildingDefs} from "../shared/data/ts/BuildingDefs";
 
 WorldTime.getInstance();
 NationRepository.getInstance();
@@ -157,3 +158,16 @@ fungaria.getRelations().setRelationStatus(byrdlands, DiplomaticRelationStatus.En
 
 const timeManager = WorldTime.getInstance();
 timeManager.setPaused(false);
+
+const region = RegionRepository.getInstance().getById("R001");
+const buildings = region!.getBuildings();
+print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));
+print("Infrastructure level:", buildings.getBuildingCount(Building.Infrastructure));
+buildings.addBuilding(Building.CivilianFactory, 4);
+
+const constructionManger = ponylandia.getConstructionManager();
+ponylandia.getBuildings().set(Building.CivilianFactory, 25);
+constructionManger.addProject(region!, Building.CivilianFactory);
+constructionManger.addProject(region!, Building.Infrastructure);
+// print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));
+// print("Civ slot count:", buildings.getSlotCount(Building.CivilianFactory));

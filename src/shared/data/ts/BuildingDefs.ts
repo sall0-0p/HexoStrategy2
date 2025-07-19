@@ -1,6 +1,11 @@
 import {BuildingDef, BuildingType} from "../../classes/BuildingDef";
 import {ModifiableProperty} from "../../classes/ModifiableProperty";
 
+export enum Building {
+    Infrastructure = "infrastructure",
+    CivilianFactory = "civilianFactory",
+}
+
 export const BuildingDefs: Record<string, BuildingDef> = {
     infrastructure: {
         id: "infrastructure",
@@ -11,8 +16,8 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         maxLevel: 5,
         modifier: ModifiableProperty.InfrastructureBuildSpeed,
     },
-    civilian_factory: {
-        id: "civilian_factory",
+    civilianFactory: {
+        id: "civilianFactory",
         name: "Civilian Factory",
         type: BuildingType.Shared,
         buildCost: 20000,

@@ -7,6 +7,8 @@ import {Signal} from "../../../shared/classes/Signal";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 import {Region} from "../region/Region";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
+import {HexBuildingComponent} from "../building/BuildingComponent";
+import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;
@@ -21,7 +23,8 @@ export class Hex {
     private owner?: Nation;
     private neighbors: Hex[] = [];
     private model!: Model;
-    private modifierContainer = new ModifierContainer();
+    private modifiers = new ModifierContainer();
+    private buildings = new HexBuildingComponent(this);
     
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -35,6 +38,12 @@ export class Hex {
             const candidate = nationRepository.getById(data.owner);
             if (!candidate) error(`Nation with id ${data.owner} was not found!`);
             this.owner = candidate;
+        }
+
+        if (data.buildings) {
+            for (const [id, count] of pairs(data.buildings)) {
+                this.buildings.setBuilding(id as Building, count);
+            }
         }
 
         this.makeModel();
@@ -155,8 +164,12 @@ export class Hex {
         return this.model;
     }
 
-    public getModifierContainer() {
-        return this.modifierContainer;
+    public getModifiers() {
+        return this.modifiers;
+    }
+
+    public getBuildings() {
+        return this.buildings;
     }
 
     public getChangedSignal() {
@@ -174,4 +187,5 @@ export interface JsonHex {
     r: number;
     hexType: string;
     owner?: string;
+    buildings?: Map<string, number>;
 }

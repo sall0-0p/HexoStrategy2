@@ -2,7 +2,7 @@ import {UnitStack} from "./UnitStack";
 import {TooltipService} from "../../generic/tooltip/TooltipService";
 import {TextComponent} from "../../generic/tooltip/components/TextComponent";
 import {SeparatorComponent} from "../../generic/tooltip/components/SeparatorComponent";
-import {RTColor} from "../../../../shared/classes/RichText";
+import {RTColor} from "../../../../shared/config/RichText";
 import {TextUtils} from "../../../../shared/classes/TextUtils";
 import {TooltipDelay} from "../../../../shared/config/TooltipDelay";
 import {TemplateRequester} from "../../../systems/unit/template/TemplateRequester";

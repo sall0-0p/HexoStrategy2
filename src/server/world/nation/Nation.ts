@@ -7,6 +7,8 @@ import {
     DiplomaticRelationStatus
 } from "../../systems/diplomacy/DiplomaticRelation";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
+import {NationBuildingComponent} from "../building/BuildingComponent";
+import {ConstructionManager} from "../building/ConstructionManager";
 
 export class Nation {
     private id;
@@ -15,7 +17,9 @@ export class Nation {
     private flag: string;
     private player?: Player;
     private relations: DiplomaticRelations;
-    private modifierContainer = new ModifierContainer();
+    private modifiers = new ModifierContainer();
+    private buildings = new NationBuildingComponent(this);
+    private construction = new ConstructionManager(this);
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -139,8 +143,16 @@ export class Nation {
         } as DirtyNationEvent)
     }
 
-    public getModifierContainer() {
-        return this.modifierContainer;
+    public getModifiers() {
+        return this.modifiers;
+    }
+
+    public getBuildings() {
+        return this.buildings;
+    }
+
+    public getConstructionManager() {
+        return this.construction;
     }
 
     public getChangedSignal() {

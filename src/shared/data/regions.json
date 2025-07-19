@@ -4,7 +4,10 @@
     "category": "rural",
     "hexes": ["H028", "H027", "H026", "H025", "H024", "H023"],
     "population": 225,
-    "owner": "PNL"
+    "owner": "PNL",
+    "buildings": {
+      "infrastructure": 3
+    }
   },
   "R002": {
     "name": "Lands of Winter",

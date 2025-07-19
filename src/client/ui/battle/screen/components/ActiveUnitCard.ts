@@ -8,7 +8,7 @@ import {TextUtils} from "../../../../../shared/classes/TextUtils";
 import {HeaderComponent} from "../../../generic/tooltip/components/HeaderComponent";
 import {EmptyComponent} from "../../../generic/tooltip/components/EmptyComponent";
 import {SeparatorComponent} from "../../../generic/tooltip/components/SeparatorComponent";
-import {RTColor} from "../../../../../shared/classes/RichText";
+import {RTColor} from "../../../../../shared/config/RichText";
 import {TooltipDelay} from "../../../../../shared/config/TooltipDelay";
 
 const attackerPosition = UDim2.fromScale(0.089,0);

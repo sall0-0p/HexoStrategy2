@@ -10,7 +10,6 @@ export class RegionRepository {
             const newRegion = new Region(id, rawDef);
             this.regionsById.set(id, newRegion);
         }
-        print(this.regionsById);
     }
 
     public static getInstance(): RegionRepository {
