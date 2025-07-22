@@ -22,6 +22,8 @@ import {TemplateController} from "./systems/unit/template/TemplateController";
 import {StatsTemplate} from "../shared/classes/StatsTemplate";
 import {UnitType} from "../shared/classes/UnitType";
 import {Building, BuildingDefs} from "../shared/data/ts/BuildingDefs";
+import {ConstructionController} from "./world/building/ConstructionController";
+print("Hello World!");
 
 WorldTime.getInstance();
 NationRepository.getInstance();
@@ -40,6 +42,7 @@ const bs = BattleService.getInstance();
 const us = UnitService.getInstance();
 MovementTicker.getInstance((u: Unit) => us.kill(u), bs);
 NationPicker.getInstance();
+ConstructionController.getInstance();
 
 wait(1);
 
@@ -167,7 +170,7 @@ buildings.addBuilding(Building.CivilianFactory, 4);
 
 const constructionManger = ponylandia.getConstructionManager();
 ponylandia.getBuildings().set(Building.CivilianFactory, 25);
-constructionManger.addProject(region!, Building.CivilianFactory);
-constructionManger.addProject(region!, Building.Infrastructure);
+// constructionManger.addProject(region!, Building.CivilianFactory);
+// constructionManger.addProject(region!, Building.Infrastructure);
 // print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));
 // print("Civ slot count:", buildings.getSlotCount(Building.CivilianFactory));

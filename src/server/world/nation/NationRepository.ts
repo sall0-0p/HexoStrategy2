@@ -22,6 +22,10 @@ export class NationRepository {
         return this.nations.get(id);
     }
 
+    public getByPlayer(player: Player) {
+        return [...this.nations].find((n) => n[1].getPlayer()?.UserId === player.UserId);
+    }
+
     public getAll(): Nation[] {
         let result: Nation[] = [];
 

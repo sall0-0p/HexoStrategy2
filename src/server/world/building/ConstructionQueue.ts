@@ -23,6 +23,10 @@ export class ConstructionQueue {
         return [...this.items];
     }
 
+    public getItems() {
+        return this.items;
+    };
+
     public move(id: string, toIndex: number): boolean {
         const n = this.items.size();
 
