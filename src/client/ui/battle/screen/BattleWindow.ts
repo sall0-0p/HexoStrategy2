@@ -16,7 +16,8 @@ const template = ReplicatedStorage
 
 const screen = Players.LocalPlayer
     .WaitForChild("PlayerGui")
-    .WaitForChild("Windows") as ScreenGui;
+    .WaitForChild("Windows")
+    .WaitForChild("BattleWindow") as ScreenGui;
 
 export class BattleWindow {
     private frame: Frame;

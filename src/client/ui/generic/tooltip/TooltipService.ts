@@ -1,6 +1,5 @@
 import { Players, UserInputService, RunService, GuiService, CollectionService } from "@rbxts/services";
 import { Tooltip, TooltipEntry } from "./Tooltip";
-import {TooltipComponent} from "./TooltipComponent";
 
 interface TooltipBinding {
     tooltipEntries: TooltipEntry<any>[];

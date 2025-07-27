@@ -6,14 +6,14 @@ import {UnitRepository} from "../systems/unit/UnitRepository";
 import {UnitFlairManager} from "../ui/unit/flair/UnitFlairManager";
 import {HeatmapManager} from "../ui/heatmap/HeatmapManager";
 import {SelectionManager} from "../ui/unit/selection/SelectionManager";
-import {ReplicatedStorage} from "@rbxts/services";
-import {NationHeatmap} from "../ui/heatmap/heatmaps/NationHeatmap";
+import {ReplicatedStorage, StarterGui} from "@rbxts/services";
 import {Bind} from "../ui/Bind";
 import {MoveBind} from "../ui/unit/order/MoveBind";
 import {BattleFlairManager} from "../ui/battle/flair/BattleFlairManager";
 import {BattleWindowManager} from "../ui/battle/screen/BattleWindowManager";
 import {TooltipService} from "../ui/generic/tooltip/TooltipService";
-import {Tooltip} from "../ui/generic/tooltip/Tooltip";
+import {UIStateMachine} from "../ui/fsm/UIStateMachine";
+import {NormalUIState} from "../ui/fsm/states/NormalState";
 
 const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("SelectNation") as RemoteFunction;
@@ -27,6 +27,9 @@ export class GameState {
     private constructor() {
         // Camera is loaded first, before nation is selected;
         Camera.getInstance();
+
+        StarterGui.SetCore("TopbarEnabled", false);
+        StarterGui.SetCoreGuiEnabled("All", false);
     }
 
     public getPlayedNationId() {
@@ -36,10 +39,11 @@ export class GameState {
     public switchNation(nationId: string) {
         const allowed: boolean = changeNationRequest.InvokeServer(nationId);
         if (!allowed) return;
+
         this.activeNationId = nationId;
         _G.activeNationId = nationId;
+
         this.resetAllModules();
-        print(`Loading as ${nationId}`);
         this.loadAllModules();
     }
 
@@ -81,10 +85,11 @@ export class GameState {
         SelectionManager.getInstance();
         TooltipService.getInstance();
 
-        this.binds.push(new MoveBind());
+        // UI State
+        const uiState = UIStateMachine.getInstance();
+        uiState.changeTo(new NormalUIState());
 
-        const heatmapManager = HeatmapManager.getInstance();
-        heatmapManager.showHeatmap(new NationHeatmap());
+        this.binds.push(new MoveBind());
     }
 
     public static getInstance() {
