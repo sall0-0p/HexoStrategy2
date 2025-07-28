@@ -26,9 +26,9 @@ import {ConstructionController} from "./world/building/ConstructionController";
 print("Hello World!");
 
 WorldTime.getInstance();
-NationRepository.getInstance();
-HexRepository.getInstance();
-RegionRepository.getInstance();
+const nationRepository = NationRepository.getInstance();
+const hexRepository = HexRepository.getInstance();
+const regionRepository = RegionRepository.getInstance();
 TemplateRepository.getInstance();
 TemplateController.getInstance();
 UnitRepository.getInstance();
@@ -42,12 +42,10 @@ const bs = BattleService.getInstance();
 const us = UnitService.getInstance();
 MovementTicker.getInstance((u: Unit) => us.kill(u), bs);
 NationPicker.getInstance();
-ConstructionController.getInstance();
+ConstructionController.getInstance(nationRepository, regionRepository, hexRepository);
 
 wait(1);
 
-const hexRepository = HexRepository.getInstance();
-const nationRepository = NationRepository.getInstance();
 let ponylandia: Nation = nationRepository.getById("PNL")!;
 let byrdlands: Nation = nationRepository.getById("BRD")!;
 let fungaria: Nation = nationRepository.getById("FNG")!;

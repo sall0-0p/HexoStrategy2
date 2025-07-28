@@ -26,7 +26,7 @@ export class ConstructionManager {
         const id = this.getNextId();
         const project = new BuildingProject(id, building, target, () => {
             this.queue.removeById(id);
-        })
+        });
 
         print(`Pushed into ${this.nation.getId()}!`);
         this.queue.push(project);
@@ -66,7 +66,6 @@ export class ConstructionManager {
 
     private tick() {
         let factories = this.nation.getBuildings().get(Building.CivilianFactory);
-        print("Ticking!", this.queue);
 
         const modifiers = this.nation.getModifiers();
         const baseOutput = Definition.BaseFactoryConstructionOutput;

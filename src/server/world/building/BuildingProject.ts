@@ -3,6 +3,7 @@ import {Signal} from "../../../shared/classes/Signal";
 import {Hex} from "../hex/Hex";
 import {Region} from "../region/Region";
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
+import {ConstructionController} from "./ConstructionController";
 
 export class BuildingProject {
     public readonly id: string;
@@ -29,10 +30,20 @@ export class BuildingProject {
         this.factories = units;
         this.progress += gain;
 
-        print(units, ratePerFactory, gain, this.progress);
+        // Send update!
+        const prediction = (this.definition.buildCost - this.progress) / gain;
+        ConstructionController.getInstance().pushUpdate(this.target.getOwner()!, {
+            constructionId: this.id,
+            progress: this.progress,
+            prediction: prediction,
+            factories: units,
+        });
+
         if (this.progress >= this.definition.buildCost) {
             this.target.getBuildings().addBuilding(this.definition.id as Building, 1);
             this.finished.fire();
+
+            ConstructionController.getInstance().finishProject(this.target.getOwner()!, this.id);
             onComplete();
         }
     }
@@ -40,6 +51,7 @@ export class BuildingProject {
     public cancel() {
         this.cancelled.fire();
         this.removeFromQueue(this.id);
+        ConstructionController.getInstance().finishProject(this.target.getOwner()!, this.id);
     }
 
     public getProgress(){

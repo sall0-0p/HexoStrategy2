@@ -9,6 +9,7 @@ import {
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {NationBuildingComponent} from "../building/BuildingComponent";
 import {ConstructionManager} from "../building/ConstructionManager";
+import {NationRepository} from "./NationRepository";
 
 export class Nation {
     private id;
