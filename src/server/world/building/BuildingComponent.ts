@@ -1,12 +1,15 @@
-import {BuildingDef} from "../../../shared/classes/BuildingDef";
+import {BuildingDef, BuildingType} from "../../../shared/classes/BuildingDef";
 import {Hex} from "../hex/Hex";
 import {Region} from "../region/Region";
 import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
 import {Nation} from "../nation/Nation";
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
+import {BuildingComponentDTO} from "../../../shared/network/building/BuildingComponentDTO";
+import {Signal} from "../../../shared/classes/Signal";
 
 export abstract class BuildingComponent {
-    protected buildings = new Map<string, number>;
+    protected buildings = new Map<Building, number>;
+    public updated = new Signal<[]>();
 
     public getBuildingCount(building: Building): number {
         return this.buildings.get(building) ?? 0;
@@ -35,6 +38,7 @@ export class HexBuildingComponent extends BuildingComponent {
         const aggregator = this.hex.getOwner()?.getBuildings();
         if (!aggregator) return;
         aggregator.set(building, aggregator.get(building) + qty);
+        this.updated.fire();
     }
 
     public removeBuilding(building: Building, qty = 1): void {
@@ -45,6 +49,7 @@ export class HexBuildingComponent extends BuildingComponent {
         const aggregator = this.hex.getOwner()?.getBuildings();
         if (!aggregator) return;
         aggregator.set(building, aggregator.get(building) - qty);
+        this.updated.fire();
     }
 
     public setBuilding(building: Building, qty: number) {
@@ -52,9 +57,38 @@ export class HexBuildingComponent extends BuildingComponent {
         if (def.type !== "hex") error(`Attempting to add building designated for ${def.type} to Hex building component!`);
 
         if (qty > this.getSlotCount(building)) return;
+        const oldCount = this.buildings.get(building) ?? 0;
+
         this.buildings.set(building, qty);
 
+        const diff = qty - oldCount;
+        if (diff !== 0) {
+            const aggregator = this.hex.getOwner()?.getBuildings();
+            if (aggregator) {
+                // increment or decrement by the difference
+                aggregator.set(building, aggregator.get(building) + diff);
+            }
+        }
+
+        this.updated.fire();
+
         // TODO: Add aggregator
+    }
+
+    public toDTO(): BuildingComponentDTO {
+        let slots = new Map<Building, number>();
+        for (const [id, building] of pairs(Building)) {
+            const def = BuildingDefs[building];
+            if (def.type === BuildingType.Hex) {
+                slots.set(building, this.getSlotCount(building));
+            }
+        }
+
+        return {
+            type: "region",
+            buildings: this.buildings,
+            slots,
+        }
     }
 }
 
@@ -88,6 +122,7 @@ export class RegionBuildingComponent extends BuildingComponent {
 
         const aggregator = this.region.getOwner().getBuildings();
         aggregator.set(building, aggregator.get(building) + qty);
+        this.updated.fire();
     }
 
     public removeBuilding(building: Building, qty = 1): void {
@@ -97,6 +132,7 @@ export class RegionBuildingComponent extends BuildingComponent {
 
         const aggregator = this.region.getOwner().getBuildings();
         aggregator.set(building, aggregator.get(building) - qty);
+        this.updated.fire();
     }
 
     public setBuilding(building: Building, qty: number) {
@@ -104,9 +140,16 @@ export class RegionBuildingComponent extends BuildingComponent {
         if (def.type === "hex") error(`Attempting to set building designated for hex to Region building component!`);
 
         if (qty > this.getSlotCount(building)) return;
+        const oldCount = this.buildings.get(building) ?? 0;
         this.buildings.set(building, qty);
 
-        // TODO: Do aggregator;
+        const diff = qty - oldCount;
+        if (diff !== 0) {
+            const aggregator = this.region.getOwner().getBuildings();
+            aggregator.set(building, aggregator.get(building) + diff);
+        }
+
+        this.updated.fire();
     }
 
     // Additional building slots
@@ -115,12 +158,30 @@ export class RegionBuildingComponent extends BuildingComponent {
     public addAdditionalSlot(building: Building, qty = 1) {
         const count = this.buildings.get(building) ?? 0;
         this.additionalSharedSlots.set(building, count + qty);
+        this.updated.fire();
     }
 
     public removeAdditionSlot(building: Building, qty = 1) {
         const count = this.buildings.get(building) ?? 0;
         const clamped = math.clamp(count - qty, 0, math.huge)
         this.additionalSharedSlots.set(building, clamped);
+        this.updated.fire();
+    }
+
+    public toDTO(): BuildingComponentDTO {
+        let slots = new Map<Building, number>();
+        for (const [id, building] of pairs(Building)) {
+            const def = BuildingDefs[building];
+            if (def.type === BuildingType.Region || def.type === BuildingType.Shared) {
+                slots.set(building, this.getSlotCount(building));
+            }
+        }
+
+        return {
+            type: "region",
+            buildings: this.buildings,
+            slots,
+        }
     }
 }
 
@@ -137,5 +198,9 @@ export class NationBuildingComponent {
     public set(building: Building, qty: number) {
         const def = BuildingDefs[building];
         this.counter.set(def.id, qty);
+    }
+
+    public toDTO() {
+
     }
 }

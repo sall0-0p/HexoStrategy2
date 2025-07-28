@@ -1,4 +1,5 @@
 import {StateCategory} from "../../classes/StateCategory";
+import {BuildingComponentDTO} from "../building/BuildingComponentDTO";
 
 export interface RegionDTO {
     id: string,
@@ -7,4 +8,5 @@ export interface RegionDTO {
     hexes: string[],
     owner: string,
     population: number,
+    building: BuildingComponentDTO,
 }

@@ -9,7 +9,7 @@ import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {StateCategory} from "../../../shared/classes/StateCategory";
 import {StateCategories} from "../../../shared/data/ts/StateCategories";
 import {RegionBuildingComponent} from "../building/BuildingComponent";
-import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
+import {Building} from "../../../shared/data/ts/BuildingDefs";
 
 const hexRepository = HexRepository.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -49,6 +49,16 @@ export class Region {
                 this.buildings.setBuilding(id as Building, count);
             }
         }
+
+        this.buildings.updated.connect(() =>
+            this.onBuildingUpdate());
+    }
+
+    private onBuildingUpdate() {
+        const regionReplicator = RegionReplicator.getInstance();
+        regionReplicator?.markAsDirty(this, {
+            building: this.buildings.toDTO(),
+        })
     }
 
     public toDTO(): RegionDTO {
@@ -59,6 +69,7 @@ export class Region {
             hexes: this.getHexes().map((hex) => hex.getId()),
             owner: this.getOwner().getId(),
             population: this.getPopulation(),
+            building: this.buildings.toDTO(),
         } as RegionDTO
     }
 

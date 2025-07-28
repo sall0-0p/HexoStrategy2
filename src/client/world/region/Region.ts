@@ -6,6 +6,7 @@ import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";
 import {StateCategory} from "../../../shared/classes/StateCategory";
 import {StateCategories} from "../../../shared/data/ts/StateCategories";
+import {Building} from "../../../shared/data/ts/BuildingDefs";
 
 export class Region {
     private id: string;
@@ -14,6 +15,7 @@ export class Region {
     private hexes: Hex[];
     private owner: Nation;
     private population: number;
+    private buildings: Buildings;
 
     private hexRepository = HexRepository.getInstance();
     private nationRepository = NationRepository.getInstance();
@@ -32,6 +34,10 @@ export class Region {
         })
         this.owner = this.nationRepository.getById(data.owner) ?? error(`Failed to find ${data.owner} for ${data.id}`);
         this.population = data.population;
+        this.buildings = {
+            buildings: data.building.buildings,
+            slots: data.building.slots,
+        }
     }
 
     public getId() {
@@ -58,4 +64,13 @@ export class Region {
     public getPopulation() {
         return this.population;
     }
+
+    public getBuildings() {
+        return this.buildings;
+    }
+}
+
+interface Buildings {
+    slots: Map<Building, number>,
+    buildings: Map<Building, number>,
 }
