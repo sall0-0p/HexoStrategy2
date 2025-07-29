@@ -14,7 +14,7 @@ export class ConstructionManager {
     private queue = new ConstructionQueue();
 
     constructor(private nation: Nation) {
-        WorldTime.getInstance().on(TimeSignalType.Day).connect(() => {
+        WorldTime.getInstance().on(TimeSignalType.Hour).connect(() => {
             this.tick();
         })
     }
@@ -71,14 +71,19 @@ export class ConstructionManager {
         const baseOutput = Definition.BaseFactoryConstructionOutput;
 
         for (const proj of this.queue.getItems()) {
-            if (factories <= 0) break;
-            const modifiedOutput = modifiers.getEffectiveValue(baseOutput, [ModifiableProperty.GlobalBuildSpeed, proj.definition.modifier]);
-            const assign = math.min(factories, Definition.MaxFactoriesOnConstructionProject);
-            factories -= assign;
+            if (factories > 0) {
+                const modifiedOutput = modifiers.getEffectiveValue(baseOutput, [ModifiableProperty.GlobalBuildSpeed, proj.definition.modifier]);
+                const assign = math.min(factories, Definition.MaxFactoriesOnConstructionProject);
+                factories -= assign;
 
-            proj.advance(assign, modifiedOutput, () => {
-                this.queue.removeById(proj.id);
-            });
+                proj.advance(assign ?? 0, modifiedOutput ?? 0, () => {
+                    this.queue.removeById(proj.id);
+                });
+            } else {
+                proj.advance(0, 0, () => {
+                    this.queue.removeById(proj.id);
+                });
+            }
         }
     }
 

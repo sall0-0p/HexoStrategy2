@@ -10,6 +10,7 @@ export const BuildingDefs: Record<string, BuildingDef> = {
     infrastructure: {
         id: "infrastructure",
         name: "Infrastructure",
+        icon: "rbxassetid://104256052446767",
         type: BuildingType.Region,
         buildCost: 5000,
         upgradeCost: 1000,
@@ -19,6 +20,8 @@ export const BuildingDefs: Record<string, BuildingDef> = {
     civilianFactory: {
         id: "civilianFactory",
         name: "Civilian Factory",
+        icon: "rbxassetid://115581448311350",
+        iconColor3: Color3.fromRGB(255, 187, 61),
         type: BuildingType.Shared,
         buildCost: 20000,
         upgradeCost: 3000,

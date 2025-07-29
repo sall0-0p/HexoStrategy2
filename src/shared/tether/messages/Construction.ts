@@ -20,13 +20,7 @@ export interface MessageData {
 
     [MessageType.GetCurrentQueueResponse]: {
         success: boolean,
-        data?: {
-            id: string,
-            type: Building,
-            target: string, // HexId / RegionId
-            progress: number,
-            factories: number,
-        }[],
+        data?: CurrentProject[],
     },
 
     [MessageType.StartConstructionRequest]: {
@@ -65,4 +59,12 @@ export interface MessageData {
     [MessageType.ProjectFinishedUpdate]: {
         constructionId: string,
     }
+}
+
+export interface CurrentProject {
+    id: string,
+    type: Building,
+    target: string, // HexId / RegionId
+    progress: number,
+    factories: number,
 }

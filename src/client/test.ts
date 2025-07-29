@@ -11,7 +11,19 @@ export namespace StupidTest {
         print("Queue:", response.data);
     }
 
-    async function tryStartConstruction() {
+    async function tryStartInfrastructure() {
+        const response = await ConstructionEmitter.server.invoke(
+            MessageType.StartConstructionRequest,
+            MessageType.StartConstructionResponse,
+            {
+                targetId: "R001",
+                building: Building.Infrastructure,
+            }
+        );
+        print("Start construction response:", response.success);
+    }
+
+    async function tryStartFactory() {
         const response = await ConstructionEmitter.server.invoke(
             MessageType.StartConstructionRequest,
             MessageType.StartConstructionResponse,
@@ -42,9 +54,9 @@ export namespace StupidTest {
     }
 
     export function test() {
-        tryStartConstruction();
-        // tryStartConstruction();
-        // tryStartConstruction();
+        tryStartInfrastructure();
+        tryStartFactory();
+        tryStartFactory();
         // wait(1);
         // fetchQueue();
         // wait(1);

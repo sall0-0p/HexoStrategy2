@@ -1,5 +1,12 @@
 import {Building} from "../../../shared/data/ts/BuildingDefs";
 import {Players, ReplicatedStorage, TweenService} from "@rbxts/services";
+import {
+    ConstructionEmitter,
+    CurrentProject,
+    MessageData,
+    MessageType
+} from "../../../shared/tether/messages/Construction";
+import {ConstructionCard} from "./ConstructionCard";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")
@@ -13,14 +20,19 @@ const location = Players.LocalPlayer.WaitForChild("PlayerGui")
 
 export class ConstructionWindow {
     private frame: Frame;
+    private cards: ConstructionCard[] = [];
 
     constructor(building?: Building) {
         this.frame = template.Clone();
         this.frame.Parent = location;
 
         this.populateAvailableBuildings();
-        this.populateConstructions();
+        this.fetchConstructions();
         this.open();
+
+        // Binding events:
+        ConstructionEmitter.client.on(MessageType.ConstructionProgressUpdate, (p) => this.onUpdate(p));
+        ConstructionEmitter.client.on(MessageType.ProjectFinishedUpdate, (p) => this.onFinished(p));
 
         // Binding close button
         const close = this.frame.WaitForChild("Header").WaitForChild("Close") as TextButton;
@@ -47,11 +59,80 @@ export class ConstructionWindow {
         this.frame.Destroy();
     }
 
+    private onUpdate(payload: MessageData[MessageType.ConstructionProgressUpdate]) {
+        const card = this.cards.find((c) => payload.constructionId === c.getId());
+        if (!card) return warn(`Failed to update card ${payload.constructionId}`);
+
+        card.update(payload);
+    }
+
+    private onFinished(payload: MessageData[MessageType.ProjectFinishedUpdate]) {
+        const cardIndex = this.cards.findIndex((c) => payload.constructionId === c.getId());
+        const card = this.cards[cardIndex];
+        if (!card || cardIndex === -1) error(`Failed to update card ${payload.constructionId}`);
+
+        card.destroy();
+        this.cards.remove(cardIndex);
+        this.cards.forEach((c, i) => c.setPosition(i))
+    }
+
     private populateAvailableBuildings() {
 
     }
 
-    private populateConstructions() {
+    private fetchConstructions() {
+        const promise = ConstructionEmitter.server.invoke(
+            MessageType.GetCurrentQueueRequest,
+            MessageType.GetCurrentQueueResponse,
+            {}
+        );
 
+        promise.then((payload) => {
+            if (payload.success && payload.data) {
+                this.populateConstructions(payload.data);
+            } else {
+                warn("Failed to retrieve info!");
+                return;
+            }
+        })
+    }
+
+    private populateConstructions(data: CurrentProject[]) {
+        const container = this.frame.WaitForChild("Body")
+            .WaitForChild("Center")
+            .WaitForChild("List")
+            .WaitForChild("Container") as ScrollingFrame;
+
+        data.forEach((item, index) => {
+            const card = new ConstructionCard(container, index, item,
+                // Move
+                (toIndex) => {
+                    const cards = this.cards;
+                    const from = card.getPosition();
+                    const len  = cards.size();
+                    const last = len - 1;
+
+                    let target = toIndex;
+                    if (target < 0)       target = 0;
+                    if (target > last)    target = last;
+                    if (target === from)  return;   // no move
+
+                    const moving = cards[from];
+
+                    if (target < from) {
+                        for (let i = from; i > target; i--) {
+                            cards[i] = cards[i - 1];
+                        }
+                    } else {
+                        for (let i = from; i < target; i++) {
+                            cards[i] = cards[i + 1];
+                        }
+                    }
+
+                    cards[target] = moving;
+                    cards.forEach((c, i) => c.setPosition(i));
+            });
+            this.cards.push(card);
+        })
     }
 }

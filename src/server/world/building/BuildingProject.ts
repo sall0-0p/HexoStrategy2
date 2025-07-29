@@ -11,7 +11,7 @@ export class BuildingProject {
     public readonly definition: BuildingDef;
     public readonly finished = new Signal<[]>();
     public readonly cancelled = new Signal<[]>();
-    private factories: number = 0;
+    private factories: number = -1;
     private progress = 0;
 
     constructor(
@@ -26,12 +26,23 @@ export class BuildingProject {
     }
 
     public advance(units: number, ratePerFactory: number, onComplete: () => void) {
-        const gain = units * ratePerFactory;
+        if (units === 0 && this.factories === 0) {
+            ConstructionController.getInstance().pushUpdate(this.target.getOwner()!, {
+                constructionId: this.id,
+                progress: this.progress,
+                prediction: 0,
+                factories: 0,
+            });
+
+            return;
+        }
+
+        const gain = (units * ratePerFactory) / 24;
         this.factories = units;
         this.progress += gain;
 
         // Send update!
-        const prediction = (this.definition.buildCost - this.progress) / gain;
+        const prediction = (gain === 0) ? -1 : (this.definition.buildCost - this.progress) / gain;
         ConstructionController.getInstance().pushUpdate(this.target.getOwner()!, {
             constructionId: this.id,
             progress: this.progress,
