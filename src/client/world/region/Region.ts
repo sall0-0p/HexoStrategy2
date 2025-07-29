@@ -20,7 +20,7 @@ export class Region {
     private hexRepository = HexRepository.getInstance();
     private nationRepository = NationRepository.getInstance();
 
-    private changedSignal?: Signal<[string, unknown]>;
+    public changed: Signal<[string, unknown]> = new Signal();
 
     constructor(data: RegionDTO) {
         this.id = data.id;
@@ -58,7 +58,7 @@ export class Region {
 
     public setOwner(owner: Nation) {
         this.owner = owner;
-        this.changedSignal?.fire("owner", owner);
+        this.changed.fire("owner", owner);
     }
 
     public getPopulation() {
@@ -67,6 +67,11 @@ export class Region {
 
     public getBuildings() {
         return this.buildings;
+    }
+
+    public setBuildings(buildings: Buildings) {
+        this.buildings = buildings;
+        this.changed.fire("buildings", buildings);
     }
 }
 

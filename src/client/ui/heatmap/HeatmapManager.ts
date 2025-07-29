@@ -109,7 +109,6 @@ export class HeatmapManager {
     }
 
     private clear() {
-        // disconnect stored connections
         this.connections.forEach((conn) => {
             conn.disconnect();
         });
@@ -118,18 +117,17 @@ export class HeatmapManager {
         });
         this.connections.clear();
 
-        // move hex models back and destroy highlights/containers
         this.groups.forEach(({ info, map }) => {
-            map.forEach((hex) => {
-                hex.getModel().Parent = Workspace;
-            }); // changed to forEach
             if (info.isHighlighted) {
                 info.highlight?.Destroy();
             }
+            map.forEach((hex) => {
+                hex.getModel().Parent = Workspace;
+            });
             if (info.container) {
                 info.container.Destroy();
             }
-        }); // changed to forEach
+        });
 
         this.groups.clear();
         this.hexesIdsToGroupIds.clear();
@@ -138,7 +136,7 @@ export class HeatmapManager {
 
     public static resetInstance() {
         if (!this.instance) return;
-        this.instance.clear(); // cleanup before resetting
+        this.instance.clear();
         this.instance = undefined!;
     }
 

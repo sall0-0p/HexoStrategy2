@@ -40,6 +40,12 @@ export class RegionRepository {
         return this.regions.get(id);
     }
 
+    public getAll() {
+        return [...this.regions].map((tuple) => {
+            return tuple[1];
+        })
+    }
+
     // private methods
     private handleCreateEvent(payload: RegionDTO[]) {
         payload.forEach((data) => {
@@ -57,6 +63,10 @@ export class RegionRepository {
                 const candidate = this.nationRepository.getById(delta.owner);
                 if (!candidate) error(`Nation ${delta.owner} is not found!`);
                 region.setOwner(candidate);
+            }
+
+            if (delta.building) {
+                region.setBuildings(delta.building);
             }
         })
     }
