@@ -1,8 +1,10 @@
 import {Hex} from "../../world/hex/Hex";
+import {StripeStyle} from "./StripeManager";
 
 export interface Heatmap {
     getName(): string,
     getGroup(hex: Hex): HeatmapGroup,
+    getStripes?(hex: Hex): StripeStyle | undefined,
     onEnable?(): void,
     onDisable?(): void,
     onRenderStepped?(): void,

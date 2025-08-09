@@ -36,6 +36,7 @@ export class Region {
         this.population = data.population;
         this.buildings = {
             buildings: data.building.buildings,
+            planned: data.building.planned,
             slots: data.building.slots,
         }
     }
@@ -77,5 +78,6 @@ export class Region {
 
 interface Buildings {
     slots: Map<Building, number>,
+    planned: Map<Building, number>,
     buildings: Map<Building, number>,
 }

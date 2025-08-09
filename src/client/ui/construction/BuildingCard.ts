@@ -18,6 +18,7 @@ export class BuildingCard {
     private readonly def: BuildingDef;
     private readonly container: Frame;
     private readonly ts = TooltipService.getInstance();
+    private readonly rbxConnections: RBXScriptConnection[] = [];
 
     constructor(private readonly building: Building, window: ConstructionWindow) {
         this.frame = template.Clone();
@@ -43,6 +44,8 @@ export class BuildingCard {
                 break;
         }
 
+        this.frame.Destroying.Connect(() => this.destroy());
+
         this.load();
         this.frame.Parent = this.container;
     }
@@ -63,8 +66,14 @@ export class BuildingCard {
     }
 
     private bind() {
-        this.frame.MouseButton1Click.Connect(() => {
-            UIStateMachine.getInstance().changeTo(new RegionConstructionState(this.building));
-        })
+        this.rbxConnections.push(
+            this.frame.MouseButton1Click.Connect(() => {
+                UIStateMachine.getInstance().changeTo(new RegionConstructionState(this.building));
+            })
+        )
+    }
+
+    public destroy() {
+        this.rbxConnections.forEach((c) => c.Disconnect());
     }
 }

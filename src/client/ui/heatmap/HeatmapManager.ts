@@ -4,6 +4,7 @@ import { Hex } from "../../world/hex/Hex";
 import { HexRepository } from "../../world/hex/HexRepository";
 import { Connection } from "../../../shared/classes/Signal";
 import { RunService } from "@rbxts/services";
+import {StripeManager} from "./StripeManager";
 
 export class HeatmapManager {
     private static instance: HeatmapManager;
@@ -11,6 +12,7 @@ export class HeatmapManager {
     private hexes: Hex[] = [];
     private rbxConnections = new Set<RBXScriptConnection>();
     private hexRepository = HexRepository.getInstance();
+    private stripeManager = StripeManager.getInstance();
 
     private constructor() {
         this.hexes = this.hexRepository.getAll();
@@ -52,6 +54,11 @@ export class HeatmapManager {
 
         const groupInfo = this.currentHeatmap.getGroup(hex);
         this.applyToHex(hex, groupInfo);
+
+        const stripeInfo = this.currentHeatmap.getStripes?.(hex);
+        if (stripeInfo) {
+            this.stripeManager.applyToHex(hex, stripeInfo);
+        }
     }
 
     /** Apply a HeatmapGroup’s color/transparency to the hex’s highlight meshpart */
@@ -103,6 +110,7 @@ export class HeatmapManager {
                 highlightPart.Transparency = 1;
             }
         }
+        this.stripeManager.clearAll();
 
         // call disable hook
         this.currentHeatmap?.onDisable?.();

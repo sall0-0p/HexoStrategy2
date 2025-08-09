@@ -12,7 +12,6 @@ import {Hex} from "../../world/hex/Hex";
 import {RegionRepository} from "../../world/region/RegionRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {Definition} from "../../../shared/config/Definition";
-import {TextComponent} from "../generic/tooltip/components/TextComponent";
 
 const template = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -20,7 +19,7 @@ const template = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("NormalCard") as Frame;
 
 export class ConstructionCard {
-    private id: string;
+    public readonly id: string;
     private frame: Frame;
     private target: Region | Hex;
     private factoriesAssigned: number = 0;
@@ -29,7 +28,6 @@ export class ConstructionCard {
         this.id = data.id;
         this.frame = template.Clone();
         this.frame.LayoutOrder = position;
-        this.frame.Parent = this.container;
         this.target = this.fetchTarget();
         this.connection = RunService.RenderStepped.Connect(() => this.renderProgress());
 
@@ -37,6 +35,7 @@ export class ConstructionCard {
 
         this.populateInfo(data);
         this.buildButtons();
+        this.frame.Parent = this.container;
     }
 
     public getId() {

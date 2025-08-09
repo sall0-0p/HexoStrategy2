@@ -1,4 +1,4 @@
-import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
+import {Building} from "../../../shared/data/ts/BuildingDefs";
 import {Players, ReplicatedStorage, TweenService} from "@rbxts/services";
 import {
     ConstructionEmitter,
@@ -25,6 +25,7 @@ const location = Players.LocalPlayer.WaitForChild("PlayerGui")
 export class ConstructionWindow {
     private frame: Frame;
     private cards: ConstructionCard[] = [];
+    private fetching: boolean = false;
 
     constructor(building?: Building) {
         this.frame = template.Clone();
@@ -55,7 +56,6 @@ export class ConstructionWindow {
 
     public close() {
         const uiStateMachine = UIStateMachine.getInstance();
-        print(uiStateMachine.getCurrentState()?.type);
         if (uiStateMachine.getCurrentState()?.type === UIStateType.RegionConstruction) {
             uiStateMachine.changeTo(new NormalUIState());
         }
@@ -75,7 +75,10 @@ export class ConstructionWindow {
 
     private onUpdate(payload: MessageData[MessageType.ConstructionProgressUpdate]) {
         const card = this.cards.find((c) => payload.constructionId === c.getId());
-        if (!card) return warn(`Failed to update card ${payload.constructionId}`);
+        if (!card) {
+            this.fetchConstructions();
+            return;
+        }
 
         card.update(payload);
     }
@@ -97,6 +100,9 @@ export class ConstructionWindow {
     }
 
     private fetchConstructions() {
+        if (this.fetching) return;
+
+        this.fetching = true;
         const promise = ConstructionEmitter.server.invoke(
             MessageType.GetCurrentQueueRequest,
             MessageType.GetCurrentQueueResponse,
@@ -104,6 +110,7 @@ export class ConstructionWindow {
         );
 
         promise.then((payload) => {
+            this.fetching = false;
             if (payload.success && payload.data) {
                 this.populateConstructions(payload.data);
             } else {
@@ -119,7 +126,9 @@ export class ConstructionWindow {
             .WaitForChild("List")
             .WaitForChild("Container") as ScrollingFrame;
 
-        data.forEach((item, index) => {
+        data.forEach((item: CurrentProject, index) => {
+            if (this.cards.find((c) => c.id === item.id)) return;
+
             const card = new ConstructionCard(container, index, item,
                 // Move
                 (toIndex) => {
@@ -150,10 +159,6 @@ export class ConstructionWindow {
             });
             this.cards.push(card);
         })
-    }
-
-    private populateBuildingTypes() {
-
     }
 
     public getFrame() { return this.frame };

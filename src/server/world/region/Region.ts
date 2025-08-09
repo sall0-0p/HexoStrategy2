@@ -1,5 +1,5 @@
 import {Hex} from "../hex/Hex";
-import {Signal} from "../../../shared/classes/Signal";
+import {Connection, Signal} from "../../../shared/classes/Signal";
 import {Nation} from "../nation/Nation";
 import {HexRepository} from "../hex/HexRepository";
 import {RegionDTO} from "../../../shared/network/region/DTO";
@@ -17,11 +17,12 @@ export class Region {
     private id: string;
     private name: string;
     private hexes: Hex[];
-    private owner: Nation;
+    private owner!: Nation;
     private category: StateCategory;
     private population: number; // in thousands
     private modifiers = new ModifierContainer();
     private buildings = new RegionBuildingComponent(this);
+    private cmUpdated?: Connection;
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -42,7 +43,8 @@ export class Region {
             }
             return candidate;
         });
-        this.owner = this.computeOwner();
+
+        this.updateOwner();
 
         if (data.buildings) {
             for (const [id, count] of pairs(data.buildings)) {
@@ -133,6 +135,12 @@ export class Region {
 
     public updateOwner() {
         this.owner = this.computeOwner();
+        this.cmUpdated?.disconnect();
+        print("Updating owner!");
+        this.cmUpdated = this.owner.getConstructionManager().updated.connect(() => {
+            this.onBuildingUpdate();
+        })
+        this.onBuildingUpdate();
     };
 
     public setCategory(category: StateCategory) {

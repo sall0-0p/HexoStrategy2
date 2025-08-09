@@ -4,11 +4,14 @@ import {HeatmapManager} from "../../heatmap/HeatmapManager";
 import {NationHeatmap} from "../../heatmap/heatmaps/NationHeatmap";
 import {TooltipService} from "../../generic/tooltip/TooltipService";
 import {DefaultWorldTooltip} from "../../generic/tooltip/world/DefaultWorldTooltip";
+import {Bind} from "../../Bind";
+import {MoveBind} from "../../unit/order/MoveBind";
 
 export class NormalUIState implements UIState {
     private player: Player = Players.LocalPlayer;
     private heatmapManager = HeatmapManager.getInstance();
     private tooltipService = TooltipService.getInstance();
+    private binds: Bind[] = [];
     public readonly type: UIStateType = UIStateType.Normal;
 
     public onStart() {
@@ -20,6 +23,8 @@ export class NormalUIState implements UIState {
 
         this.heatmapManager.showHeatmap(new NationHeatmap());
         this.tooltipService.setWorldFetcher(DefaultWorldTooltip.get);
+
+        this.binds.push(new MoveBind());
     }
 
     public onEnd() {
@@ -28,5 +33,8 @@ export class NormalUIState implements UIState {
 
         (gui.WaitForChild("Battles") as ScreenGui).Enabled = false;
         (gui.WaitForChild("Flairs") as ScreenGui).Enabled = false;
+
+        this.binds.forEach((b) => b.unbind());
+        this.binds.clear();
     }
 }

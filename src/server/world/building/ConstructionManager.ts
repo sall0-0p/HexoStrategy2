@@ -8,10 +8,13 @@ import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {Definition} from "../../../shared/config/Definition";
 import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
 import {BuildingProject} from "./BuildingProject";
+import {Signal} from "../../../shared/classes/Signal";
 
 export class ConstructionManager {
     private currentId = 0;
     private queue = new ConstructionQueue();
+
+    public readonly updated = new Signal<[]>();
 
     constructor(private nation: Nation) {
         WorldTime.getInstance().on(TimeSignalType.Hour).connect(() => {
@@ -28,8 +31,8 @@ export class ConstructionManager {
             this.queue.removeById(id);
         });
 
-        print(`Pushed into ${this.nation.getId()}!`);
         this.queue.push(project);
+        this.updated.fire();
         return project;
     }
 
@@ -49,6 +52,11 @@ export class ConstructionManager {
 
             return sum;
         }, 0);
+    }
+
+    public getConstructionsIn(target: Region | Hex): BuildingProject[] {
+        const array = this.queue.toArray();
+        return array.filter((p) => p.target === target);
     }
 
     public move(id: string, to: number) {
@@ -78,10 +86,12 @@ export class ConstructionManager {
 
                 proj.advance(assign ?? 0, modifiedOutput ?? 0, () => {
                     this.queue.removeById(proj.id);
+                    this.updated.fire();
                 });
             } else {
                 proj.advance(0, 0, () => {
                     this.queue.removeById(proj.id);
+                    this.updated.fire();
                 });
             }
         }

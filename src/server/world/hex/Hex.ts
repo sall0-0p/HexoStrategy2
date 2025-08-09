@@ -8,10 +8,11 @@ import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 import {Region} from "../region/Region";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {HexBuildingComponent} from "../building/BuildingComponent";
-import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
+import {Building} from "../../../shared/data/ts/BuildingDefs";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;
+const STUDS_PER_TILE = 1.5;
 
 const nationRepository = NationRepository.getInstance();
 export class Hex {
@@ -61,24 +62,15 @@ export class Hex {
         const hexTemplate = hexes.WaitForChild(this.hexType) as Model;
 
         const model = hexTemplate.Clone();
+        const position = new CFrame(this.getWorldPos());
         model.Name = this.id;
         model.Parent = hexContainer;
-        model.PivotTo(new CFrame(this.getWorldPos()));
+        model.PivotTo(position);
 
         this.model = model;
         if (math.random(1, 10) === 1) {
             RunService.Heartbeat.Wait();
         }
-
-        const hexBase = model.WaitForChild("Base") as BasePart
-
-        // if (this.position.r % 2 === 1 && this.position.q % 2 === 1) {
-        //     hexBase.Color = Color3.fromRGB(195, 195, 195);
-        // } else if (this.position.r % 2 === 0 && this.position.q % 2 === 1) {
-        //     hexBase.Color = Color3.fromRGB(225, 225, 225);
-        // } else {
-        //     hexBase.Color = Color3.fromRGB(255, 255, 255);
-        // }
     }
 
     public initNeighbors(

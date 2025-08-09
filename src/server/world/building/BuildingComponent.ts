@@ -1,4 +1,4 @@
-import {BuildingDef, BuildingType} from "../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../shared/classes/BuildingDef";
 import {Hex} from "../hex/Hex";
 import {Region} from "../region/Region";
 import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
@@ -6,6 +6,7 @@ import {Nation} from "../nation/Nation";
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {BuildingComponentDTO} from "../../../shared/network/building/BuildingComponentDTO";
 import {Signal} from "../../../shared/classes/Signal";
+import {ConstructionQueue} from "./ConstructionQueue";
 
 export abstract class BuildingComponent {
     protected buildings = new Map<Building, number>;
@@ -76,6 +77,7 @@ export class HexBuildingComponent extends BuildingComponent {
     }
 
     public toDTO(): BuildingComponentDTO {
+        const cm = this.hex.getRegion().getOwner().getConstructionManager();
         let slots = new Map<Building, number>();
         for (const [id, building] of pairs(Building)) {
             const def = BuildingDefs[building];
@@ -84,9 +86,16 @@ export class HexBuildingComponent extends BuildingComponent {
             }
         }
 
+        const ongoing = cm.getConstructionsIn(this.hex);
+        const planned = new Map<Building, number>;
+        ongoing.forEach((project) => {
+            planned.set(project.type, (planned.get(project.type) ?? 0) + 1);
+        });
+
         return {
-            type: "region",
+            type: "hex",
             buildings: this.buildings,
+            planned,
             slots,
         }
     }
@@ -169,6 +178,7 @@ export class RegionBuildingComponent extends BuildingComponent {
     }
 
     public toDTO(): BuildingComponentDTO {
+        const cm = this.region.getOwner().getConstructionManager();
         let slots = new Map<Building, number>();
         for (const [id, building] of pairs(Building)) {
             const def = BuildingDefs[building];
@@ -177,9 +187,16 @@ export class RegionBuildingComponent extends BuildingComponent {
             }
         }
 
+        const ongoing = cm.getConstructionsIn(this.region);
+        const planned = new Map<Building, number>;
+        ongoing.forEach((project) => {
+            planned.set(project.type, (planned.get(project.type) ?? 0) + 1);
+        });
+
         return {
             type: "region",
             buildings: this.buildings,
+            planned,
             slots,
         }
     }

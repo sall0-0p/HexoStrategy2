@@ -6,6 +6,6 @@ export enum UIStateType {
 export interface UIState {
     type: UIStateType,
     onStart?(previous?: UIState): void,
-    onEnd?(next?: UIState): void,
+    onEnd?(nxt?: UIState): void,
     onTick?(dt: number): void
 }

@@ -21,7 +21,6 @@ const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
 export class GameState {
     private activeNationId?: string;
     private firstLoad = true;
-    private binds: Bind[] = [];
 
     private static instance: GameState
     private constructor() {
@@ -65,9 +64,6 @@ export class GameState {
         HeatmapManager.resetInstance();
         SelectionManager.resetInstance();
         TooltipService.resetInstance();
-
-        this.binds.forEach((bind) => bind.unbind());
-        this.binds.clear();
     }
 
     private loadAllModules() {
@@ -88,8 +84,6 @@ export class GameState {
         // UI State
         const uiState = UIStateMachine.getInstance();
         uiState.changeTo(new NormalUIState());
-
-        this.binds.push(new MoveBind());
     }
 
     public static getInstance() {

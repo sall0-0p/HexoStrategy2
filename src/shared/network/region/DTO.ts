@@ -1,4 +1,3 @@
-import {StateCategory} from "../../classes/StateCategory";
 import {BuildingComponentDTO} from "../building/BuildingComponentDTO";
 
 export interface RegionDTO {

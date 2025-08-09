@@ -54,8 +54,8 @@ export namespace StupidTest {
     }
 
     export function test() {
-        tryStartFactory();
-        tryStartFactory();
+        // tryStartFactory();
+        // tryStartFactory();
         // wait(1);
         // fetchQueue();
         // wait(1);

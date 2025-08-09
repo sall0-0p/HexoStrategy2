@@ -6,6 +6,7 @@ import {HeatmapManager} from "../HeatmapManager";
 import {Building, BuildingDefs} from "../../../../shared/data/ts/BuildingDefs";
 import {BuildingType} from "../../../../shared/classes/BuildingDef";
 import {RegionRepository} from "../../../world/region/RegionRepository";
+import {StripeManager, StripeStyle} from "../StripeManager";
 
 export class RegionConstructionHeatmap implements Heatmap {
     private name = "Construction";
@@ -26,12 +27,9 @@ export class RegionConstructionHeatmap implements Heatmap {
             const free = math.max(0, slots - buildings);
             const freeRatio = slots > 0 ? free / slots : 0;
 
-            print(`${buildings}/${slots}`, free, freeRatio, region.getName());
-
             if (free > 0) {
                 const fillColor    = Color3.fromHSV(0.27, 1, 0.4 + 0.6 * freeRatio);
                 const outlineColor = Color3.fromHSV(0.27, 1, 0.2 + 0.4 * freeRatio);
-                print(fillColor, outlineColor);
 
                 return {
                     name: `SlotsAvailable_${free}`,
@@ -63,6 +61,31 @@ export class RegionConstructionHeatmap implements Heatmap {
                 fillTransparency: 0.4,
                 depthMode: Enum.HighlightDepthMode.Occluded,
             } as HeatmapGroup
+        }
+    }
+
+    public getStripes(hex: Hex): StripeStyle | undefined {
+        const region = hex.getRegion();
+        const buildings = region?.getBuildings();
+        if (!region || !buildings) return;
+
+        const planned = buildings.planned.get(this.building) ?? 0;
+        const current = buildings.buildings.get(this.building) ?? 0;
+        const slots = buildings.slots.get(this.building) ?? 0;
+        if (planned > 0 && planned + current >= slots) {
+            return {
+                color: Color3.fromRGB(44, 97, 242),
+            }
+        }
+
+        if (planned > 0) {
+            return {
+                color: Color3.fromRGB(241, 247, 42),
+            }
+        }
+
+        return {
+            transparency: 1,
         }
     }
 
