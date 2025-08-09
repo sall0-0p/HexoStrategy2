@@ -39,7 +39,7 @@ export class RegionConstructionHeatmap implements Heatmap {
                     outlineColor,
                     outlineTransparency: 0.2,
                     fillColor,
-                    fillTransparency: 0.5,
+                    fillTransparency: 0.25,
                     depthMode: Enum.HighlightDepthMode.Occluded,
                 }
             } else {
@@ -49,14 +49,19 @@ export class RegionConstructionHeatmap implements Heatmap {
                     outlineColor: Color3.fromRGB(25, 57, 145),
                     outlineTransparency: 0.2,
                     fillColor: Color3.fromRGB(44, 97, 242),
-                    fillTransparency: 0.5,
+                    fillTransparency: 0.4,
                     depthMode: Enum.HighlightDepthMode.Occluded,
                 }
             }
         } else {
             return {
                 name: "Unassigned",
-                isHighlighted: false,
+                isHighlighted: true,
+                outlineColor: Color3.fromRGB(255, 255, 255),
+                outlineTransparency: 0.2,
+                fillColor: Color3.fromRGB(255, 255, 255),
+                fillTransparency: 0.4,
+                depthMode: Enum.HighlightDepthMode.Occluded,
             } as HeatmapGroup
         }
     }

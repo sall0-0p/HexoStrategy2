@@ -13,23 +13,17 @@ export class NationHeatmap implements Heatmap {
     public getGroup(hex: Hex) {
         const owner = hex.getOwner();
 
-        if (owner) {
-            const color = owner.getColor();
-            return {
-                name: owner.getName(),
-                isHighlighted: true,
-                outlineColor: color,
-                outlineTransparency: 0.2,
-                fillColor: color,
-                fillTransparency: 0.5,
-                depthMode: Enum.HighlightDepthMode.Occluded,
-            } as HeatmapGroup
-        } else {
-            return {
-                name: "Unassigned",
-                isHighlighted: false,
-            } as HeatmapGroup
-        }
+        const color = owner?.getColor() || Color3.fromRGB(255, 255, 255);
+        const name = owner?.getName() || "Unassigned";
+        return {
+            name,
+            isHighlighted: true,
+            outlineColor: color,
+            outlineTransparency: 0.2,
+            fillColor: color,
+            fillTransparency: 0.4,
+            depthMode: Enum.HighlightDepthMode.Occluded,
+        } as HeatmapGroup
     }
 
     public getName() {
@@ -47,7 +41,6 @@ export class NationHeatmap implements Heatmap {
                     heatmapManager.updateHex(update.hex);
                 }
             })
-            heatmapManager.updateHighlights();
         })
     }
 }

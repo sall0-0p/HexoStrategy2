@@ -36,10 +36,11 @@ export class UnitController {
                 warn(`Invalid unitId ${unitId}. Aborting`);
                 return { success: false } as UnitOrderResponse;
             }
-
-            const unitService = UnitService.getInstance();
-            unitService.clearOrders(unit);
-            unitService.pushOrder(unit, new MovementOrder(unit, hex));
+            if (unit.getPosition() !== hex) {
+                const unitService = UnitService.getInstance();
+                unitService.clearOrders(unit);
+                unitService.pushOrder(unit, new MovementOrder(unit, hex));
+            }
         })
 
         return { success: true } as UnitOrderResponse;

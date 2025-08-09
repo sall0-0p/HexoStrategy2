@@ -33,6 +33,8 @@ export class ConstructionCard {
         this.target = this.fetchTarget();
         this.connection = RunService.RenderStepped.Connect(() => this.renderProgress());
 
+        this.frame.Destroying.Connect(() => this.connection.Disconnect());
+
         this.populateInfo(data);
         this.buildButtons();
     }
@@ -66,7 +68,6 @@ export class ConstructionCard {
     }
 
     public destroy() {
-        this.connection.Disconnect();
         this.frame.Destroy();
     }
 

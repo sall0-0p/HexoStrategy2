@@ -1,4 +1,4 @@
-import {UIState} from "../State";
+import {UIState, UIStateType} from "../UIState";
 import {Players} from "@rbxts/services";
 import {HeatmapManager} from "../../heatmap/HeatmapManager";
 import {NationHeatmap} from "../../heatmap/heatmaps/NationHeatmap";
@@ -9,6 +9,7 @@ export class NormalUIState implements UIState {
     private player: Player = Players.LocalPlayer;
     private heatmapManager = HeatmapManager.getInstance();
     private tooltipService = TooltipService.getInstance();
+    public readonly type: UIStateType = UIStateType.Normal;
 
     public onStart() {
         const gui = this.player.WaitForChild("PlayerGui");

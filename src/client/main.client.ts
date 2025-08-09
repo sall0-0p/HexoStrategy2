@@ -5,6 +5,8 @@ import {StupidTest} from "./test";
 import {HeatmapManager} from "./ui/heatmap/HeatmapManager";
 import {RegionConstructionHeatmap} from "./ui/heatmap/heatmaps/RegionConstructionHeatmap";
 import {Building} from "../shared/data/ts/BuildingDefs";
+import {UIStateMachine} from "./ui/fsm/UIStateMachine";
+import {RegionConstructionState} from "./ui/fsm/states/RegionConstructionState";
 
 declare global {
     interface _G {
@@ -21,5 +23,4 @@ StupidTest.test();
 const test = Players.LocalPlayer.WaitForChild("PlayerGui").WaitForChild("Test").WaitForChild("OpenConstruction") as TextButton;
 test.MouseButton1Click.Connect(() => {
     new ConstructionWindow();
-    HeatmapManager.getInstance().showHeatmap(new RegionConstructionHeatmap(Building.CivilianFactory));
 });

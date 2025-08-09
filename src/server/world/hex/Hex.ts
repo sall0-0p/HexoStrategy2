@@ -72,13 +72,13 @@ export class Hex {
 
         const hexBase = model.WaitForChild("Base") as BasePart
 
-        if (this.position.r % 2 === 1 && this.position.q % 2 === 1) {
-            hexBase.Color = Color3.fromRGB(195, 195, 195);
-        } else if (this.position.r % 2 === 0 && this.position.q % 2 === 1) {
-            hexBase.Color = Color3.fromRGB(225, 225, 225);
-        } else {
-            hexBase.Color = Color3.fromRGB(255, 255, 255);
-        }
+        // if (this.position.r % 2 === 1 && this.position.q % 2 === 1) {
+        //     hexBase.Color = Color3.fromRGB(195, 195, 195);
+        // } else if (this.position.r % 2 === 0 && this.position.q % 2 === 1) {
+        //     hexBase.Color = Color3.fromRGB(225, 225, 225);
+        // } else {
+        //     hexBase.Color = Color3.fromRGB(255, 255, 255);
+        // }
     }
 
     public initNeighbors(

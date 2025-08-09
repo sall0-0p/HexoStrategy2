@@ -1,4 +1,4 @@
-import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {Players, ReplicatedStorage, TweenService} from "@rbxts/services";
 import {
     ConstructionEmitter,
@@ -7,6 +7,10 @@ import {
     MessageType
 } from "../../../shared/tether/messages/Construction";
 import {ConstructionCard} from "./ConstructionCard";
+import {UIStateMachine} from "../fsm/UIStateMachine";
+import {UIStateType} from "../fsm/UIState";
+import {NormalUIState} from "../fsm/states/NormalState";
+import {BuildingCard} from "./BuildingCard";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")
@@ -31,8 +35,12 @@ export class ConstructionWindow {
         this.open();
 
         // Binding events:
-        ConstructionEmitter.client.on(MessageType.ConstructionProgressUpdate, (p) => this.onUpdate(p));
-        ConstructionEmitter.client.on(MessageType.ProjectFinishedUpdate, (p) => this.onFinished(p));
+        const conn1 = ConstructionEmitter.client.on(MessageType.ConstructionProgressUpdate, (p) => this.onUpdate(p));
+        const conn2 = ConstructionEmitter.client.on(MessageType.ProjectFinishedUpdate, (p) => this.onFinished(p));
+        this.frame.Destroying.Connect(() => {
+            conn1();
+            conn2();
+        })
 
         // Binding close button
         const close = this.frame.WaitForChild("Header").WaitForChild("Close") as TextButton;
@@ -46,6 +54,12 @@ export class ConstructionWindow {
     }
 
     public close() {
+        const uiStateMachine = UIStateMachine.getInstance();
+        print(uiStateMachine.getCurrentState()?.type);
+        if (uiStateMachine.getCurrentState()?.type === UIStateType.RegionConstruction) {
+            uiStateMachine.changeTo(new NormalUIState());
+        }
+
         const tween = TweenService.Create(this.frame, new TweenInfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
             Position: new UDim2(-1, -8, 0.11, 0),
         });
@@ -77,7 +91,9 @@ export class ConstructionWindow {
     }
 
     private populateAvailableBuildings() {
-
+        for (const [id, building] of pairs(Building)) {
+            new BuildingCard(building, this);
+        }
     }
 
     private fetchConstructions() {
@@ -135,4 +151,10 @@ export class ConstructionWindow {
             this.cards.push(card);
         })
     }
+
+    private populateBuildingTypes() {
+
+    }
+
+    public getFrame() { return this.frame };
 }

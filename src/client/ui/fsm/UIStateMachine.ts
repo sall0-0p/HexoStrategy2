@@ -1,4 +1,4 @@
-import {UIState} from "./State";
+import {UIState} from "./UIState";
 import {RunService} from "@rbxts/services";
 
 export class UIStateMachine {

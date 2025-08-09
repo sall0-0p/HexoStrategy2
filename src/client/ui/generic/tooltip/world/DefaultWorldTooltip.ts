@@ -1,5 +1,5 @@
 import {TooltipEntry} from "../Tooltip";
-import {UserInputService, Workspace} from "@rbxts/services";
+import {CollectionService, UserInputService, Workspace} from "@rbxts/services";
 import {TextComponent} from "../components/TextComponent";
 import {HexRepository} from "../../../../world/hex/HexRepository";
 import {Hex} from "../../../../world/hex/Hex";
@@ -20,7 +20,7 @@ export namespace DefaultWorldTooltip {
         const unitRay = camera.ViewportPointToRay(mouse.X, mouse.Y);
         const params = new RaycastParams();
         params.FilterType = Enum.RaycastFilterType.Include;
-        params.FilterDescendantsInstances = [ Workspace.WaitForChild("Heatmaps"), Workspace.WaitForChild("Overlays") ];
+        params.FilterDescendantsInstances = CollectionService.GetTagged("HexBase");
 
         const hit = Workspace.Raycast(unitRay.Origin, unitRay.Direction.mul(1000), params);
         if (!hit || !hit.Instance) return;
