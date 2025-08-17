@@ -59,7 +59,9 @@ export class ConstructionFlair {
         const slots = container.slots.get(this.building) ?? 0;
         const planned = container.planned.get(this.building) ?? 0;
 
-        if (built > 0 || planned > 0) {
+        const buildingType = BuildingDefs[this.building].type;
+        const show = (buildingType === BuildingType.Hex) ? (built > 0 || planned > 0) : true;
+        if (show) {
             this.frame.Visible = true;
             const text = `${built}<font color="${RTColor.Important}">${planned > 0 ? `+${planned}` : ""}</font>/${slots}`;
 
