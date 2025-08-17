@@ -49,6 +49,12 @@ export class ConstructionWindow {
     }
 
     private open() {
+        const uiStateMachine = UIStateMachine.getInstance();
+        const uiState = uiStateMachine.getCurrentState()?.type;
+        if (uiState !== UIStateType.Normal) {
+            uiStateMachine.changeTo(new NormalUIState());
+        }
+
         TweenService.Create(this.frame, new TweenInfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Position: new UDim2(0, -8, 0.11, 0),
         }).Play();
@@ -56,7 +62,8 @@ export class ConstructionWindow {
 
     public close() {
         const uiStateMachine = UIStateMachine.getInstance();
-        if (uiStateMachine.getCurrentState()?.type === UIStateType.RegionConstruction) {
+        const uiState = uiStateMachine.getCurrentState()?.type;
+        if (uiState === UIStateType.RegionConstruction || uiState === UIStateType.HexConstruction) {
             uiStateMachine.changeTo(new NormalUIState());
         }
 
