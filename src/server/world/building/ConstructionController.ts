@@ -58,26 +58,25 @@ export class ConstructionController {
 
     private startConstruction(player: Player, payload: MessageData[MessageType.StartConstructionRequest]): MessageData[MessageType.StartConstructionResponse] {
         const nation: Nation | undefined = this.nationRepository.getByPlayer(player)![1];
-        if (!nation) return { success: false };
+        if (!nation) return { success: false, reason: "Nation not found!" };
 
         const cm = nation.getConstructionManager();
 
         let target: Region | Hex;
         const buildingType = BuildingDefs[payload.building].type;
-        if (buildingType === BuildingType.Region || BuildingType.Shared) {
+        if (buildingType === BuildingType.Region || buildingType === BuildingType.Shared) {
             const candidate = this.regionRepository.getById(payload.targetId);
-            if (!candidate || candidate.getOwner() !== nation) return { success: false };
+            if (!candidate || candidate.getOwner() !== nation) return { success: false, reason: "Region not found!" };
             target = candidate;
         } else {
             const candidate = this.hexRepository.getById(payload.targetId);
-            if (!candidate || candidate.getOwner() !== nation) return { success: false };
+            if (!candidate || candidate.getOwner() !== nation) return { success: false, reason: "Hex not found!" };
             target = candidate;
         }
 
         const project = cm.addProject(target, payload.building);
         if (project) return { success: true };
-
-        return { success: false };
+        return { success: false, reason: "Other reason not specified." };
     }
 
     private moveConstruction(player: Player, payload: MessageData[MessageType.MoveConstructionRequest]): MessageData[MessageType.MoveConstructionResponse] {

@@ -4,6 +4,7 @@ import {ModifiableProperty} from "../../classes/ModifiableProperty";
 export enum Building {
     Infrastructure = "infrastructure",
     CivilianFactory = "civilianFactory",
+    LandFort = "landFort",
 }
 
 export const BuildingDefs: Record<string, BuildingDef> = {
@@ -28,4 +29,14 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         maxLevel: 20,
         modifier: ModifiableProperty.CivilianFactoryBuildSpeed,
     },
+    landFort: {
+        id: "landFort",
+        name: "Fortifications",
+        icon: "rbxassetid://87491028819292",
+        type: BuildingType.Hex,
+        buildCost: 1000,
+        upgradeCost: 250,
+        maxLevel: 10,
+        modifier: ModifiableProperty.LandFortBuildSpeed,
+    }
 };

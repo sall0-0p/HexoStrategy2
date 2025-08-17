@@ -89,6 +89,10 @@ export class HexRepository {
                 const nation = this.nationRepository.getById(delta.owner);
                 if (nation) hex.setOwner(nation);
             }
+
+            if (delta.buildings) {
+                hex.setBuildings(delta.buildings);
+            }
         })
     }
 

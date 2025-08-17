@@ -24,6 +24,7 @@ export class ConstructionManager {
 
     // Adds one building to build queue, returns of project.
     public addProject(target: Region | Hex, building: Building): BuildingProject | undefined {
+        print(this.getFreeSlots(target, building));
         if (this.getFreeSlots(target, building) < 1) { warn("Not enough slots!"); return }
 
         const id = this.getNextId();
@@ -38,13 +39,13 @@ export class ConstructionManager {
 
     public getFreeSlots(target: Region | Hex, building: Building): number {
         const component = target.getBuildings();
-        return component.getSlotCount(building) - this.getConstructing(target, building);
+        return component.getSlotCount(building) - this.getConstructing(target, building) - target.getBuildings().getBuildingCount(building);
     }
 
     public getConstructing(target: Region | Hex, building: Building): number {
         const array = this.queue.toArray();
         return array.reduce((sum, p) => {
-            if (p.target === target) {
+            if (p.target.getId() === target.getId()) {
                 if (p.definition.id === building) {
                     return sum + 1;
                 }
@@ -56,16 +57,18 @@ export class ConstructionManager {
 
     public getConstructionsIn(target: Region | Hex): BuildingProject[] {
         const array = this.queue.toArray();
-        return array.filter((p) => p.target === target);
+        return array.filter((p) => p.target.getId() === target.getId());
     }
 
     public move(id: string, to: number) {
         this.queue.move(id, to);
+        this.updated.fire();
     }
 
     public cancel(id: string) {
         const object = this.queue.toArray().find((p) => p.id === id);
         object?.cancel();
+        this.updated.fire();
     }
 
     public getQueue() {

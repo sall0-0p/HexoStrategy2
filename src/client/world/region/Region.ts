@@ -35,9 +35,9 @@ export class Region {
         this.owner = this.nationRepository.getById(data.owner) ?? error(`Failed to find ${data.owner} for ${data.id}`);
         this.population = data.population;
         this.buildings = {
-            buildings: data.building.buildings,
-            planned: data.building.planned,
-            slots: data.building.slots,
+            buildings: data.buildings.buildings,
+            planned: data.buildings.planned,
+            slots: data.buildings.slots,
         }
     }
 

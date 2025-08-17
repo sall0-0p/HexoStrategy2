@@ -20,6 +20,7 @@ const flairTemplate = ReplicatedStorage.WaitForChild("Assets")
 
 const battlesContainer = Players.LocalPlayer
     .WaitForChild("PlayerGui")
+    .WaitForChild("Flairs")
     .WaitForChild("Battles") as ScreenGui;
 
 export class BattleFlair {

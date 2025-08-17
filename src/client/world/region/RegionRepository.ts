@@ -65,8 +65,8 @@ export class RegionRepository {
                 region.setOwner(candidate);
             }
 
-            if (delta.building) {
-                region.setBuildings(delta.building);
+            if (delta.buildings) {
+                region.setBuildings(delta.buildings);
             }
         })
     }

@@ -1,9 +1,11 @@
 import {Bind} from "../Bind";
-import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {Players, UserInputService, Workspace} from "@rbxts/services";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {Hex} from "../../world/hex/Hex";
 import {ConstructionEmitter, MessageType} from "../../../shared/tether/messages/Construction";
+import {Region} from "../../world/region/Region";
+import {BuildingType} from "../../../shared/classes/BuildingDef";
 
 const localPlayer = Players.LocalPlayer;
 const playerGui = localPlayer.WaitForChild("PlayerGui") as PlayerGui;
@@ -48,8 +50,45 @@ export class BuildBind implements Bind {
     }
 
     private orderConstruction(hex: Hex) {
-        const region = hex.getRegion();
-        if (!region) return;
+        if (BuildingDefs[this.building].type === BuildingType.Hex) {
+            this.orderHexConstruction(hex);
+        } else {
+            const region = hex.getRegion();
+            if (!region) return;
+            this.orderRegionConstruction(region);
+        }
+
+    }
+
+    private orderHexConstruction(hex: Hex) {
+        const container = hex.getBuildings();
+        const built = container.buildings.get(this.building) ?? 0;
+        const slots = container.slots.get(this.building) ?? 0;
+        const planned = container.planned.get(this.building) ?? 0;
+
+        if ((built + planned) > slots) return;
+
+        const promise = ConstructionEmitter.server.invoke(
+            MessageType.StartConstructionRequest,
+            MessageType.StartConstructionResponse,
+            {
+                targetId: hex.getId(),
+                building: this.building,
+            }
+        );
+
+        promise.then((res) => {
+            print(res.success, res.reason);
+        })
+    }
+
+    private orderRegionConstruction(region: Region) {
+        const container = region.getBuildings();
+        const built = container.buildings.get(this.building) ?? 0;
+        const slots = container.slots.get(this.building) ?? 0;
+        const planned = container.planned.get(this.building) ?? 0;
+
+        if ((built + planned) > slots) return;
 
         const promise = ConstructionEmitter.server.invoke(
             MessageType.StartConstructionRequest,

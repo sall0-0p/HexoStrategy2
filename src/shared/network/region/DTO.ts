@@ -7,5 +7,5 @@ export interface RegionDTO {
     hexes: string[],
     owner: string,
     population: number,
-    building: BuildingComponentDTO,
+    buildings: BuildingComponentDTO,
 }

@@ -1,6 +1,7 @@
 import {Hex} from "./Hex";
 import {Signal} from "../../../shared/classes/Signal";
 import {RunService} from "@rbxts/services";
+import {Building} from "../../../shared/data/ts/BuildingDefs";
 
 export interface Update {
     hex:   Hex;

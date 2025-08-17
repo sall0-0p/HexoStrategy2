@@ -10,7 +10,8 @@ const containerTemplate = ReplicatedStorage.WaitForChild("Assets")
 
 const containersContainer = Players.LocalPlayer
     .WaitForChild("PlayerGui")
-    .WaitForChild("Flairs") as ScreenGui;
+    .WaitForChild("Flairs")
+    .WaitForChild("Units") as ScreenGui;
 
 const containerRenderer = new ContainerRenderer();
 export class Container {

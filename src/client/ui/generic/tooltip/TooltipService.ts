@@ -102,7 +102,7 @@ export class TooltipService {
     }
 
     // World tooltip
-    public setWorldFetcher(fn: WorldTooltipFetcher) {
+    public setWorldFetcher(fn: WorldTooltipFetcher | undefined) {
         this.worldTooltipFetcher = fn;
     }
 

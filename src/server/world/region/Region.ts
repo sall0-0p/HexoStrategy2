@@ -51,15 +51,12 @@ export class Region {
                 this.buildings.setBuilding(id as Building, count);
             }
         }
-
-        this.buildings.updated.connect(() =>
-            this.onBuildingUpdate());
     }
 
     private onBuildingUpdate() {
         const regionReplicator = RegionReplicator.getInstance();
         regionReplicator?.markAsDirty(this, {
-            building: this.buildings.toDTO(),
+            buildings: this.buildings.toDTO(),
         })
     }
 
@@ -71,7 +68,7 @@ export class Region {
             hexes: this.getHexes().map((hex) => hex.getId()),
             owner: this.getOwner().getId(),
             population: this.getPopulation(),
-            building: this.buildings.toDTO(),
+            buildings: this.buildings.toDTO(),
         } as RegionDTO
     }
 
@@ -136,7 +133,6 @@ export class Region {
     public updateOwner() {
         this.owner = this.computeOwner();
         this.cmUpdated?.disconnect();
-        print("Updating owner!");
         this.cmUpdated = this.owner.getConstructionManager().updated.connect(() => {
             this.onBuildingUpdate();
         })

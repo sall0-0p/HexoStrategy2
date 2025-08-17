@@ -1,3 +1,5 @@
+import {BuildingComponentDTO} from "../building/BuildingComponentDTO";
+
 export interface HexDTO {
     id: string,
     name: string,
@@ -5,5 +7,6 @@ export interface HexDTO {
     r: number,
     owner?: string, // owner
     neighbors: string[], // neighbors
+    buildings: BuildingComponentDTO,
     model: Model,
 }

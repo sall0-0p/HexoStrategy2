@@ -3,16 +3,16 @@ import {Workspace, ReplicatedStorage, RunService} from "@rbxts/services";
 import {Nation} from "../nation/Nation";
 import {NationRepository} from "../nation/NationRepository";
 import {HexDTO} from "../../../shared/network/hex/DTO";
-import {Signal} from "../../../shared/classes/Signal";
+import {Connection, Signal} from "../../../shared/classes/Signal";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 import {Region} from "../region/Region";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {HexBuildingComponent} from "../building/BuildingComponent";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {HexReplicator} from "./HexReplicator";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;
-const STUDS_PER_TILE = 1.5;
 
 const nationRepository = NationRepository.getInstance();
 export class Hex {
@@ -26,8 +26,9 @@ export class Hex {
     private model!: Model;
     private modifiers = new ModifierContainer();
     private buildings = new HexBuildingComponent(this);
+    private cmUpdated?: Connection;
     
-    private changedSignal?: Signal<[string, unknown]>;
+    public readonly changed = new Signal<[string, unknown]>;
 
     constructor(id: string, data: JsonHex) {
         this.id = id;
@@ -35,16 +36,16 @@ export class Hex {
         this.position = CubePosition.fromAxial(data.q, data.r);
         this.hexType = data.hexType;
 
-        if (data.owner) {
-            const candidate = nationRepository.getById(data.owner);
-            if (!candidate) error(`Nation with id ${data.owner} was not found!`);
-            this.owner = candidate;
-        }
-
         if (data.buildings) {
             for (const [id, count] of pairs(data.buildings)) {
                 this.buildings.setBuilding(id as Building, count);
             }
+        }
+
+        if (data.owner) {
+            const candidate = nationRepository.getById(data.owner);
+            if (!candidate) error(`Nation with id ${data.owner} was not found!`);
+            this.setOwner(candidate);
         }
 
         this.makeModel();
@@ -88,6 +89,13 @@ export class Hex {
         }
     }
 
+    private onBuildingUpdate() {
+        const hexReplicator = HexReplicator.getInstance();
+        hexReplicator?.markAsDirty(this, {
+            buildings: this.buildings.toDTO(),
+        })
+    }
+
     public toDTO(): HexDTO {
         if (!this.region) error(`Hex ${this.id} was not assigned region in initialisation stage!`);
         return {
@@ -98,6 +106,7 @@ export class Hex {
             neighbors: this.neighbors.map((neighbor) => {
                 return neighbor.id;
             }),
+            buildings: this.buildings.toDTO(),
             model: this.model!,
             owner: this.owner?.getId(),
         }
@@ -145,7 +154,11 @@ export class Hex {
             }
         } as DirtyHexEvent);
 
-        this.changedSignal?.fire("owner", owner);
+        this.changed.fire("owner", owner);
+        this.cmUpdated?.disconnect();
+        this.cmUpdated = this.owner.getConstructionManager().updated.connect(() => {
+            this.onBuildingUpdate();
+        });
     }
 
     public getNeighbors() {
@@ -162,14 +175,6 @@ export class Hex {
 
     public getBuildings() {
         return this.buildings;
-    }
-
-    public getChangedSignal() {
-        if (!this.changedSignal) {
-            this.changedSignal = new Signal();
-        }
-
-        return this.changedSignal;
     }
 }
 

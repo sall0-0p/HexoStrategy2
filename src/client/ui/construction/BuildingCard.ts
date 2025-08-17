@@ -6,6 +6,7 @@ import {TooltipService} from "../generic/tooltip/TooltipService";
 import {TextComponent} from "../generic/tooltip/components/TextComponent";
 import {UIStateMachine} from "../fsm/UIStateMachine";
 import {RegionConstructionState} from "../fsm/states/RegionConstructionState";
+import {HexConstructionState} from "../fsm/states/HexConstructionState";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")
@@ -66,11 +67,20 @@ export class BuildingCard {
     }
 
     private bind() {
-        this.rbxConnections.push(
-            this.frame.MouseButton1Click.Connect(() => {
-                UIStateMachine.getInstance().changeTo(new RegionConstructionState(this.building));
-            })
-        )
+        let connection: RBXScriptConnection
+        if (this.def.type === BuildingType.Hex) {
+            connection =
+                this.frame.MouseButton1Click.Connect(() => {
+                    UIStateMachine.getInstance().changeTo(new HexConstructionState(this.building));
+                })
+        } else {
+            connection =
+                this.frame.MouseButton1Click.Connect(() => {
+                    UIStateMachine.getInstance().changeTo(new RegionConstructionState(this.building));
+                })
+        }
+
+        this.rbxConnections.push(connection);
     }
 
     public destroy() {

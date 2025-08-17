@@ -6,7 +6,6 @@ import {Nation} from "../nation/Nation";
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {BuildingComponentDTO} from "../../../shared/network/building/BuildingComponentDTO";
 import {Signal} from "../../../shared/classes/Signal";
-import {ConstructionQueue} from "./ConstructionQueue";
 
 export abstract class BuildingComponent {
     protected buildings = new Map<Building, number>;
@@ -35,22 +34,22 @@ export class HexBuildingComponent extends BuildingComponent {
         const count = (this.buildings.get(building) ?? 0) + qty;
         if (count > this.getSlotCount(building)) return;
         this.buildings.set(building, count);
+        this.updated.fire();
 
         const aggregator = this.hex.getOwner()?.getBuildings();
         if (!aggregator) return;
         aggregator.set(building, aggregator.get(building) + qty);
-        this.updated.fire();
     }
 
     public removeBuilding(building: Building, qty = 1): void {
         const count = (this.buildings.get(building) ?? 0) - qty;
         const clamped = math.clamp(count, 0, math.huge);
         this.buildings.set(building, clamped);
+        this.updated.fire();
 
         const aggregator = this.hex.getOwner()?.getBuildings();
         if (!aggregator) return;
         aggregator.set(building, aggregator.get(building) - qty);
-        this.updated.fire();
     }
 
     public setBuilding(building: Building, qty: number) {
@@ -128,20 +127,20 @@ export class RegionBuildingComponent extends BuildingComponent {
         const count = (this.buildings.get(building) ?? 0) + qty;
         if (count > this.getSlotCount(building)) return;
         this.buildings.set(building, count);
+        this.updated.fire();
 
         const aggregator = this.region.getOwner().getBuildings();
         aggregator.set(building, aggregator.get(building) + qty);
-        this.updated.fire();
     }
 
     public removeBuilding(building: Building, qty = 1): void {
         const count = (this.buildings.get(building) ?? 0) - qty;
         const clamped = math.clamp(count, 0, math.huge);
         this.buildings.set(building, clamped);
+        this.updated.fire();
 
         const aggregator = this.region.getOwner().getBuildings();
         aggregator.set(building, aggregator.get(building) - qty);
-        this.updated.fire();
     }
 
     public setBuilding(building: Building, qty: number) {
@@ -151,14 +150,13 @@ export class RegionBuildingComponent extends BuildingComponent {
         if (qty > this.getSlotCount(building)) return;
         const oldCount = this.buildings.get(building) ?? 0;
         this.buildings.set(building, qty);
+        this.updated.fire();
 
         const diff = qty - oldCount;
         if (diff !== 0) {
             const aggregator = this.region.getOwner().getBuildings();
             aggregator.set(building, aggregator.get(building) + diff);
         }
-
-        this.updated.fire();
     }
 
     // Additional building slots

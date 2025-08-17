@@ -5,6 +5,7 @@ import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";
 import {HexDispatcher} from "./HexDispatcher";
 import {Region} from "../region/Region";
+import {Building} from "../../../shared/data/ts/BuildingDefs";
 
 export class Hex {
     private readonly id: string;
@@ -14,12 +15,13 @@ export class Hex {
     private region?: Region;
     private neighbors: Hex[] = [];
     private model: Model;
+    private buildings: Buildings;
 
     private nationRepository = NationRepository.getInstance();
     private hexDispatcher = HexDispatcher.getInstance();
 
     // events
-    private changedSignal?: Signal<[string, unknown]>;
+    public readonly changed = new Signal<[string, unknown]>;
 
     constructor(data: HexDTO) {
         this.id = data.id;
@@ -29,6 +31,12 @@ export class Hex {
 
         if (data.owner) {
             this.owner = this.nationRepository.getById(data.owner);
+        }
+
+        this.buildings = {
+            buildings: data.buildings.buildings,
+            slots: data.buildings.slots,
+            planned: data.buildings.planned,
         }
     }
 
@@ -47,7 +55,7 @@ export class Hex {
     public setOwner(owner: Nation) {
         this.owner = owner;
 
-        this.changedSignal?.fire("owner", owner);
+        this.changed.fire("owner", owner);
         this.hexDispatcher.registerUpdate(this, "owner", owner);
     }
 
@@ -72,16 +80,18 @@ export class Hex {
         this.region = region;
     }
 
-    public getChangedSignal() {
-        if (!this.changedSignal) {
-            this.changedSignal = new Signal<[string, unknown]>();
-        }
+    public getBuildings() {
+        return this.buildings;
+    }
 
-        return this.changedSignal;
+    public setBuildings(buildings: Buildings) {
+        this.buildings = buildings;
+        this.changed.fire("buildings", buildings);
     }
 }
 
-export interface HexChangedSignal {
-    property: string,
-    value: unknown,
+interface Buildings {
+    slots: Map<Building, number>,
+    planned: Map<Building, number>,
+    buildings: Map<Building, number>,
 }

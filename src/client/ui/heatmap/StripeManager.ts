@@ -13,7 +13,7 @@ export class StripeManager {
     public applyToHex(hex: Hex, style: StripeStyle) {
         const stripes = hex.getModel().WaitForChild("Stripes") as MeshPart;
         const texture = stripes.WaitForChild("Texture") as Texture;
-        const STUDS_PER_TILE = style.size ?? 1.5;
+        const STUDS_PER_TILE = style.size ?? 1;
         const position = hex.getModel().GetPivot();
 
         texture.Color3 = style.color ?? Color3.fromRGB(255, 255, 255);

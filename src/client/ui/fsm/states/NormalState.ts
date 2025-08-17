@@ -16,10 +16,11 @@ export class NormalUIState implements UIState {
 
     public onStart() {
         const gui = this.player.WaitForChild("PlayerGui");
+        const flairs = gui.WaitForChild("Flairs") as Folder;
         const windows = gui.WaitForChild("Windows") as Folder;
 
-        (gui.WaitForChild("Battles") as ScreenGui).Enabled = true;
-        (gui.WaitForChild("Flairs") as ScreenGui).Enabled = true;
+        (flairs.WaitForChild("Battles") as ScreenGui).Enabled = true;
+        (flairs.WaitForChild("Units") as ScreenGui).Enabled = true;
 
         this.heatmapManager.showHeatmap(new NationHeatmap());
         this.tooltipService.setWorldFetcher(DefaultWorldTooltip.get);
@@ -29,12 +30,14 @@ export class NormalUIState implements UIState {
 
     public onEnd() {
         const gui = this.player.WaitForChild("PlayerGui");
+        const flairs = gui.WaitForChild("Flairs") as Folder;
         const windows = gui.WaitForChild("Windows") as Folder;
 
-        (gui.WaitForChild("Battles") as ScreenGui).Enabled = false;
-        (gui.WaitForChild("Flairs") as ScreenGui).Enabled = false;
+        (flairs.WaitForChild("Battles") as ScreenGui).Enabled = false;
+        (flairs.WaitForChild("Units") as ScreenGui).Enabled = false;
 
         this.binds.forEach((b) => b.unbind());
+        this.tooltipService.setWorldFetcher(undefined);
         this.binds.clear();
     }
 }

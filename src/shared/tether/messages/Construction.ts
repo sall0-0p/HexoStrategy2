@@ -30,6 +30,7 @@ export interface MessageData {
 
     [MessageType.StartConstructionResponse]: {
         success: boolean,
+        reason?: string,
     },
 
     [MessageType.MoveConstructionRequest]: {

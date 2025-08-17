@@ -1,8 +1,9 @@
-import {Players, ReplicatedStorage, RunService} from "@rbxts/services";
+import {ReplicatedStorage, RunService} from "@rbxts/services";
 import {HexDTO} from "../../../shared/network/hex/DTO";
 import {HexRepository} from "./HexRepository";
 import {HexCreateMessage, HexUpdateMessage} from "../../../shared/network/hex/Replicator";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
+import {Hex} from "./Hex";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("HexReplicator") as RemoteEvent;
@@ -10,12 +11,11 @@ const stateRequestRemote = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("StateRequests")
     .WaitForChild("GetHexState") as RemoteFunction;
 
-const hexRepository = HexRepository.getInstance();
 export class HexReplicator {
     private dirtyHexes = new Map<string, Partial<HexDTO>>;
 
     private static instance: HexReplicator;
-    private constructor() {
+    private constructor(private hexRepository: HexRepository) {
         dirtyHexSignal.connect((event) => {
             this.parseDirtyHexEvent(event);
         })
@@ -29,25 +29,28 @@ export class HexReplicator {
         }
     }
 
-    // private methods
-    private parseDirtyHexEvent(event: DirtyHexEvent) {
-        const hex = event.hex;
-
-        // if hex was clean
+    public markAsDirty(hex: Hex, delta: Partial<HexDTO>) {
         const hexId = hex.getId();
         if (!this.dirtyHexes.has(hexId)) {
-            this.dirtyHexes.set(hexId, event.delta);
+            this.dirtyHexes.set(hexId, delta);
         } else {
             const hexDelta = this.dirtyHexes.get(hexId)
             this.dirtyHexes.set(hexId, {
                 ...hexDelta,
-                ...event.delta,
+                ...delta,
             })
         }
     }
 
+    // private methods'
+
+    /** @deprecated Use markAsDirtyInstead **/
+    private parseDirtyHexEvent(event: DirtyHexEvent) {
+        this.markAsDirty(event.hex, event.delta);
+    }
+
     private sendHexesToPlayer(player: Player) {
-        const payload: HexDTO[] = hexRepository.getAll()
+        const payload: HexDTO[] = this.hexRepository.getAll()
             .map((hex) => {
                 return hex.toDTO();
             })
@@ -71,9 +74,9 @@ export class HexReplicator {
     }
 
     // singleton
-    public static getInstance() {
-        if (!this.instance) {
-            this.instance = new HexReplicator();
+    public static getInstance(hexRepository?: HexRepository) {
+        if (!this.instance && hexRepository) {
+            this.instance = new HexReplicator(hexRepository);
         }
 
         return this.instance;
