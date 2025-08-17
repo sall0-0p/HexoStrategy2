@@ -27,7 +27,10 @@
     "name": "Hex_H001",
     "q": 1,
     "r": 0,
-    "hexType": "hex"
+    "hexType": "hex",
+    "buildings": {
+      "landFort": 10
+    }
   },
   "H006": {
     "name": "Hex_H001",

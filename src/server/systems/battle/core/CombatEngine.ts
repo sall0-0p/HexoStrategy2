@@ -4,6 +4,8 @@ import {ArrayShuffle} from "../../../../shared/classes/ArrayShuffle";
 import {Accountant} from "./Accountant";
 import {ModifiableProperty} from "../../../../shared/classes/ModifiableProperty";
 import {ReserveManager} from "./ReserveManager";
+import {Building, BuildingDefs} from "../../../../shared/data/ts/BuildingDefs";
+import {Definition} from "../../../../shared/config/Definition";
 
 export namespace CombatEngine {
     function selectTargets(attacker: Unit, enemies: Unit[]) {
@@ -106,9 +108,22 @@ export namespace CombatEngine {
         const baseAttack = averageHardness * unit.getHardAttack()
             + (1 - averageHardness) * unit.getSoftAttack();
         let totalAttack = unit.getModifiers().getEffectiveValue(baseAttack, [ModifiableProperty.UnitTotalAttack]);
+
+        // Apply over combat width penalty
         if (over > 0) {
             const penalty = -1 * over / maxWidth;
             totalAttack *= (1 + penalty);
+        }
+
+        // Apply fortification penalty (-15% per level, but more attacking directions should cancel out.
+        const buildings = battle.getHex().getBuildings();
+        const fortCount = buildings.getBuildingCount(Building.LandFort);
+        if (fortCount > 0 && !isDefender) {
+            const flanks = Accountant.getAttackingHexes(battle).size() - 1;
+            const adjustedFortCount = math.clamp(fortCount - flanks, 1, BuildingDefs[Building.LandFort].maxLevel);
+            const basePenalty = (adjustedFortCount * Definition.LandFortAttackPenaltyPerLevel);
+            const penalty = unit.getModifiers().getEffectiveValue(basePenalty, [ModifiableProperty.EnemyLandFortEffectiveness]);
+            totalAttack *= (1 - math.clamp(penalty, 0, Definition.MaxLandFortAttackDebuff));
         }
 
         const attackCount = math.round(totalAttack / 10);

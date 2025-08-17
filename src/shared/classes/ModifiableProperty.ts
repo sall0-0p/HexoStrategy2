@@ -13,6 +13,8 @@ export enum ModifiableProperty {
     UnitInitiative = "initiative",
     UnitOrganisationLossInMovement = "movementOrganisationLoss",
 
+    EnemyLandFortEffectiveness = "enemyLandFortEffectiveness",
+
     // Construction
     GlobalBuildSpeed = "globalBuildSpeed",
     InfrastructureBuildSpeed = "infrastructureBuildSpeed",

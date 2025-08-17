@@ -3,7 +3,7 @@ import {Hex} from "../../../world/hex/Hex";
 import {Unit} from "../../unit/Unit";
 
 export namespace Accountant {
-    export function getFlanks(battle: Battle) {
+    export function getAttackingHexes(battle: Battle) {
         const units = battle.getUnits();
 
         const allAttackers = [ ...units.attackingFrontline, ...units.attackingReserve ];
@@ -17,7 +17,7 @@ export namespace Accountant {
         const baseWidth = 70;
         const flankWidth = baseWidth / 2;
 
-        return baseWidth + (flankWidth * getFlanks(battle).size());
+        return baseWidth + (flankWidth * getAttackingHexes(battle).size());
     }
 
     // Attacks

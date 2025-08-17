@@ -184,5 +184,5 @@ export interface JsonHex {
     r: number;
     hexType: string;
     owner?: string;
-    buildings?: Map<string, number>;
+    buildings?: { [key: string]: number };
 }

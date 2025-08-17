@@ -166,5 +166,5 @@ export interface JsonRegion {
     hexes: string[],
     owner: string,
     population: number,
-    buildings?: Record<string, number>;
+    buildings?: { [key: string]: number };
 }

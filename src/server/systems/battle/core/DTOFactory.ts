@@ -24,7 +24,7 @@ export namespace DTOFactory {
         const u = battle.getUnits();
         const pred = PredictionEngine.predictOutcome(battle);
         const maxWidth = Accountant.computeMaxWidth(battle);
-        const flanks = Accountant.getFlanks(battle).size();
+        const flanks = Accountant.getAttackingHexes(battle).size();
         const atkW = u.attackingFrontline.reduce((s, x) => s + x.getCombatWidth(), 0);
         const defW = u.defendingFrontline.reduce((s, x) => s + x.getCombatWidth(), 0);
 
