@@ -25,13 +25,9 @@ export class HexConstructionHeatmap implements Heatmap {
             const slots = hex.getBuildings().slots.get(this.building) ?? 0;
             const buildings = hex.getBuildings().buildings.get(this.building) ?? 0;
             const free = math.max(0, slots - buildings);
-            const freeRatio = slots > 0 ? free / slots : 0;
             const occupiedRatio = slots > 0 ? math.min(1, buildings / slots) : 0;
 
             if (free > 0) {
-                const fillColor    = Color3.fromHSV(0.27, 1, 0.4 + 0.6 * freeRatio);
-                const outlineColor = Color3.fromHSV(0.27, 1, 0.2 + 0.4 * freeRatio);
-
                 const minFillT = 0.2;
                 const maxFillT = 0.5;
                 const emptyFillT = 0.7;

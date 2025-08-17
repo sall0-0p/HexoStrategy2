@@ -25,29 +25,40 @@ export class RegionConstructionHeatmap implements Heatmap {
             const slots = region.getBuildings().slots.get(this.building) ?? 0;
             const buildings = region.getBuildings().buildings.get(this.building) ?? 0;
             const free = math.max(0, slots - buildings);
-            const freeRatio = slots > 0 ? free / slots : 0;
+            const occupiedRatio = slots > 0 ? math.min(1, buildings / slots) : 0;
 
             if (free > 0) {
-                const fillColor    = Color3.fromHSV(0.27, 1, 0.4 + 0.6 * freeRatio);
-                const outlineColor = Color3.fromHSV(0.27, 1, 0.2 + 0.4 * freeRatio);
+                const minFillT = 0.2;
+                const maxFillT = 0.5;
+                const emptyFillT = 0.7;
+                const minOutlineT = 0.20;
+                const maxOutlineT = 0.55;
+
+                const fillTransparency = occupiedRatio > 0 ? math.lerp(maxFillT, minFillT, occupiedRatio) : emptyFillT;
+                const outlineTransparency = math.lerp(maxOutlineT, minOutlineT, occupiedRatio);
 
                 return {
                     name: `SlotsAvailable_${free}`,
                     isHighlighted: true,
-                    outlineColor,
-                    outlineTransparency: 0.2,
-                    fillColor,
-                    fillTransparency: 0.25,
+                    outlineColor: Color3.fromRGB(15, 250, 50),
+                    outlineTransparency,
+                    fillColor: Color3.fromRGB(15, 250, 50),
+                    fillTransparency,
                     depthMode: Enum.HighlightDepthMode.Occluded,
                 }
             } else {
+                const minFillT = 0.25;
+                const maxFillT = 0.45;
+                const minOutlineT = 0.18;
+                const maxOutlineT = 0.35;
+
                 return {
                     name: "SlotsFull",
                     isHighlighted: true,
                     outlineColor: Color3.fromRGB(25, 57, 145),
-                    outlineTransparency: 0.2,
+                    outlineTransparency: math.lerp(maxOutlineT, minOutlineT, occupiedRatio),
                     fillColor: Color3.fromRGB(44, 97, 242),
-                    fillTransparency: 0.4,
+                    fillTransparency: math.lerp(maxFillT, minFillT, occupiedRatio),
                     depthMode: Enum.HighlightDepthMode.Occluded,
                 }
             }
