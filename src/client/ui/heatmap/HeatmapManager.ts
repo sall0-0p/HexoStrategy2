@@ -82,9 +82,9 @@ export class HeatmapManager {
         let boost = 0.0;
 
         if (r % 2 === 1 && q % 2 === 1) {
-            boost = 0.2;
-        } else if (r % 2 === 0 && q % 2 === 1) {
             boost = 0.1;
+        } else if (r % 2 === 0 && q % 2 === 1) {
+            boost = 0.05;
         }
 
         const nr = math.clamp(fillColor.R - boost, 0, 1);
