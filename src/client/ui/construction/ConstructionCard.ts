@@ -76,7 +76,11 @@ export class ConstructionCard {
         // Label
         const label = this.frame.WaitForChild("Left")
             .WaitForChild("TextLabel") as TextLabel
-        label.Text = this.target.getName();
+        if (def.type === BuildingType.Hex) {
+            label.Text = (this.target as Hex).getRegion()?.getName() ?? "???";
+        } else {
+            label.Text = this.target.getName();
+        }
 
         // Icon
         const icon = this.frame.WaitForChild("Right")
