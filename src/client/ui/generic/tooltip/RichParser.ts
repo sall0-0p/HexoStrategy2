@@ -40,7 +40,7 @@ function cloneStyle(s: Style): Style {
 }
 
 function cur(styleStack: Style[]): Style {
-    return styleStack[styleStack.size() - 1]!;
+    return styleStack[styleStack.size() - 1];
 }
 
 function pushWith(styleStack: Style[], delta?: Partial<Style>) {
@@ -51,9 +51,18 @@ function pushWith(styleStack: Style[], delta?: Partial<Style>) {
     styleStack.push(nextt);
 }
 
+function emitText(s: string, style: Style, emit: (t: Token) => void) {
+    const parts = string.split(s, " "); // pseudo, you'd do manual scan
+    for (let i = 0; i < parts.size(); i++) {
+        const word = parts[i];
+        if (word !== "") emit({ kind: "text", text: word, style: cloneStyle(style) });
+        if (i < parts.size() - 1) emit({ kind: "text", text: " ", style: cloneStyle(style) });
+    }
+}
+
 function popUntil(openTags: string[], styleStack: Style[], registry: TagRegistry, tagName: string) {
     for (let k = openTags.size() - 1; k >= 0; k--) {
-        const name = openTags[k]!;
+        const name = openTags[k];
         styleStack.pop();
         openTags.remove(k);
         const h = registry.get(name);
@@ -172,7 +181,7 @@ function isSpace(ch: string) {
 
 /** Parse input and return a flat token stream in chronological order. */
 export function parseRich(input: string, registry: TagRegistry, base: Style = {}): Token[] {
-    const out = new Array<Token>();
+    const out: Token[] = [];
     const emit = (t: Token) => out.push(t);
 
     // Style stack: push a *snapshot* on open, pop on close
@@ -189,14 +198,14 @@ export function parseRich(input: string, registry: TagRegistry, base: Style = {}
         if (!lt) {
             // trailing text
             const text = input.sub(i + 1);
-            if (text !== "") emit({ kind: "text", text, style: cloneStyle(cur(styleStack)) });
+            if (text !== "") emitText(text, cur(styleStack), emit);
             break;
         }
 
         // text before the tag
         if (lt > i + 1) {
             const text = input.sub(i + 1, lt - 1);
-            if (text !== "") emit({ kind: "text", text, style: cloneStyle(cur(styleStack)) });
+            if (text !== "") emitText(text, cur(styleStack), emit);
         }
 
         // find matching '>'
@@ -204,12 +213,12 @@ export function parseRich(input: string, registry: TagRegistry, base: Style = {}
         if (!gt) {
             // malformed: treat '<' as literal
             const text = input.sub(lt, lt);
-            emit({ kind: "text", text, style: cloneStyle(cur(styleStack)) });
+            if (text !== "") emitText(text, cur(styleStack), emit);
             i = lt; // continue past '<'
             continue;
         }
 
-        const raw = trim(input.sub(lt + 1, gt - 1)); // inside < ... >
+        const raw = input.sub(lt + 1, gt - 1); // inside < ... >
         handleTag(openTags, styleStack, registry, raw, registry, emit);
         i = gt; // continue after '>'
     }
@@ -271,21 +280,24 @@ export function defaultRegistry(): TagRegistry {
 
 /** Accepts "#RGB", "#RRGGBB", or "rgb(r,g,b)". Returns undefined if invalid. */
 export function parseColor(s: string): Color3 | undefined {
-    print(s);
     const str = string.lower(trim(s));
     if (string.sub(str, 1, 1) === "#") {
         const hex = string.sub(str, 2);
         if (hex.size() === 3) {
-            const r = tonumber("0x" + hex.sub(1, 1))!;
-            const g = tonumber("0x" + hex.sub(2, 2))!;
-            const b = tonumber("0x" + hex.sub(3, 3))!;
-            return new Color3((r * 17) / 255, (g * 17) / 255, (b * 17) / 255);
+            const r = tonumber("0x" + hex.sub(1, 1));
+            const g = tonumber("0x" + hex.sub(2, 2));
+            const b = tonumber("0x" + hex.sub(3, 3));
+            if (r && g && b) {
+                return new Color3((r * 17) / 255, (g * 17) / 255, (b * 17) / 255);
+            }
         }
         if (hex.size() === 6) {
-            const r = tonumber("0x" + hex.sub(1, 2))!;
-            const g = tonumber("0x" + hex.sub(3, 4))!;
-            const b = tonumber("0x" + hex.sub(5, 6))!;
-            return new Color3(r / 255, g / 255, b / 255);
+            const r = tonumber("0x" + hex.sub(1, 2));
+            const g = tonumber("0x" + hex.sub(3, 4));
+            const b = tonumber("0x" + hex.sub(5, 6));
+            if (r && g && b) {
+                return new Color3(r / 255, g / 255, b / 255);
+            }
         }
     }
 

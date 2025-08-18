@@ -1,5 +1,5 @@
 import {TooltipComponent} from "../TooltipComponent";
-import {ReplicatedStorage} from "@rbxts/services";
+import {ReplicatedStorage, RunService} from "@rbxts/services";
 import {defaultRegistry, parseColor, parseRich, Style, Token} from "../RichParser";
 
 const templateFolder = ReplicatedStorage.WaitForChild("Assets")
@@ -34,7 +34,7 @@ export class RichTextComponent implements TooltipComponent<string> {
             color: Color3.fromRGB(255, 255, 255),
             bold: false,
         } as Style);
-        parsed.forEach((t, i) => this.renderToken(t, i));
+        parsed.forEach((t, i) => this.renderToken(i, t));
     }
 
     destroy() {
@@ -57,12 +57,11 @@ export class RichTextComponent implements TooltipComponent<string> {
         return paragraph;
     }
 
-    private renderToken(token: Token, index: number) {
-        let base: GuiObject;
+    private renderToken(index: number, token: Token) {
         if (token.kind === "text") {
-            base = this.renderTextToken(token);
+            this.renderTextToken(index, token);
         } else if (token.kind === "inline") {
-            base = this.renderIconToken(token);
+            this.renderIconToken(index, token);
         } else if (token.kind === "break") {
             this.currentParagraph = this.createParagraph();
             return;
@@ -70,12 +69,9 @@ export class RichTextComponent implements TooltipComponent<string> {
             warn(`Failed to parse:`, token);
             return;
         }
-
-        base.LayoutOrder = index;
-        base.Parent = this.currentParagraph;
     }
 
-    private renderTextToken(token: {
+    private renderTextToken(index: number, token: {
         kind: "text"
         text: string
         style: Style
@@ -85,10 +81,21 @@ export class RichTextComponent implements TooltipComponent<string> {
         word.Name = token.text;
         word.TextColor3 = token.style.color ?? Color3.fromRGB(255, 255, 255);
 
+        word.LayoutOrder = index;
+        word.Parent = this.currentParagraph;
+
+        if (token.text === " ") {
+            RunService.RenderStepped.Once(() => {
+                if (word.AbsolutePosition.X === this.frame.AbsolutePosition.X) {
+                    word.Destroy();
+                }
+            })
+        }
+
         return word;
     }
 
-    private renderIconToken(token: {
+    private renderIconToken(index: number, token: {
         kind: "inline",
         name: string,
         attributes: Map<string, string>,
@@ -101,6 +108,9 @@ export class RichTextComponent implements TooltipComponent<string> {
         const colorSrt = token.attributes.get("color");
         const parsed = colorSrt ? parseColor(colorSrt) : undefined;
         icon.ImageColor3 = parsed ?? Color3.fromRGB(255, 255, 255);
+
+        base.LayoutOrder = index;
+        base.Parent = this.currentParagraph;
 
         return base;
     }
