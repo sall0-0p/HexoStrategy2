@@ -9,6 +9,7 @@ export enum BuildingType {
 export interface BuildingDef {
     id: string,
     name: string,
+    description: string,
     icon: string,
     iconColor3?: Color3,
     type: BuildingType,

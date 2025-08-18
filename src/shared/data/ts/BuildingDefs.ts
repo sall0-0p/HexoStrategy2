@@ -11,6 +11,7 @@ export const BuildingDefs: Record<string, BuildingDef> = {
     infrastructure: {
         id: "infrastructure",
         name: "Infrastructure",
+        description: 'Infrastructure improves movement speed of units, as well as supply capacity of hexes in a region.',
         icon: "rbxassetid://104256052446767",
         type: BuildingType.Region,
         buildCost: 5000,
@@ -21,6 +22,7 @@ export const BuildingDefs: Record<string, BuildingDef> = {
     civilianFactory: {
         id: "civilianFactory",
         name: "Civilian Factory",
+        description: '',
         icon: "rbxassetid://115581448311350",
         iconColor3: Color3.fromRGB(255, 187, 61),
         type: BuildingType.Shared,
@@ -32,6 +34,7 @@ export const BuildingDefs: Record<string, BuildingDef> = {
     landFort: {
         id: "landFort",
         name: "Fortifications",
+        description: '',
         icon: "rbxassetid://87491028819292",
         type: BuildingType.Hex,
         buildCost: 1000,

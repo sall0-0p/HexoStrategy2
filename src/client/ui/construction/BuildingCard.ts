@@ -3,10 +3,13 @@ import {ConstructionWindow} from "./ConstructionWindow";
 import {ReplicatedStorage} from "@rbxts/services";
 import {BuildingDef, BuildingType} from "../../../shared/classes/BuildingDef";
 import {TooltipService} from "../generic/tooltip/TooltipService";
-import {TextComponent} from "../generic/tooltip/components/TextComponent";
 import {UIStateMachine} from "../fsm/UIStateMachine";
 import {RegionConstructionState} from "../fsm/states/RegionConstructionState";
 import {HexConstructionState} from "../fsm/states/HexConstructionState";
+import {EmptyComponent} from "../generic/tooltip/components/EmptyComponent";
+import {RichTextComponent} from "../generic/tooltip/components/RichTextComponent";
+import {HeaderComponent} from "../generic/tooltip/components/HeaderComponent";
+import {RTColor, RTIcon} from "../../../shared/config/RichText";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")
@@ -58,8 +61,15 @@ export class BuildingCard {
         image.ImageColor3 = this.def.iconColor3 ?? Color3.fromRGB(255, 255, 255);
 
         this.ts.bind(this.frame, [
-            { class: TextComponent, get: () => {
+            { class: HeaderComponent, get: () => {
                 return { text: this.def.name };
+            }},
+            { class: RichTextComponent, get: () => {
+                return this.def.description;
+            }},
+            { class: EmptyComponent },
+            { class: RichTextComponent, get: () => {
+                return `Building cost: <icon src="${RTIcon.ProductionCost}"/> <b><color value="${RTColor.Important}">${this.def.buildCost}</color></b>`
             }}
         ])
 

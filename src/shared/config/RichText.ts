@@ -11,3 +11,7 @@ export enum RTWidth {
     Medium = "Medium",
     Bold = "Bold",
 }
+
+export enum RTIcon {
+    ProductionCost = "rbxassetid://109078966308390",
+}
