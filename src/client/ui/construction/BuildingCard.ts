@@ -59,6 +59,7 @@ export class BuildingCard {
         const image = this.frame.WaitForChild("Icon") as ImageLabel;
         image.Image = this.def.icon;
         image.ImageColor3 = this.def.iconColor3 ?? Color3.fromRGB(255, 255, 255);
+        this.frame.LayoutOrder = this.def.menuOrder;
 
         this.ts.bind(this.frame, [
             { class: HeaderComponent, get: () => {

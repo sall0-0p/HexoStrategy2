@@ -6,6 +6,7 @@ import {RTColor} from "../../config/RichText";
 export enum Building {
     Infrastructure = "infrastructure",
     CivilianFactory = "civilianFactory",
+    MilitaryFactory = "militaryFactory",
     LandFort = "landFort",
 }
 
@@ -18,6 +19,7 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         type: BuildingType.Region,
         buildCost: 5000,
         maxLevel: 5,
+        menuOrder: 1,
         modifier: ModifiableProperty.InfrastructureBuildSpeed,
     },
     civilianFactory: {
@@ -28,8 +30,21 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         iconColor3: Color3.fromRGB(255, 187, 61),
         type: BuildingType.Shared,
         buildCost: 20000,
-        maxLevel: 20,
+        maxLevel: 25,
+        menuOrder: 1,
         modifier: ModifiableProperty.CivilianFactoryBuildSpeed,
+    },
+    militaryFactory: {
+        id: "militaryFactory",
+        name: "Military Factory",
+        description: `Military factory description will be here eventually.`,
+        icon: "rbxassetid://115581448311350",
+        iconColor3: Color3.fromRGB(43, 153, 37),
+        type: BuildingType.Shared,
+        buildCost: 14000,
+        maxLevel: 25,
+        menuOrder: 2,
+        modifier: ModifiableProperty.MilitaryFactoryBuildSpeed,
     },
     landFort: {
         id: "landFort",
@@ -40,6 +55,7 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         buildCost: 500,
         upgradeCost: 500,
         maxLevel: 10,
+        menuOrder: 1,
         modifier: ModifiableProperty.LandFortBuildSpeed,
     }
 };

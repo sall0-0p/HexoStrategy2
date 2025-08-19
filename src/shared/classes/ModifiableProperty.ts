@@ -19,6 +19,7 @@ export enum ModifiableProperty {
     GlobalBuildSpeed = "globalBuildSpeed",
     InfrastructureBuildSpeed = "infrastructureBuildSpeed",
     CivilianFactoryBuildSpeed = "civilianFactoryBuildSpeed",
+    MilitaryFactoryBuildSpeed = "militaryFactoryBuildSpeed",
     LandFortBuildSpeed = "landFortBuildSpeed",
 
     // Region

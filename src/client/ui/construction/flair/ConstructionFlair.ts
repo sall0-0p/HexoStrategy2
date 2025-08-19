@@ -48,19 +48,48 @@ export class ConstructionFlair {
         }
     }
 
+    private getCountsForDisplay() {
+        const comp = this.target.getBuildings();
+        const def = BuildingDefs[this.building];
+
+        if (def.type === BuildingType.Hex) {
+            const built = comp.built.get(this.building) ?? 0;
+            const planned = comp.planned.get(this.building) ?? 0;
+            const slots = comp.slots.get(this.building) ?? 0;
+            return {built, planned, slots, buildingType: def.type};
+        }
+
+        if (def.type === BuildingType.Shared) {
+            let built = 0;
+            let planned = 0;
+            const slots = comp.slots.get(this.building) ?? 0;
+
+            for (const [_, b] of pairs(Building)) {
+                const bd = BuildingDefs[b];
+                if (bd.type === BuildingType.Shared) {
+                    built += comp.built.get(b) ?? 0;
+                    planned += comp.planned.get(b) ?? 0;
+                }
+            }
+            return {built, planned, slots, buildingType: def.type};
+        }
+
+        const built = comp.built.get(this.building) ?? 0;
+        const planned = comp.planned.get(this.building) ?? 0;
+        const slots = comp.slots.get(this.building) ?? 0;
+        return {built, planned, slots, buildingType: def.type};
+    }
+
+
     public onRender() {
         const camera = Workspace.CurrentCamera!;
         const point = camera.WorldToViewportPoint(this.position)[0];
 
         this.frame.Position = UDim2.fromOffset(point.X, point.Y);
 
-        const container = this.target.getBuildings();
-        const built = container.built.get(this.building) ?? 0;
-        const slots = container.slots.get(this.building) ?? 0;
-        const planned = container.planned.get(this.building) ?? 0;
-
-        const buildingType = BuildingDefs[this.building].type;
+        const { built, planned, slots, buildingType } = this.getCountsForDisplay();
         const show = (buildingType === BuildingType.Hex) ? (built > 0 || planned > 0) : true;
+
         if (show) {
             this.frame.Visible = true;
             const text = `${built}<font color="${RTColor.Important}">${planned > 0 ? `+${planned}` : ""}</font>/${slots}`;

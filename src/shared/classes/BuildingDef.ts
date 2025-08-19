@@ -16,5 +16,6 @@ export interface BuildingDef {
     buildCost: number,
     upgradeCost?: number,
     maxLevel: number,
+    menuOrder: number,
     modifier: ModifiableProperty,
 }

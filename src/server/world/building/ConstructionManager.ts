@@ -9,6 +9,7 @@ import {Definition} from "../../../shared/config/Definition";
 import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
 import {BuildingProject} from "./BuildingProject";
 import {Signal} from "../../../shared/classes/Signal";
+import {BuildingType} from "../../../shared/classes/BuildingDef";
 
 export class ConstructionManager {
     private currentId = 0;
@@ -36,9 +37,31 @@ export class ConstructionManager {
         return project;
     }
 
+    private getUsedSlots(target: Region | Hex, building: Building): number {
+        const def = BuildingDefs[building];
+
+        if (def.type === BuildingType.Shared) {
+            let builtSum = 0;
+            let constructingSum = 0;
+
+            for (const [_, b] of pairs(Building)) {
+                const bd = BuildingDefs[b];
+                if (bd.type === BuildingType.Shared) {
+                    builtSum += target.getBuildings().getBuildingCount(b);
+                    constructingSum += this.getConstructing(target, b);
+                }
+            }
+            return builtSum + constructingSum;
+        }
+
+        return target.getBuildings().getBuildingCount(building) + this.getConstructing(target, building);
+    }
+
     public getFreeSlots(target: Region | Hex, building: Building): number {
         const component = target.getBuildings();
-        return component.getSlotCount(building) - this.getConstructing(target, building) - target.getBuildings().getBuildingCount(building);
+        const capacity = component.getSlotCount(building);
+        const used = this.getUsedSlots(target, building);
+        return capacity - used;
     }
 
     public getConstructing(target: Region | Hex, building: Building): number {

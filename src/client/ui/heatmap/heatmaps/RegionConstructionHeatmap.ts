@@ -7,6 +7,7 @@ import {Building, BuildingDefs} from "../../../../shared/data/ts/BuildingDefs";
 import {BuildingType} from "../../../../shared/classes/BuildingDef";
 import {RegionRepository} from "../../../world/region/RegionRepository";
 import {StripeManager, StripeStyle} from "../StripeManager";
+import {Region} from "../../../world/region/Region";
 
 export class RegionConstructionHeatmap implements Heatmap {
     private name = "Construction";
@@ -22,10 +23,9 @@ export class RegionConstructionHeatmap implements Heatmap {
         const owner = region?.getOwner();
 
         if (region && owner?.getId() === _G.activeNationId) {
-            const slots = region.getBuildings().slots.get(this.building) ?? 0;
-            const buildings = region.getBuildings().built.get(this.building) ?? 0;
-            const free = math.max(0, slots - buildings);
-            const occupiedRatio = slots > 0 ? math.min(1, buildings / slots) : 0;
+            const { built, slots } = this.getTotals(region);
+            const free = math.max(0, slots - built);
+            const occupiedRatio = slots > 0 ? math.min(1, built / slots) : 0;
 
             if (free > 0) {
                 const minFillT = 0.2;
@@ -80,10 +80,8 @@ export class RegionConstructionHeatmap implements Heatmap {
         const buildings = region?.getBuildings();
         if (!region || !buildings) return;
 
-        const planned = buildings.planned.get(this.building) ?? 0;
-        const current = buildings.built.get(this.building) ?? 0;
-        const slots = buildings.slots.get(this.building) ?? 0;
-        if (planned > 0 && planned + current >= slots) {
+        const { built, planned, slots } = this.getTotals(region);
+        if (planned > 0 && planned + built >= slots) {
             return {
                 color: Color3.fromRGB(44, 97, 242),
             }
@@ -121,5 +119,34 @@ export class RegionConstructionHeatmap implements Heatmap {
 
     public onDisable() {
         this.updateConnections.forEach((c) => c.disconnect());
+    }
+
+    private isShared() {
+        return BuildingDefs[this.building].type === BuildingType.Shared;
+    }
+
+    private getTotals(region: Region) {
+        const comp = region.getBuildings();
+
+        if (this.isShared()) {
+            let built = 0;
+            let planned = 0;
+
+            for (const [_, b] of pairs(Building)) {
+                const def = BuildingDefs[b];
+                if (def.type === BuildingType.Shared) {
+                    built += comp.built.get(b) ?? 0;
+                    planned += comp.planned.get(b) ?? 0;
+                }
+            }
+
+            const slots = comp.slots.get(this.building) ?? 0;
+            return { built, planned, slots };
+        }
+
+        const built = comp.built.get(this.building) ?? 0;
+        const planned = comp.planned.get(this.building) ?? 0;
+        const slots = comp.slots.get(this.building) ?? 0;
+        return { built, planned, slots };
     }
 }
