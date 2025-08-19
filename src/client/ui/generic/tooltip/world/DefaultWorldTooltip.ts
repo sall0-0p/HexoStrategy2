@@ -8,28 +8,10 @@ import {SelectionManager} from "../../../unit/selection/SelectionManager";
 import {SeparatorComponent} from "../components/SeparatorComponent";
 import {EmptyComponent} from "../components/EmptyComponent";
 import {TooltipDelay} from "../../../../../shared/config/TooltipDelay";
+import {TooltipService} from "../TooltipService";
 
 export namespace DefaultWorldTooltip {
     const font = `font color="${RTColor.Important}"`
-
-    function raycastHex() {
-        const camera = Workspace.CurrentCamera;
-        if (!camera) return;
-
-        const mouse = UserInputService.GetMouseLocation();
-        const unitRay = camera.ViewportPointToRay(mouse.X, mouse.Y);
-        const params = new RaycastParams();
-        params.FilterType = Enum.RaycastFilterType.Include;
-        params.FilterDescendantsInstances = CollectionService.GetTagged("HexBase");
-
-        const hit = Workspace.Raycast(unitRay.Origin, unitRay.Direction.mul(1000), params);
-        if (!hit || !hit.Instance) return;
-        const id = hit.Instance.FindFirstAncestorOfClass("Model")?.Name
-        if (!id) return;
-
-        const repo = HexRepository.getInstance();
-        return repo.getById(id);
-    }
 
     function getTitle(hex: Hex): { text: string } {
         const region = hex.getRegion();
@@ -43,18 +25,24 @@ export namespace DefaultWorldTooltip {
         return { text: `Owner: <${font}>${owner?.getName() ?? "Neutral"}</font>`}
     }
 
-    export function get(): TooltipEntry<any>[] | undefined {
+    export function get(tooltipService: TooltipService): TooltipEntry<any>[] | undefined {
         const selectionManager = SelectionManager.getInstance();
 
         return [
             { class: TextComponent, get: () => {
-                const hex = raycastHex();
-                if (!hex) return { text: "???" };
+                const hex = tooltipService.getHexAtMousePosition();
+                if (!hex) {
+                    tooltipService.hideWorld();
+                    return {text: "???"};
+                }
                 return getTitle(hex);
             }},
             { class: TextComponent, get: () => {
-                const hex = raycastHex();
-                if (!hex) return { text: "???" };
+                const hex = tooltipService.getHexAtMousePosition();
+                if (!hex) {
+                    tooltipService.hideWorld();
+                    return {text: "???"};
+                }
                 return getOwner(hex);
             }},
             { class: EmptyComponent, if: () => selectionManager.getSelectedUnits().size() > 0},

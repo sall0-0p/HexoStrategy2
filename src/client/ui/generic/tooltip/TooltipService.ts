@@ -1,5 +1,6 @@
-import { Players, UserInputService, RunService, GuiService, CollectionService } from "@rbxts/services";
+import {Players, UserInputService, RunService, GuiService, CollectionService, Workspace} from "@rbxts/services";
 import { Tooltip, TooltipEntry } from "./Tooltip";
+import {HexRepository} from "../../../world/hex/HexRepository";
 
 interface TooltipBinding {
     tooltipEntries: TooltipEntry<any>[];
@@ -9,7 +10,7 @@ interface TooltipBinding {
     unbind: () => void;
 }
 
-type WorldTooltipFetcher = () => TooltipEntry<any>[] | undefined;
+type WorldTooltipFetcher = (tooltipService: TooltipService) => TooltipEntry<any>[] | undefined;
 export class TooltipService {
     private static instance: TooltipService;
     private bindings: Map<GuiObject, TooltipBinding> = new Map();
@@ -136,7 +137,8 @@ export class TooltipService {
 
             if (!this.worldTooltipFetcher) return;
             if (this.worldHovering) return;
-            const entries = this.worldTooltipFetcher();
+            if (!this.getHexAtMousePosition()) return;
+            const entries = this.worldTooltipFetcher(this);
             if (entries) {
                 this.showWorld(entries);
             } else {
@@ -145,7 +147,7 @@ export class TooltipService {
         })
     }
 
-    private showWorld(entries: TooltipEntry<any>[]) {
+    public showWorld(entries: TooltipEntry<any>[]) {
         if (this.worldHovering) return;
 
         this.worldHovering = true;
@@ -153,7 +155,7 @@ export class TooltipService {
         this.worldTooltip.show();
     }
 
-    private hideWorld() {
+    public hideWorld() {
         if (!this.worldHovering) return;
 
         this.worldHovering = false;
@@ -162,6 +164,25 @@ export class TooltipService {
             this.worldTooltip.destroy();
             this.worldTooltip = undefined;
         }
+    }
+
+    public getHexAtMousePosition() {
+        const camera = Workspace.CurrentCamera;
+        if (!camera) return;
+
+        const mouse = UserInputService.GetMouseLocation();
+        const unitRay = camera.ViewportPointToRay(mouse.X, mouse.Y);
+        const params = new RaycastParams();
+        params.FilterType = Enum.RaycastFilterType.Include;
+        params.FilterDescendantsInstances = CollectionService.GetTagged("HexBase");
+
+        const hit = Workspace.Raycast(unitRay.Origin, unitRay.Direction.mul(1000), params);
+        if (!hit || !hit.Instance) return;
+        const id = hit.Instance.FindFirstAncestorOfClass("Model")?.Name
+        if (!id) return;
+
+        const repo = HexRepository.getInstance();
+        return repo.getById(id);
     }
 
     public static getInstance() {
