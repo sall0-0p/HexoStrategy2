@@ -23,7 +23,7 @@ export class RegionConstructionHeatmap implements Heatmap {
 
         if (region && owner?.getId() === _G.activeNationId) {
             const slots = region.getBuildings().slots.get(this.building) ?? 0;
-            const buildings = region.getBuildings().buildings.get(this.building) ?? 0;
+            const buildings = region.getBuildings().built.get(this.building) ?? 0;
             const free = math.max(0, slots - buildings);
             const occupiedRatio = slots > 0 ? math.min(1, buildings / slots) : 0;
 
@@ -81,7 +81,7 @@ export class RegionConstructionHeatmap implements Heatmap {
         if (!region || !buildings) return;
 
         const planned = buildings.planned.get(this.building) ?? 0;
-        const current = buildings.buildings.get(this.building) ?? 0;
+        const current = buildings.built.get(this.building) ?? 0;
         const slots = buildings.slots.get(this.building) ?? 0;
         if (planned > 0 && planned + current >= slots) {
             return {

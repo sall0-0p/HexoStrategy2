@@ -55,7 +55,7 @@ export class ConstructionFlair {
         this.frame.Position = UDim2.fromOffset(point.X, point.Y);
 
         const container = this.target.getBuildings();
-        const built = container.buildings.get(this.building) ?? 0;
+        const built = container.built.get(this.building) ?? 0;
         const slots = container.slots.get(this.building) ?? 0;
         const planned = container.planned.get(this.building) ?? 0;
 

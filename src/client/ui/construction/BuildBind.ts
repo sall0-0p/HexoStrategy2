@@ -70,7 +70,7 @@ export class BuildBind implements Bind {
 
     private orderHexConstruction(hex: Hex) {
         const container = hex.getBuildings();
-        const built = container.buildings.get(this.building) ?? 0;
+        const built = container.built.get(this.building) ?? 0;
         const slots = container.slots.get(this.building) ?? 0;
         const planned = container.planned.get(this.building) ?? 0;
 
@@ -92,7 +92,7 @@ export class BuildBind implements Bind {
 
     private orderRegionConstruction(region: Region) {
         const container = region.getBuildings();
-        const built = container.buildings.get(this.building) ?? 0;
+        const built = container.built.get(this.building) ?? 0;
         const slots = container.slots.get(this.building) ?? 0;
         const planned = container.planned.get(this.building) ?? 0;
 

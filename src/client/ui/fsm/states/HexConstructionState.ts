@@ -7,7 +7,7 @@ import {BuildBind} from "../../construction/BuildBind";
 import {Players} from "@rbxts/services";
 import {Bind} from "../../Bind";
 import {TooltipService} from "../../generic/tooltip/TooltipService";
-import {HexBuildTooltip} from "../../generic/tooltip/world/HexBuildTooltip";
+import {BaseBuildTooltip} from "../../generic/tooltip/world/BaseBuildTooltip";
 
 export class HexConstructionState implements UIState {
     private player: Player = Players.LocalPlayer;
@@ -22,7 +22,7 @@ export class HexConstructionState implements UIState {
 
     onStart(previous?: UIState) {
         HeatmapManager.getInstance().showHeatmap(new HexConstructionHeatmap(this.building));
-        this.tooltipService.setWorldTooltip(new HexBuildTooltip(this.tooltipService, this.building));
+        this.tooltipService.setWorldTooltip(new BaseBuildTooltip(this.tooltipService, this.building));
         ConstructionFlairManager.getInstance().show(this.building);
         this.binds.push(new BuildBind(this.building));
     }

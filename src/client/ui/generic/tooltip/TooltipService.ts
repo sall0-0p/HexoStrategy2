@@ -2,6 +2,7 @@ import {Players, UserInputService, RunService, GuiService, CollectionService, Wo
 import { Tooltip, TooltipEntry } from "./Tooltip";
 import {HexRepository} from "../../../world/hex/HexRepository";
 import {WorldTooltip} from "./world/WorldTooltip";
+import {Hex} from "../../../world/hex/Hex";
 
 interface TooltipBinding {
     tooltipEntries: TooltipEntry<any>[];
@@ -105,46 +106,81 @@ export class TooltipService {
     // World tooltip
     public setWorldTooltip(tooltip: WorldTooltip | undefined) {
         this.worldTooltip = tooltip;
+        if (!tooltip) {
+            this.hideWorld();
+        }
     }
 
     private initWorldLoop() {
         RunService.RenderStepped.Connect(() => {
-            let active = false;
-            this.bindings.forEach((b) => {
-                if (b.activeTooltip) {
-                    active = true;
-                }
-            })
-            if (active) {
-                this.hideWorld();
-                return;
-            }
+            let uiActive = false;
+            this.bindings.forEach(b => { if (b.activeTooltip) uiActive = true; });
+            if (uiActive) { this.hideWorld(); return; }
 
             const inset = GuiService.GetGuiInset()[0];
             const m = UserInputService.GetMouseLocation();
-            const guiObjects = (Players.LocalPlayer
-                .WaitForChild("PlayerGui") as PlayerGui)
+            const guiObjects = (Players.LocalPlayer.WaitForChild("PlayerGui") as PlayerGui)
                 .GetGuiObjectsAtPosition(m.X - inset.X, m.Y - inset.Y);
 
             const blocking = guiObjects.find(gui =>
-                gui.Visible
-                && gui.BackgroundTransparency < 1
-                && !this.hasTagInAChain(gui, "TooltipPassthrough")
+                gui.Visible &&
+                gui.BackgroundTransparency < 1 &&
+                !this.hasTagInAChain(gui, "TooltipPassthrough")
             );
-            if (blocking) {
+            if (blocking) { this.hideWorld(); return; }
+
+            if (!this.worldTooltip) { this.hideWorld(); return; }
+
+            if (this.worldTooltip.isVisible && !this.worldTooltip.isVisible()) {
                 this.hideWorld();
                 return;
             }
 
-            if (!this.worldTooltip) return;
-            if (this.worldHovering) return;
-            if (!this.getHexAtMousePosition()) return;
+            if (!this.getHexAtMousePosition()) { this.hideWorld(); return; }
+
             const entries = this.worldTooltip.get();
-            if (entries) {
+
+            if (entries && !this.worldHovering) {
                 this.showWorld(entries);
-            } else {
+            } else if (!entries && this.worldHovering) {
                 this.hideWorld();
             }
+            // let active = false;
+            // this.bindings.forEach((b) => {
+            //     if (b.activeTooltip) {
+            //         active = true;
+            //     }
+            // })
+            // if (active) {
+            //     this.hideWorld();
+            //     return;
+            // }
+            //
+            // const inset = GuiService.GetGuiInset()[0];
+            // const m = UserInputService.GetMouseLocation();
+            // const guiObjects = (Players.LocalPlayer
+            //     .WaitForChild("PlayerGui") as PlayerGui)
+            //     .GetGuiObjectsAtPosition(m.X - inset.X, m.Y - inset.Y);
+            //
+            // const blocking = guiObjects.find(gui =>
+            //     gui.Visible
+            //     && gui.BackgroundTransparency < 1
+            //     && !this.hasTagInAChain(gui, "TooltipPassthrough")
+            // );
+            // if (blocking) {
+            //     this.hideWorld();
+            //     return;
+            // }
+            //
+            // if (!this.worldTooltip) return;
+            // if (this.worldHovering) return;
+            // if (!this.getHexAtMousePosition()) return;
+            // const entries = this.worldTooltip.get();
+            // if (entries) {
+            //     this.showWorld(entries);
+            // } else {
+            //     this.hideWorld();
+            // }
         })
     }
 
@@ -176,7 +212,9 @@ export class TooltipService {
         }
     }
 
+    private cachedHex?: Hex;
     public getHexAtMousePosition() {
+        if (this.cachedHex) return this.cachedHex;
         const camera = Workspace.CurrentCamera;
         if (!camera) return;
 
@@ -192,7 +230,11 @@ export class TooltipService {
         if (!id) return;
 
         const repo = HexRepository.getInstance();
-        return repo.getById(id);
+        const hex = repo.getById(id);
+
+        this.cachedHex = hex;
+        task.delay(0.1, () => {this.cachedHex = undefined});
+        return hex;
     }
 
     public static getInstance() {

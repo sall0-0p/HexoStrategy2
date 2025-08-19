@@ -15,7 +15,7 @@ export class Hex {
     private region?: Region;
     private neighbors: Hex[] = [];
     private model: Model;
-    private buildings: Buildings;
+    private buildings: HexBuildings;
 
     private nationRepository = NationRepository.getInstance();
     private hexDispatcher = HexDispatcher.getInstance();
@@ -34,7 +34,7 @@ export class Hex {
         }
 
         this.buildings = {
-            buildings: data.buildings.buildings,
+            built: data.buildings.built,
             slots: data.buildings.slots,
             planned: data.buildings.planned,
         }
@@ -84,14 +84,14 @@ export class Hex {
         return this.buildings;
     }
 
-    public setBuildings(buildings: Buildings) {
+    public setBuildings(buildings: HexBuildings) {
         this.buildings = buildings;
         this.changed.fire("buildings", buildings);
     }
 }
 
-interface Buildings {
+export interface HexBuildings {
     slots: Map<Building, number>,
     planned: Map<Building, number>,
-    buildings: Map<Building, number>,
+    built: Map<Building, number>,
 }

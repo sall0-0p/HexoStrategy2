@@ -93,7 +93,7 @@ export class HexBuildingComponent extends BuildingComponent {
 
         return {
             type: "hex",
-            buildings: this.buildings,
+            built: this.buildings,
             planned,
             slots,
         }
@@ -193,7 +193,7 @@ export class RegionBuildingComponent extends BuildingComponent {
 
         return {
             type: "region",
-            buildings: this.buildings,
+            built: this.buildings,
             planned,
             slots,
         }

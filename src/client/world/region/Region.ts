@@ -15,7 +15,7 @@ export class Region {
     private hexes: Hex[];
     private owner: Nation;
     private population: number;
-    private buildings: Buildings;
+    private buildings: RegionBuildings;
 
     private hexRepository = HexRepository.getInstance();
     private nationRepository = NationRepository.getInstance();
@@ -35,7 +35,7 @@ export class Region {
         this.owner = this.nationRepository.getById(data.owner) ?? error(`Failed to find ${data.owner} for ${data.id}`);
         this.population = data.population;
         this.buildings = {
-            buildings: data.buildings.buildings,
+            built: data.buildings.built,
             planned: data.buildings.planned,
             slots: data.buildings.slots,
         }
@@ -70,14 +70,14 @@ export class Region {
         return this.buildings;
     }
 
-    public setBuildings(buildings: Buildings) {
+    public setBuildings(buildings: RegionBuildings) {
         this.buildings = buildings;
         this.changed.fire("buildings", buildings);
     }
 }
 
-interface Buildings {
+export interface RegionBuildings {
     slots: Map<Building, number>,
     planned: Map<Building, number>,
-    buildings: Map<Building, number>,
+    built: Map<Building, number>,
 }
