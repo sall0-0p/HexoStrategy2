@@ -52,9 +52,12 @@ export class SharedBuildTooltip implements WorldTooltip {
         const formatted = this.getFormattedBuildingTable(buildings);
         formatted.forEach((row, i) => {
             const def = BuildingDefs[row.building];
+            const color = def.iconColor3 ?? Color3.fromRGB(255, 255, 255);
+            const iconColor = `rgb(${math.floor(color.R * 255)}, ${math.floor(color.G * 255)}, ${math.floor(color.B*255)})`;
+
             const br = i !== 0 ? `<br/>` : ``
-            const planned = row.planned > 0 ? ` (+${row.planned})` : ``
-            const rowStr = br + `${def.name}: ${row.built}` + planned;
+            const planned = row.planned > 0 ? ` (<color value="${RTColor.Important}">+${row.planned}</color>)` : ``
+            const rowStr = br + `<icon src="${def.icon}" color="${iconColor}"/> ${def.name}: <color value="${RTColor.Important}">${row.built}</color>` + planned;
 
             result = result + rowStr;
         })
@@ -63,7 +66,11 @@ export class SharedBuildTooltip implements WorldTooltip {
     }
 
     private shouldBuildingsBeVisible(): boolean {
-        return true;
+        const hex = this.getHex();
+        if (!hex) return false;
+
+        const buildings = hex.getRegion()!.getBuildings();
+        return this.getFormattedBuildingTable(buildings).size() > 0;
     }
 
     private getAggregates(buildings: RegionBuildings): { built: number, planned: number } {
