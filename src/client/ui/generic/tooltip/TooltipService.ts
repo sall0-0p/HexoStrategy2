@@ -1,6 +1,7 @@
 import {Players, UserInputService, RunService, GuiService, CollectionService, Workspace} from "@rbxts/services";
 import { Tooltip, TooltipEntry } from "./Tooltip";
 import {HexRepository} from "../../../world/hex/HexRepository";
+import {WorldTooltip} from "./world/WorldTooltip";
 
 interface TooltipBinding {
     tooltipEntries: TooltipEntry<any>[];
@@ -10,13 +11,12 @@ interface TooltipBinding {
     unbind: () => void;
 }
 
-type WorldTooltipFetcher = (tooltipService: TooltipService) => TooltipEntry<any>[] | undefined;
 export class TooltipService {
     private static instance: TooltipService;
     private bindings: Map<GuiObject, TooltipBinding> = new Map();
 
-    private worldTooltip?: Tooltip;
-    private worldTooltipFetcher?: WorldTooltipFetcher;
+    private worldTooltipInstance?: Tooltip;
+    private worldTooltip?: WorldTooltip;
     private worldHovering = false;
 
     private constructor() {
@@ -103,8 +103,12 @@ export class TooltipService {
     }
 
     // World tooltip
-    public setWorldFetcher(fn: WorldTooltipFetcher | undefined) {
-        this.worldTooltipFetcher = fn;
+    public setWorldTooltip(Class: { new (s: TooltipService): WorldTooltip } | undefined) {
+        if (Class) {
+            this.worldTooltip = new Class(this);
+        } else {
+            this.worldTooltip = undefined;
+        }
     }
 
     private initWorldLoop() {
@@ -135,10 +139,10 @@ export class TooltipService {
                 return;
             }
 
-            if (!this.worldTooltipFetcher) return;
+            if (!this.worldTooltip) return;
             if (this.worldHovering) return;
             if (!this.getHexAtMousePosition()) return;
-            const entries = this.worldTooltipFetcher(this);
+            const entries = this.worldTooltip.get();
             if (entries) {
                 this.showWorld(entries);
             } else {
@@ -151,18 +155,18 @@ export class TooltipService {
         if (this.worldHovering) return;
 
         this.worldHovering = true;
-        this.worldTooltip = new Tooltip(entries);
-        this.worldTooltip.show();
+        this.worldTooltipInstance = new Tooltip(entries);
+        this.worldTooltipInstance.show();
     }
 
     public hideWorld() {
         if (!this.worldHovering) return;
 
         this.worldHovering = false;
-        if (this.worldTooltip) {
-            this.worldTooltip.hide();
-            this.worldTooltip.destroy();
-            this.worldTooltip = undefined;
+        if (this.worldTooltipInstance) {
+            this.worldTooltipInstance.hide();
+            this.worldTooltipInstance.destroy();
+            this.worldTooltipInstance = undefined;
         }
     }
 

@@ -1,56 +1,56 @@
 import {TooltipEntry} from "../Tooltip";
-import {CollectionService, UserInputService, Workspace} from "@rbxts/services";
 import {TextComponent} from "../components/TextComponent";
-import {HexRepository} from "../../../../world/hex/HexRepository";
 import {Hex} from "../../../../world/hex/Hex";
 import {RTColor} from "../../../../../shared/config/RichText";
 import {SelectionManager} from "../../../unit/selection/SelectionManager";
 import {SeparatorComponent} from "../components/SeparatorComponent";
 import {EmptyComponent} from "../components/EmptyComponent";
 import {TooltipDelay} from "../../../../../shared/config/TooltipDelay";
+import {WorldTooltip} from "./WorldTooltip";
 import {TooltipService} from "../TooltipService";
 
-export namespace DefaultWorldTooltip {
-    const font = `font color="${RTColor.Important}"`
+export class DefaultWorldTooltip implements WorldTooltip {
+    public constructor(private tooltipService: TooltipService) {};
 
-    function getTitle(hex: Hex): { text: string } {
+    private font = `font color="${RTColor.Important}"`;
+    private getTitle(hex: Hex): { text: string } {
         const region = hex.getRegion();
         if (!region) return { text: "???" };
-        return { text: `A hex in <${font}>${region.getName()}</font> (<${font}>${hex.getId()}</font>)` }
+        return { text: `A hex in <${this.font}>${region.getName()}</font> (<${this.font}>${hex.getId()}</font>)` }
     }
 
-    function getOwner(hex: Hex): { text: string } {
+    private getOwner(hex: Hex): { text: string } {
         const owner = hex.getOwner();
-        // if (!owner) return { text: `Owner: <${font}>Neutral</font>}`}
-        return { text: `Owner: <${font}>${owner?.getName() ?? "Neutral"}</font>`}
+        if (!owner) return { text: `Owner: <${this.font}>Neutral</font>}`}
+        return { text: `Owner: <${this.font}>${owner?.getName() ?? "Neutral"}</font>`}
     }
 
-    export function get(tooltipService: TooltipService): TooltipEntry<any>[] | undefined {
+    public get(): TooltipEntry<any>[] | undefined {
         const selectionManager = SelectionManager.getInstance();
 
         return [
             { class: TextComponent, get: () => {
-                const hex = tooltipService.getHexAtMousePosition();
+                const hex = this.tooltipService.getHexAtMousePosition();
                 if (!hex) {
-                    tooltipService.hideWorld();
+                    this.tooltipService.hideWorld();
                     return {text: "???"};
                 }
-                return getTitle(hex);
+                return this.getTitle(hex);
             }},
             { class: TextComponent, get: () => {
-                const hex = tooltipService.getHexAtMousePosition();
+                const hex = this.tooltipService.getHexAtMousePosition();
                 if (!hex) {
-                    tooltipService.hideWorld();
+                    this.tooltipService.hideWorld();
                     return {text: "???"};
                 }
-                return getOwner(hex);
+                return this.getOwner(hex);
             }},
             { class: EmptyComponent, if: () => selectionManager.getSelectedUnits().size() > 0},
             { class: TextComponent, if: () => selectionManager.getSelectedUnits().size() > 0,
-                get: () => ({ text: `Units Selected: <${font}>${selectionManager.getSelectedUnits().size()}</font>`})},
+                get: () => ({ text: `Units Selected: <${this.font}>${selectionManager.getSelectedUnits().size()}</font>`})},
             { class: SeparatorComponent, delay: TooltipDelay.Controls, if: () => selectionManager.getSelectedUnits().size() > 0 },
             { class: TextComponent, delay: TooltipDelay.Controls, if: () => selectionManager.getSelectedUnits().size() > 0,
-                get: () => ({ text: `<font color="${RTColor.Green}">Right-Click</font> to order units to <${font}>move here</font>`})},
+                get: () => ({ text: `<font color="${RTColor.Green}">Right-Click</font> to order units to <${this.font}>move here</font>`})},
         ]
     }
 }
