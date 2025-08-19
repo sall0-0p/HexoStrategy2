@@ -103,12 +103,8 @@ export class TooltipService {
     }
 
     // World tooltip
-    public setWorldTooltip(Class: { new (s: TooltipService): WorldTooltip } | undefined) {
-        if (Class) {
-            this.worldTooltip = new Class(this);
-        } else {
-            this.worldTooltip = undefined;
-        }
+    public setWorldTooltip(tooltip: WorldTooltip | undefined) {
+        this.worldTooltip = tooltip;
     }
 
     private initWorldLoop() {

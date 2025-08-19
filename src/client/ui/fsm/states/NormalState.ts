@@ -23,7 +23,7 @@ export class NormalUIState implements UIState {
         (flairs.WaitForChild("Units") as ScreenGui).Enabled = true;
 
         this.heatmapManager.showHeatmap(new NationHeatmap());
-        this.tooltipService.setWorldTooltip(DefaultWorldTooltip);
+        this.tooltipService.setWorldTooltip(new DefaultWorldTooltip(this.tooltipService));
 
         this.binds.push(new MoveBind());
     }
