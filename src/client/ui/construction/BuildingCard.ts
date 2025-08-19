@@ -69,7 +69,8 @@ export class BuildingCard {
             }},
             { class: EmptyComponent },
             { class: RichTextComponent, get: () => {
-                return `Building cost: <icon src="${RTIcon.ProductionCost}"/> <b><color value="${RTColor.Important}">${this.def.buildCost}</color></b>`
+                const updateNotice = this.def.upgradeCost ? ` (<b><color value="${RTColor.Important}">${this.def.upgradeCost}</color></b> per additional level)` : ``
+                return `Building cost: <icon src="${RTIcon.ProductionCost}"/> <b><color value="${RTColor.Important}">${this.def.buildCost}</color></b>` + updateNotice;
             }}
         ])
 

@@ -28,7 +28,6 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         iconColor3: Color3.fromRGB(255, 187, 61),
         type: BuildingType.Shared,
         buildCost: 20000,
-        upgradeCost: 3000,
         maxLevel: 20,
         modifier: ModifiableProperty.CivilianFactoryBuildSpeed,
     },
