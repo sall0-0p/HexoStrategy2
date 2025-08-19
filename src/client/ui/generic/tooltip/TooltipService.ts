@@ -125,10 +125,11 @@ export class TooltipService {
             const guiObjects = (Players.LocalPlayer
                 .WaitForChild("PlayerGui") as PlayerGui)
                 .GetGuiObjectsAtPosition(m.X - inset.X, m.Y - inset.Y);
+
             const blocking = guiObjects.find(gui =>
                 gui.Visible
                 && gui.BackgroundTransparency < 1
-                && !CollectionService.HasTag(gui, "TooltipPassthrough")
+                && !this.hasTagInAChain(gui, "TooltipPassthrough")
             );
             if (blocking) {
                 this.hideWorld();
@@ -145,6 +146,15 @@ export class TooltipService {
                 this.hideWorld();
             }
         })
+    }
+
+    private hasTagInAChain(inst: Instance, tag: string): boolean {
+        let cur: Instance | undefined = inst;
+        while (cur) {
+            if (CollectionService.HasTag(cur, tag)) return true;
+            cur = cur.Parent;
+        }
+        return false;
     }
 
     public showWorld(entries: TooltipEntry<any>[]) {

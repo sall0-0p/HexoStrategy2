@@ -1,6 +1,6 @@
 import {Bind} from "../Bind";
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
-import {Players, UserInputService, Workspace} from "@rbxts/services";
+import {CollectionService, Players, UserInputService, Workspace} from "@rbxts/services";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {Hex} from "../../world/hex/Hex";
 import {ConstructionEmitter, MessageType} from "../../../shared/tether/messages/Construction";
@@ -31,7 +31,15 @@ export class BuildBind implements Bind {
     }
 
     private trigger() {
-        if (playerGui.GetGuiObjectsAtPosition(mouse.X, mouse.Y).size() === 0) {
+        const guiObjects = playerGui.GetGuiObjectsAtPosition(mouse.X, mouse.Y);
+
+        const blockingGui = guiObjects.find(gui =>
+            gui.Visible &&
+            gui.BackgroundTransparency < 1 &&
+            !this.hasTagInAChain(gui, "IgnoreClick")
+        );
+
+        if (!blockingGui) {
             const camera = Workspace.CurrentCamera!;
             const unitRay = camera.ScreenPointToRay(mouse.X, mouse.Y);
 
@@ -98,5 +106,14 @@ export class BuildBind implements Bind {
                 building: this.building,
             }
         );
+    }
+
+    private hasTagInAChain(inst: Instance, tag: string): boolean {
+        let cur: Instance | undefined = inst;
+        while (cur) {
+            if (CollectionService.HasTag(cur, tag)) return true;
+            cur = cur.Parent;
+        }
+        return false;
     }
 }
