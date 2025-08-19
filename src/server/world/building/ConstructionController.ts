@@ -102,7 +102,7 @@ export class ConstructionController {
     }
 
     public pushUpdate(nation: Nation, data: {
-        constructionId: string, progress: number, prediction: number, factories: number
+        constructionId: string, progress: number, prediction: number, factories: number, effectiveCost: number
     }) {
         const player = nation.getPlayer();
         if (player) {

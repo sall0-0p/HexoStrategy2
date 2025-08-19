@@ -13,6 +13,7 @@ export class BuildingProject {
     public readonly cancelled = new Signal<[]>();
     private factories: number = -1;
     private progress = 0;
+    private lockedCost?: number;
 
     constructor(
         id: string,
@@ -25,15 +26,21 @@ export class BuildingProject {
         this.definition = BuildingDefs[this.type];
     }
 
-    public advance(units: number, ratePerFactory: number, onComplete: () => void) {
+    public advance(units: number, ratePerFactory: number, effectiveCostPreview: number, onComplete: () => void) {
+        if (units > 0 && this.lockedCost === undefined) {
+            print(effectiveCostPreview);
+            this.lockedCost = effectiveCostPreview;
+        }
+        const cost = this.lockedCost ?? effectiveCostPreview;
+
         if (units === 0 && this.factories === 0) {
             ConstructionController.getInstance().pushUpdate(this.target.getOwner()!, {
                 constructionId: this.id,
                 progress: this.progress,
                 prediction: 0,
                 factories: 0,
+                effectiveCost: cost,
             });
-
             return;
         }
 
@@ -41,19 +48,20 @@ export class BuildingProject {
         this.factories = units;
         this.progress += gain;
 
-        // Send update!
-        const prediction = (gain === 0) ? -1 : (this.definition.buildCost - this.progress) / gain;
+        const remaining = math.max(0, cost - this.progress);
+        const prediction = (gain === 0) ? -1 : (remaining / gain);
+
         ConstructionController.getInstance().pushUpdate(this.target.getOwner()!, {
             constructionId: this.id,
             progress: this.progress,
-            prediction: prediction,
+            prediction,
             factories: units,
+            effectiveCost: cost,
         });
 
-        if (this.progress >= this.definition.buildCost) {
+        if (this.progress >= cost) {
             this.target.getBuildings().addBuilding(this.definition.id as Building, 1);
             this.finished.fire();
-
             ConstructionController.getInstance().finishProject(this.target.getOwner()!, this.id);
             onComplete();
         }

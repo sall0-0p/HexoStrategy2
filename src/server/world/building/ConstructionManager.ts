@@ -24,7 +24,6 @@ export class ConstructionManager {
 
     // Adds one building to build queue, returns of project.
     public addProject(target: Region | Hex, building: Building): BuildingProject | undefined {
-        print(this.getFreeSlots(target, building));
         if (this.getFreeSlots(target, building) < 1) { warn("Not enough slots!"); return }
 
         const id = this.getNextId();
@@ -81,18 +80,29 @@ export class ConstructionManager {
         const modifiers = this.nation.getModifiers();
         const baseOutput = Definition.BaseFactoryConstructionOutput;
 
+        const advancedThisTick = new Set<string>();
+
         for (const proj of this.queue.getItems()) {
-            if (factories > 0) {
-                const modifiedOutput = modifiers.getEffectiveValue(baseOutput, [ModifiableProperty.GlobalBuildSpeed, proj.definition.modifier]);
-                const assign = math.min(factories, Definition.MaxFactoriesOnConstructionProject);
+            const key = `${proj.target.getId()}|${proj.type}`;
+            const effectiveCost = this.getEffectiveCostFor(proj);
+
+            if (factories > 0 && !advancedThisTick.has(key)) {
+                const modifiedOutput = modifiers.getEffectiveValue(
+                    baseOutput,
+                    [ModifiableProperty.GlobalBuildSpeed, proj.definition.modifier]
+                ) ?? 0;
+
+                const assign = math.min(factories, Definition.MaxFactoriesOnConstructionProject) ?? 0;
                 factories -= assign;
 
-                proj.advance(assign ?? 0, modifiedOutput ?? 0, () => {
+                if (assign > 0) advancedThisTick.add(key);
+
+                proj.advance(assign, modifiedOutput, effectiveCost, () => {
                     this.queue.removeById(proj.id);
                     this.updated.fire();
                 });
             } else {
-                proj.advance(0, 0, () => {
+                proj.advance(0, 0, effectiveCost, () => {
                     this.queue.removeById(proj.id);
                     this.updated.fire();
                 });
@@ -103,5 +113,28 @@ export class ConstructionManager {
     private getNextId() {
         this.currentId++;
         return tostring(this.currentId);
+    }
+
+    private countBuilt(target: Region | Hex, building: Building): number {
+        return target.getBuildings().getBuildingCount(building);
+    }
+
+    private countPlannedBefore(target: Region | Hex, building: Building, beforeId: string): number {
+        let count = 0;
+        for (const p of this.queue.getItems()) {
+            if (p.id === beforeId) break;
+            if (p.target.getId() === target.getId() && p.type === building) count++;
+        }
+        return count;
+    }
+
+    private getEffectiveCostFor(proj: BuildingProject): number {
+        const base = proj.definition.buildCost ?? 0;
+        const upgrade = proj.definition.upgradeCost ?? 0;
+        if (upgrade <= 0) return base;
+
+        const built = this.countBuilt(proj.target, proj.type);
+        const plannedBefore = this.countPlannedBefore(proj.target, proj.type, proj.id);
+        return base + upgrade * (built + plannedBefore);
     }
 }

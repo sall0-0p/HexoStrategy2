@@ -55,6 +55,7 @@ export interface MessageData {
         prediction: number,
         progress: number,
         factories: number,
+        effectiveCost: number,
     },
 
     [MessageType.ProjectFinishedUpdate]: {

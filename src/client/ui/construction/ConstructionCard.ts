@@ -61,7 +61,7 @@ export class ConstructionCard {
             .WaitForChild("Value") as Frame;
         const factoryCount = container.WaitForChild("Factories").WaitForChild("TextLabel") as TextLabel;
 
-        const progress: number = payload.progress / BuildingDefs[this.data.type].buildCost;
+        const progress: number = payload.progress / payload.effectiveCost;
         progressBar.Size = UDim2.fromScale(progress, 1);
         factoryCount.Text = `${payload.factories}/${Definition.MaxFactoriesOnConstructionProject}`;
     }
@@ -73,7 +73,6 @@ export class ConstructionCard {
     private populateInfo(data: CurrentProject) {
         const def = BuildingDefs[data.type];
 
-        // Label
         const label = this.frame.WaitForChild("Left")
             .WaitForChild("TextLabel") as TextLabel
         if (def.type === BuildingType.Hex) {
@@ -82,7 +81,6 @@ export class ConstructionCard {
             label.Text = this.target.getName();
         }
 
-        // Icon
         const icon = this.frame.WaitForChild("Right")
             .WaitForChild("Container")
             .WaitForChild("IconContainer")

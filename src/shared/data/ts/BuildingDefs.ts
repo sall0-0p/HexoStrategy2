@@ -38,8 +38,8 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         description: `Land forts make it easier for your forces to defend. Each land fort level stacks <color value="${RTColor.Green}">-15%</color> to enemy attack, capped at <color value="${RTColor.Green}">-85%</color>. Forts can be mitigated by using engineers or attacking from multiple directions.`,
         icon: "rbxassetid://87491028819292",
         type: BuildingType.Hex,
-        buildCost: 1000,
-        upgradeCost: 250,
+        buildCost: 500,
+        upgradeCost: 500,
         maxLevel: 10,
         modifier: ModifiableProperty.LandFortBuildSpeed,
     }
