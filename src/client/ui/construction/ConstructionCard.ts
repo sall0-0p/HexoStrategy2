@@ -12,22 +12,23 @@ import {Hex} from "../../world/hex/Hex";
 import {RegionRepository} from "../../world/region/RegionRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {Definition} from "../../../shared/config/Definition";
+import {DragOrder} from "./DragOrder";
 
 const template = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
     .WaitForChild("Construction")
-    .WaitForChild("NormalCard") as Frame;
+    .WaitForChild("NormalCard") as TextButton;
 
 export class ConstructionCard {
     public readonly id: string;
-    private frame: Frame;
+    private frame: TextButton;
     private target: Region | Hex;
     private factoriesAssigned: number = 0;
     private connection: RBXScriptConnection;
     constructor(private container: GuiObject, private position: number, private data: CurrentProject, private updatePosition: (index: number) => void) {
         this.id = data.id;
         this.frame = template.Clone();
-        this.frame.LayoutOrder = position;
+        this.frame.LayoutOrder = position * 10;
         this.target = this.fetchTarget();
         this.connection = RunService.RenderStepped.Connect(() => this.renderProgress());
 
@@ -36,6 +37,8 @@ export class ConstructionCard {
         this.populateInfo(data);
         this.buildButtons();
         this.frame.Parent = this.container;
+
+        new DragOrder(this, container as ScrollingFrame, (to) => this.move(to));
     }
 
     public getId() {
@@ -47,7 +50,7 @@ export class ConstructionCard {
     }
 
     public setPosition(position: number) {
-        this.frame.LayoutOrder = position;
+        this.frame.LayoutOrder = position * 10;
         this.position = position;
     }
 
@@ -90,7 +93,7 @@ export class ConstructionCard {
         icon.ImageColor3 = def.iconColor3 ?? Color3.fromRGB(255, 255, 255);
     }
 
-    private move(to: number) {
+    public move(to: number) {
         const promise = ConstructionEmitter.server.invoke(
             MessageType.MoveConstructionRequest,
             MessageType.MoveConstructionResponse,
@@ -160,4 +163,6 @@ export class ConstructionCard {
             progressBar.Position = UDim2.fromScale(position + (0.001 * this.factoriesAssigned), 0);
         }
     }
+
+    public getFrame() { return this.frame; }
 }

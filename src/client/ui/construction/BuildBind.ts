@@ -19,7 +19,7 @@ export class BuildBind implements Bind {
     private hexRepository = HexRepository.getInstance();
 
     constructor(private readonly building: Building) {
-        this.connection = UserInputService.InputEnded.Connect((object: InputObject) => {
+        this.connection = UserInputService.InputBegan.Connect((object: InputObject) => {
             if (object.UserInputType === Enum.UserInputType.MouseButton1) {
                 this.trigger();
             }
