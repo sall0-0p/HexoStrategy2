@@ -50,6 +50,11 @@ export class SharedBuildTooltip implements WorldTooltip {
         let result = '';
         const buildings = hex.getRegion()!.getBuildings();
         const formatted = this.getFormattedBuildingTable(buildings);
+
+        formatted.sort((a, b) => {
+            return BuildingDefs[a.building].menuOrder > BuildingDefs[b.building].menuOrder;
+        })
+
         formatted.forEach((row, i) => {
             const def = BuildingDefs[row.building];
             const color = def.iconColor3 ?? Color3.fromRGB(255, 255, 255);
