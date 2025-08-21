@@ -198,11 +198,11 @@ ponylandia.getModifiers().add({
 // print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));
 // print("Civ slot count:", buildings.getSlotCount(Building.CivilianFactory));
 
-let i = 0;
-while (i < 1000) {
-    new Unit(plnMotorised, pnlCapital).setName(`${i}rd Motorised Division`);
-    if (i % 100 === 0) {
-        task.wait(0.05);
-    }
-    i++;
-}
+// let i = 0;
+// while (i < 1000) {
+//     new Unit(plnMotorised, pnlCapital).setName(`${i}rd Motorised Division`);
+//     if (i % 100 === 0) {
+//         task.wait(0.05);
+//     }
+//     i++;
+// }
