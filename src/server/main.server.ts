@@ -23,7 +23,7 @@ import {StatsTemplate} from "../shared/classes/StatsTemplate";
 import {UnitType} from "../shared/classes/UnitType";
 import {Building} from "../shared/data/ts/BuildingDefs";
 import {ConstructionController} from "./world/building/ConstructionController";
-import {Modifier, ModifierType} from "../shared/classes/Modifier";
+import {Modifier, ModifierType, ModifierVibe} from "../shared/classes/Modifier";
 import {ModifiableProperty} from "../shared/classes/ModifiableProperty";
 import {RTIcon} from "../shared/config/RichText";
 
@@ -180,6 +180,7 @@ ponylandia.getModifiers().add({
     value: 4900,
     label: "Cheats, HaHA!",
     icon: RTIcon.ProductionCost,
+    vibe: ModifierVibe.Positive,
 } as Modifier)
 
 ponylandia.getModifiers().add({
@@ -189,9 +190,19 @@ ponylandia.getModifiers().add({
     value: 4900,
     label: "Temporary Cheats, HaHA!",
     icon: RTIcon.ProductionCost,
+    vibe: ModifierVibe.Positive,
     expireAt: WorldTime.getInstance().getTimestamp() + (86400 * 7),
 } as Modifier)
 // constructionManger.addProject(region!, Building.CivilianFactory);
 // constructionManger.addProject(region!, Building.Infrastructure);
 // print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));
 // print("Civ slot count:", buildings.getSlotCount(Building.CivilianFactory));
+
+let i = 0;
+while (i < 1000) {
+    new Unit(plnMotorised, pnlCapital).setName(`${i}rd Motorised Division`);
+    if (i % 100 === 0) {
+        task.wait(0.05);
+    }
+    i++;
+}

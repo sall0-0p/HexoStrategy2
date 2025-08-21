@@ -13,6 +13,12 @@ export enum ModifierType {
     Flat = "value",
 }
 
+export enum ModifierVibe {
+    Positive = "+",
+    Negative = "-",
+    Neutral = "?",
+}
+
 export interface Modifier {
     id: string;
     property: ModifiableProperty;
@@ -21,7 +27,10 @@ export interface Modifier {
     expireAt?: number;
 
     // UI
-    label?: string;
+    label: string;
     icon?: string;
     iconColor?: Color3;
+
+    vibe: ModifierVibe;
+    invertForEnemy?: boolean;
 }

@@ -31,4 +31,8 @@ export namespace TextUtils {
         const decPart = parts[1].sub(0, decimals);
         return `${intPart}.${decPart}`;
     }
+
+    export function color3ToRTG(color: Color3): string {
+        return `rgb(${math.floor(color.R * 255)}, ${math.floor(color.G * 255)}, ${math.floor(color.B*255)})`;
+    }
 }

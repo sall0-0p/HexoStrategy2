@@ -11,6 +11,17 @@ import {UIStateMachine} from "../fsm/UIStateMachine";
 import {UIStateType} from "../fsm/UIState";
 import {NormalUIState} from "../fsm/states/NormalState";
 import {BuildingCard} from "./BuildingCard";
+import {TooltipService} from "../generic/tooltip/TooltipService";
+import {RichTextComponent} from "../generic/tooltip/components/RichTextComponent";
+import {NationRepository} from "../../world/nation/NationRepository";
+import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
+import {HeaderComponent} from "../generic/tooltip/components/HeaderComponent";
+import {SeparatorComponent} from "../generic/tooltip/components/SeparatorComponent";
+import {TooltipDelay} from "../../../shared/config/TooltipDelay";
+import {TextComponent} from "../generic/tooltip/components/TextComponent";
+import {Modifier} from "../../../shared/classes/Modifier";
+import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
+import {Definition} from "../../../shared/config/Definition";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")
@@ -46,6 +57,8 @@ export class ConstructionWindow {
         // Binding close button
         const close = this.frame.WaitForChild("Header").WaitForChild("Close") as TextButton;
         close.MouseButton1Click.Connect(() => this.close());
+
+        this.addBuildSpeedLabel();
     }
 
     private open() {
@@ -166,6 +179,59 @@ export class ConstructionWindow {
             });
             this.cards.push(card);
         })
+    }
+
+    private updateBuildSpeedLabel(container: ModifierContainer) {
+        const label = this.frame.WaitForChild("Body")
+            .WaitForChild("Center")
+            .WaitForChild("Header")
+            .WaitForChild("Right")
+            .WaitForChild("Container")
+            .WaitForChild("TextLabel") as TextLabel;
+
+        const base = Definition.BaseFactoryConstructionOutput;
+        const effective = container.getEffectiveValue(base, [ModifiableProperty.GlobalBuildSpeed]);
+        const value = ((effective / base) - 1) * 100;
+        const plus = (value > 0) ? `+` : ``
+        label.Text = plus + tostring(value) + '%';
+
+        if (value > 0) {
+            label.TextColor3 = Color3.fromRGB(83, 193, 86);
+        } else if (value < 0) {
+            label.TextColor3 = Color3.fromRGB(255, 73, 66);
+        } else {
+            label.TextColor3 = Color3.fromRGB(255, 203, 54);
+        }
+    }
+
+    private addBuildSpeedLabel() {
+        const nation = NationRepository.getInstance().getById(_G.activeNationId);
+        if (!nation) return;
+
+        const modifiers = nation.getModifiers();
+        const headerBuildSpeed = this.frame.WaitForChild("Body")
+            .WaitForChild("Center")
+            .WaitForChild("Header")
+            .WaitForChild("Right")
+            .WaitForChild("Container") as Frame;
+
+        const conn = modifiers.updated.connect(() => this.updateBuildSpeedLabel(modifiers));
+        this.frame.Destroying.Once(() => conn.disconnect());
+        this.updateBuildSpeedLabel(modifiers);
+
+        TooltipService.getInstance().bind(headerBuildSpeed, [
+            { class: HeaderComponent, get: () => ({ text: "Construction Speed"})},
+            { class: RichTextComponent, get: () => {
+                return modifiers.getModifierBreakdown(ModifiableProperty.GlobalBuildSpeed);
+            },
+                if: () =>
+                    modifiers.getModifiersForProperty(ModifiableProperty.GlobalBuildSpeed).size() > 0
+            },
+            { class: SeparatorComponent, delay: TooltipDelay.MoreInfo },
+            { class: TextComponent, delay: TooltipDelay.MoreInfo, get: () =>
+                    ({ text: "Speed at which buildings are constructed."})
+            },
+        ])
     }
 
     public getFrame() { return this.frame };

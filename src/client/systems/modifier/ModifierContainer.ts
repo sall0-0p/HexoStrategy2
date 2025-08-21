@@ -1,7 +1,10 @@
 // client/modifiers/ModifierMirror.ts
-import {Modifier, ModifierParent, ModifierType} from "shared/classes/Modifier";
-import { ModifiableProperty } from "shared/classes/ModifiableProperty";
+import {Modifier, ModifierParent, ModifierType, ModifierVibe} from "shared/classes/Modifier";
+import {ModifiableProperty} from "shared/classes/ModifiableProperty";
 import {ModifierRouter} from "./ModifierRouter";
+import {TextUtils} from "../../../shared/classes/TextUtils";
+import {RTColor} from "../../../shared/config/RichText";
+import {Signal} from "../../../shared/classes/Signal";
 
 class Bucket {
     public list: Modifier[] = [];
@@ -14,6 +17,7 @@ export class ModifierContainer {
     private id: string;
     private buckets = new Map<ModifiableProperty, Bucket>();
     private parents: ModifierContainer[] = [];
+    public updated: Signal<[]> = new Signal();
 
     public constructor(parentId: string, parentType: ModifierParent) {
         this.id = parentType + parentId;
@@ -38,6 +42,8 @@ export class ModifierContainer {
                     break;
             }
         }
+
+        this.updated.fire();
     }
 
     public setParents(parents: ModifierContainer[]) {
@@ -76,10 +82,48 @@ export class ModifierContainer {
     public getModifiersForProperty(property: ModifiableProperty): Modifier[] {
         const b = this.buckets.get(property);
         if (!b) return [];
-        // return a shallow copy so UI can't mutate internal state
         const arr: Modifier[] = [];
         for (const m of b.list) arr.push(m);
         return arr;
+    }
+
+    private formatModifierValue(m: Modifier): string {
+        switch (m.type) {
+            case ModifierType.Flat:
+                return (m.value >= 0 ? `+${m.value}` : `${m.value}`);
+            case ModifierType.Additive:
+                return (m.value >= 0 ? `+${m.value}%` : `${m.value}%`);
+            case ModifierType.Multiplicative:
+                return `x${m.value}`;
+            default:
+                return "";
+        }
+    }
+
+    private resolveValueColor(modifier: Modifier, value: number, invert: boolean): RTColor {
+        if (modifier.vibe === ModifierVibe.Neutral) return RTColor.Important;
+
+        if (modifier.vibe === ModifierVibe.Positive && !invert) {
+            return (value >= 0) ? RTColor.Green : RTColor.Red;
+        } else {
+            return (value <= 0) ? RTColor.Red : RTColor.Green;
+        }
+    }
+
+    /* Produces string of modifiers for property to be used inside RichTextComponent */
+    public getModifierBreakdown(property: ModifiableProperty, invertVibe: boolean = false): string {
+        let result = "";
+        const modifiers = this.getModifiersForProperty(property);
+        modifiers.forEach((m, i) => {
+            const iconColor = TextUtils.color3ToRTG(m.iconColor ?? Color3.fromRGB(255, 255, 255));
+            const prefix = i !== 0 ? `<br/>` : ``;
+            const icon = m.icon ? `<icon src="${m.icon}" color="${iconColor}"/> ` : ``
+            const value = this.formatModifierValue(m);
+            const valueColor = this.resolveValueColor(m, m.value, invertVibe);
+            const body = `${icon}${m.label}: <color value="${valueColor}">${value}</color>`;
+            result = result + prefix + body;
+        })
+        return result;
     }
 
     public clean() {
