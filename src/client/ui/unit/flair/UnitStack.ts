@@ -198,7 +198,10 @@ export class UnitStack {
         }
     }
 
+    private lastSuccessfulHPCall?: number;
     private updateHp() {
+        if (this.lastSuccessfulHPCall && this.lastSuccessfulHPCall + 100 > DateTime.now().UnixTimestampMillis) return;
+
         let sumHp = 0;
         let sumMaxHp = 0;
         this.units.forEach((unit) => {
@@ -208,9 +211,13 @@ export class UnitStack {
 
         let percentage = sumHp / sumMaxHp;
         this.flair.setHp(percentage);
+        this.lastSuccessfulHPCall = DateTime.now().UnixTimestampMillis;
     }
 
+    private lastSuccessfulOrgCall?: number;
     private updateOrg() {
+        if (this.lastSuccessfulOrgCall && this.lastSuccessfulOrgCall + 100 > DateTime.now().UnixTimestampMillis) return;
+
         let sumOrg = 0;
         let sumMaxOrg = 0;
         this.units.forEach((unit) => {
@@ -220,6 +227,7 @@ export class UnitStack {
 
         let percentage = sumOrg / sumMaxOrg;
         this.flair.setOrganisation(percentage);
+        this.lastSuccessfulOrgCall = DateTime.now().UnixTimestampMillis;
     }
 
     private disconnectUnit(unit: Unit) {
