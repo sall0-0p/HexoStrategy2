@@ -18,7 +18,7 @@ export class RegionConstructionState implements UIState {
     private tooltipService = TooltipService.getInstance();
     public readonly type: UIStateType = UIStateType.RegionConstruction;
 
-    constructor(private readonly building: Building) {}
+    constructor(public readonly building: Building) {}
 
     onStart(previous?: UIState) {
         HeatmapManager.getInstance().showHeatmap(new RegionConstructionHeatmap(this.building));

@@ -39,7 +39,7 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         name: "Military Factory",
         description: `Military factory description will be here eventually.`,
         icon: "rbxassetid://115581448311350",
-        iconColor3: Color3.fromRGB(43, 153, 37),
+        iconColor3: Color3.fromRGB(132, 173, 98),
         type: BuildingType.Shared,
         buildCost: 14000,
         maxLevel: 25,

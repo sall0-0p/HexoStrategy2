@@ -146,6 +146,7 @@ export class Hex {
     }
 
     public setOwner(owner: Nation, ignoreRegionUpdate?: boolean) {
+        const prevOwner = this.owner;
         this.owner = owner;
 
         if (!ignoreRegionUpdate) this.region?.updateOwner();
@@ -161,6 +162,7 @@ export class Hex {
         this.cmUpdated = this.owner.getConstructionManager().updated.connect(() => {
             this.onBuildingUpdate();
         });
+        this.buildings.updateOwner(prevOwner, owner);
     }
 
     public getNeighbors() {

@@ -133,12 +133,14 @@ export class Region {
     }
 
     public updateOwner() {
+        const prevOwner = this.owner;
         this.owner = this.computeOwner();
         this.cmUpdated?.disconnect();
         this.cmUpdated = this.owner.getConstructionManager().updated.connect(() => {
             this.onBuildingUpdate();
         })
         this.onBuildingUpdate();
+        this.buildings.updateOwner(prevOwner, this.owner);
     };
 
     public setCategory(category: StateCategory) {

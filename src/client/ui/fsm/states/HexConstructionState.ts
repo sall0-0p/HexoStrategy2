@@ -16,7 +16,7 @@ export class HexConstructionState implements UIState {
     private tooltipService = TooltipService.getInstance();
     public readonly type: UIStateType = UIStateType.HexConstruction;
 
-    public constructor(private readonly building: Building) {
+    public constructor(public readonly building: Building) {
 
     }
 

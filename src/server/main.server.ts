@@ -191,8 +191,9 @@ ponylandia.getModifiers().add({
     label: "Temporary Cheats, HaHA!",
     icon: RTIcon.ProductionCost,
     vibe: ModifierVibe.Positive,
-    expireAt: WorldTime.getInstance().getTimestamp() + (86400 * 7),
+    expireAt: WorldTime.getInstance().getTimestamp() + (86400 * 5),
 } as Modifier)
+
 // constructionManger.addProject(region!, Building.CivilianFactory);
 // constructionManger.addProject(region!, Building.Infrastructure);
 // print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));

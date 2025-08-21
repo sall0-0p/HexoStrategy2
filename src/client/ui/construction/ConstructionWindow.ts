@@ -191,7 +191,7 @@ export class ConstructionWindow {
 
         const base = Definition.BaseFactoryConstructionOutput;
         const effective = container.getEffectiveValue(base, [ModifiableProperty.GlobalBuildSpeed]);
-        const value = ((effective / base) - 1) * 100;
+        const value = math.round(((effective / base) - 1) * 100);
         const plus = (value > 0) ? `+` : ``
         label.Text = plus + tostring(value) + '%';
 
