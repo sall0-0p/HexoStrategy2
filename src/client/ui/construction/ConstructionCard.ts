@@ -13,6 +13,12 @@ import {RegionRepository} from "../../world/region/RegionRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {Definition} from "../../../shared/config/Definition";
 import {DragOrder} from "./DragOrder";
+import {TooltipService} from "../generic/tooltip/TooltipService";
+import {TextComponent} from "../generic/tooltip/components/TextComponent";
+import {RTColor} from "../../../shared/config/RichText";
+import {RichTextComponent} from "../generic/tooltip/components/RichTextComponent";
+import {SeparatorComponent} from "../generic/tooltip/components/SeparatorComponent";
+import {TooltipDelay} from "../../../shared/config/TooltipDelay";
 
 const template = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -25,6 +31,7 @@ export class ConstructionCard {
     private target: Region | Hex;
     private factoriesAssigned: number = 0;
     private connection: RBXScriptConnection;
+    private latestPrediction: number = 0;
     constructor(private container: GuiObject, private position: number, private data: CurrentProject, private updatePosition: (index: number) => void) {
         this.id = data.id;
         this.frame = template.Clone();
@@ -39,6 +46,8 @@ export class ConstructionCard {
         this.frame.Parent = this.container;
 
         new DragOrder(this, container as ScrollingFrame, (to) => this.move(to));
+
+        this.applyTooltips();
     }
 
     public getId() {
@@ -56,6 +65,7 @@ export class ConstructionCard {
 
     public update(payload: MessageData[MessageType.ConstructionProgressUpdate]) {
         this.factoriesAssigned = payload.factories;
+        this.latestPrediction = payload.prediction;
 
         const container = this.frame.WaitForChild("Right")
             .WaitForChild("Container")
@@ -165,4 +175,77 @@ export class ConstructionCard {
     }
 
     public getFrame() { return this.frame; }
+
+    private applyTooltips() {
+        const tooltipService = TooltipService.getInstance();
+        const def = BuildingDefs[this.data.type];
+
+        // Left part
+        const left = this.frame.WaitForChild("Left") as Frame;
+        tooltipService.bind(left, [
+            { class: TextComponent, get: () => ({ text: `<font color="${RTColor.Green}">Drag and drop</font> to change the <font color="${RTColor.Important}">priority</font>` })}
+        ])
+
+        // Icon
+        const container = this.frame.WaitForChild("Right")
+            .WaitForChild("Container") as Frame;
+        const icon = container.WaitForChild("IconContainer") as Frame;
+        tooltipService.bind(icon, [
+            { class: RichTextComponent, get: () => {
+                const icon = def.icon;
+                const color = def.iconColor3 ?? Color3.fromRGB(255, 255, 255);
+                const iconColor = `rgb(${math.floor(color.R * 255)}, ${math.floor(color.G * 255)}, ${math.floor(color.B*255)})`;
+
+                let targetName: string;
+                if (def.type === BuildingType.Hex) {
+                    targetName = (this.target as Hex).getRegion()?.getName() ?? "???";
+                } else {
+                    targetName = this.target.getName();
+                }
+
+                return `Building <icon src="${icon}" color="${iconColor}"/> <color value="${RTColor.Important}">${def.name}</color> in <color value="${RTColor.Important}">${targetName}</color>`;
+            }},
+            { class: TextComponent, get: () =>
+                {
+                    const prediction = math.ceil(this.latestPrediction / 24);
+                    const text = prediction !== 0 ? prediction : "Never";
+                    return { text: `Days until finished: <font color="${RTColor.Important}">${text}</font>`};
+                }},
+            { class: SeparatorComponent,
+                delay: TooltipDelay.MoreInfo },
+            { class: RichTextComponent, get: () => def.description,
+                delay: TooltipDelay.MoreInfo },
+        ])
+
+        // Factories used / needed
+        const progressContainer = container.WaitForChild("ProgressContainer") as Frame;
+        tooltipService.bind(progressContainer, [
+            { class: TextComponent, get: () => ({ text: `Used factories: <font color="${RTColor.Important}">${this.factoriesAssigned}</font>` })},
+            { class: TextComponent, get: () => ({ text: `Max factories: <font color="${RTColor.Important}">${Definition.MaxFactoriesOnConstructionProject}</font>` })},
+        ])
+
+        // Buttons
+        const buttons = container.WaitForChild("ControlContainer")
+            .WaitForChild("Frame") as Frame;
+        const upButton = buttons.WaitForChild("ArrowUp") as TextButton;
+        const downButton = buttons.WaitForChild("ArrowDown") as TextButton;
+        const cancelButton = buttons.WaitForChild("Cancel") as TextButton;
+        const priorityExplanation = `A construction with higher priority will receive access to factories before constructions with lower priority. <font color="${RTColor.Important}">You can only build one building of the same type in a region/hex in parallel.</font>`
+
+        tooltipService.bind(upButton, [
+            { class: TextComponent, get: () => ({ text: `<font color="${RTColor.Green}">Click to <font color="${RTColor.Important}">increase priority</font>.</font>`})},
+            { class: SeparatorComponent, delay: TooltipDelay.MoreInfo },
+            { class: TextComponent, get: () => ({ text: priorityExplanation }), delay: TooltipDelay.MoreInfo},
+        ])
+
+        tooltipService.bind(downButton, [
+            { class: TextComponent, get: () => ({ text: `<font color="${RTColor.Green}">Click to <font color="${RTColor.Important}">decrease priority</font>.</font>`})},
+            { class: SeparatorComponent, delay: TooltipDelay.MoreInfo },
+            { class: TextComponent, get: () => ({ text: priorityExplanation }), delay: TooltipDelay.MoreInfo},
+        ])
+
+        tooltipService.bind(cancelButton, [
+            { class: TextComponent, get: () => ({ text: `<font color="${RTColor.Green}">Click to <font color="${RTColor.Important}">cancel</font> construction.</font>`})},
+        ])
+    }
 }

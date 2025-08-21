@@ -2,6 +2,8 @@ import {ModifierContainer} from "../../modifier/ModifierContainer";
 import {Signal} from "../../../../shared/classes/Signal";
 import {UnitTemplate} from "../template/UnitTemplate";
 import {ModifiableProperty} from "../../../../shared/classes/ModifiableProperty";
+import {Unit} from "../Unit";
+import {ModifierParent} from "../../../../shared/classes/Modifier";
 
 export enum StatKey {
     Speed = "unitSpeed",
@@ -51,11 +53,11 @@ type StatValues = Record<StatKey, number>;
 export class StatsComponent {
     private base: StatValues;
     private current: StatValues;
-    private readonly modifiers = new ModifierContainer();
+    private readonly modifiers: ModifierContainer;
 
     public readonly changed = new Signal<[StatKey, number]>();
 
-    constructor(template: UnitTemplate) {
+    constructor(unit: Unit, template: UnitTemplate) {
         this.base = {
             [StatKey.Speed]: template.getSpeed(),
             [StatKey.Hp]: template.getHp(),
@@ -75,6 +77,7 @@ export class StatsComponent {
         };
 
         this.current = { ...this.base };
+        this.modifiers = new ModifierContainer(unit.getId(), ModifierParent.Unit);
     }
 
     private isModifiableKey(k: StatKey): k is ModifiableStatKey {

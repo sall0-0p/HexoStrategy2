@@ -14,6 +14,7 @@ import {BattleWindowManager} from "../ui/battle/screen/BattleWindowManager";
 import {TooltipService} from "../ui/generic/tooltip/TooltipService";
 import {UIStateMachine} from "../ui/fsm/UIStateMachine";
 import {NormalUIState} from "../ui/fsm/states/NormalState";
+import {ModifierRouter} from "../systems/modifier/ModifierRouter";
 
 const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("SelectNation") as RemoteFunction;
@@ -24,7 +25,6 @@ export class GameState {
 
     private static instance: GameState
     private constructor() {
-        // Camera is loaded first, before nation is selected;
         Camera.getInstance();
 
         StarterGui.SetCore("TopbarEnabled", false);
@@ -56,6 +56,7 @@ export class GameState {
         HexRepository.resetInstance();
         RegionRepository.resetInstance();
         UnitRepository.resetInstance();
+        ModifierRouter.resetInstance();
 
         // UI
         UnitFlairManager.resetInstance();
@@ -72,6 +73,7 @@ export class GameState {
         HexRepository.getInstance();
         RegionRepository.getInstance();
         UnitRepository.getInstance();
+        ModifierRouter.getInstance();
 
         // UI
         UnitFlairManager.getInstance();

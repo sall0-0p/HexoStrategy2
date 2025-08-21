@@ -10,6 +10,7 @@ import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {NationBuildingComponent} from "../building/BuildingComponent";
 import {ConstructionManager} from "../building/ConstructionManager";
 import {NationRepository} from "./NationRepository";
+import {ModifierParent} from "../../../shared/classes/Modifier";
 
 export class Nation {
     private id;
@@ -18,7 +19,7 @@ export class Nation {
     private flag: string;
     private player?: Player;
     private relations: DiplomaticRelations;
-    private modifiers = new ModifierContainer();
+    private modifiers: ModifierContainer;
     private buildings = new NationBuildingComponent(this);
     private construction = new ConstructionManager(this);
 
@@ -30,6 +31,7 @@ export class Nation {
         this.color = Color3.fromRGB(data.color[0], data.color[1], data.color[2]);
         this.flag = data.flag;
         this.relations = new DiplomaticRelations(this);
+        this.modifiers = new ModifierContainer(this.id, ModifierParent.Nation);
     }
 
     public toDTO(): NationDTO {

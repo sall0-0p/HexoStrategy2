@@ -23,6 +23,9 @@ import {StatsTemplate} from "../shared/classes/StatsTemplate";
 import {UnitType} from "../shared/classes/UnitType";
 import {Building} from "../shared/data/ts/BuildingDefs";
 import {ConstructionController} from "./world/building/ConstructionController";
+import {Modifier, ModifierType} from "../shared/classes/Modifier";
+import {ModifiableProperty} from "../shared/classes/ModifiableProperty";
+import {RTIcon} from "../shared/config/RichText";
 
 WorldTime.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -167,6 +170,27 @@ buildings.addBuilding(Building.CivilianFactory, 4);
 
 const constructionManger = ponylandia.getConstructionManager();
 ponylandia.getBuildings().set(Building.CivilianFactory, 25);
+
+wait(1);
+print(WorldTime.getInstance().getTimestamp());
+ponylandia.getModifiers().add({
+    id: "DevConstruction",
+    property: ModifiableProperty.GlobalBuildSpeed,
+    type: ModifierType.Additive,
+    value: 4900,
+    label: "Cheats, HaHA!",
+    icon: RTIcon.ProductionCost,
+} as Modifier)
+
+ponylandia.getModifiers().add({
+    id: "LimitedDevConstruction",
+    property: ModifiableProperty.GlobalBuildSpeed,
+    type: ModifierType.Additive,
+    value: 4900,
+    label: "Temporary Cheats, HaHA!",
+    icon: RTIcon.ProductionCost,
+    expireAt: WorldTime.getInstance().getTimestamp() + (86400 * 7),
+} as Modifier)
 // constructionManger.addProject(region!, Building.CivilianFactory);
 // constructionManger.addProject(region!, Building.Infrastructure);
 // print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));

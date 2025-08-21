@@ -5,6 +5,8 @@ import {StupidTest} from "./test";
 import {defaultRegistry, parseRich} from "./ui/generic/tooltip/RichParser";
 import {TooltipService} from "./ui/generic/tooltip/TooltipService";
 import {RichTextComponent} from "./ui/generic/tooltip/components/RichTextComponent";
+import {MessageData, MessageType, ModifiersEmitter} from "../shared/tether/messages/Modifiers";
+import {NationRepository} from "./world/nation/NationRepository";
 
 declare global {
     interface _G {
@@ -42,3 +44,7 @@ print(tokens);
 TooltipService.getInstance().bind(test, [
     { class: RichTextComponent, get: () => 'Hello <b><color value="#ffd000">world</color></b> <icon src="rbxassetid://115581448311350"/> <br/>Hello Man, how are you? This is great.'}
 ]);
+
+// wait(5);
+// const ponylandia = NationRepository.getInstance().getById("PNL")!;
+// print(ponylandia.getModifiers().getAllModifiers());

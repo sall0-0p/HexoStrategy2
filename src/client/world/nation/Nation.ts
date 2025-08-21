@@ -1,7 +1,7 @@
 import {NationDTO} from "../../../shared/network/nation/DTO";
 import {Signal} from "../../../shared/classes/Signal";
-import {DiplomaticRelation} from "../../systems/diplomacy/DiplomaticRelation";
-import {Region} from "../region/Region";
+import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
+import {ModifierParent} from "../../../shared/classes/Modifier";
 
 export class Nation {
     private readonly id;
@@ -11,6 +11,7 @@ export class Nation {
     private player?: Player;
     private allies: Nation[] = [];
     private enemies: Nation[] = [];
+    private modifiers: ModifierContainer
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -20,6 +21,7 @@ export class Nation {
         this.color = data.color;
         this.flag = data.flag;
         this.player = data.player;
+        this.modifiers = new ModifierContainer(this.id, ModifierParent.Nation);
     }
 
     public getId() {
@@ -74,6 +76,10 @@ export class Nation {
     public setEnemies(enemies: Nation[]) {
         this.enemies = enemies;
         this.changedSignal?.fire("enemies", enemies);
+    }
+
+    public getModifiers() {
+        return this.modifiers;
     }
 
     public getChangedSignal() {

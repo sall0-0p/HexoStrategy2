@@ -10,6 +10,7 @@ import {StateCategory} from "../../../shared/classes/StateCategory";
 import {StateCategories} from "../../../shared/data/ts/StateCategories";
 import {RegionBuildingComponent} from "../building/BuildingComponent";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {ModifierParent} from "../../../shared/classes/Modifier";
 
 const hexRepository = HexRepository.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -20,7 +21,7 @@ export class Region {
     private owner!: Nation;
     private category: StateCategory;
     private population: number; // in thousands
-    private modifiers = new ModifierContainer();
+    private modifiers: ModifierContainer;
     private buildings = new RegionBuildingComponent(this);
     private cmUpdated?: Connection;
 
@@ -43,6 +44,7 @@ export class Region {
             }
             return candidate;
         });
+        this.modifiers = new ModifierContainer(this.id, ModifierParent.Region);
 
         this.updateOwner();
 

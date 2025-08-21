@@ -5,6 +5,8 @@ import {Hex} from "../../world/hex/Hex";
 import {NationRepository} from "../../world/nation/NationRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {UnitFlairManager} from "../../ui/unit/flair/UnitFlairManager";
+import {ModifierContainer} from "../modifier/ModifierContainer";
+import {ModifierParent} from "../../../shared/classes/Modifier";
 
 export class Unit {
     private id: string;
@@ -13,6 +15,7 @@ export class Unit {
     private owner: Nation;
     private position: Hex;
     private icon: string;
+    private modifiers: ModifierContainer;
 
     // stats
     private hp: number;
@@ -50,6 +53,8 @@ export class Unit {
 
         // Add flairs
         this.unitFlairManager.addUnitToTheMap(this);
+
+        this.modifiers = new ModifierContainer(this.id, ModifierParent.Unit);
     }
 
     public die() {
@@ -58,6 +63,7 @@ export class Unit {
 
     public delete() {
         this.unitFlairManager.deleteUnitFromTheMap(this);
+        this.modifiers.clean();
     }
 
     // getters & setters

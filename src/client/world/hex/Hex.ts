@@ -6,6 +6,8 @@ import {Signal} from "../../../shared/classes/Signal";
 import {HexDispatcher} from "./HexDispatcher";
 import {Region} from "../region/Region";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
+import {ModifierParent} from "../../../shared/classes/Modifier";
 
 export class Hex {
     private readonly id: string;
@@ -16,6 +18,7 @@ export class Hex {
     private neighbors: Hex[] = [];
     private model: Model;
     private buildings: HexBuildings;
+    private modifiers: ModifierContainer;
 
     private nationRepository = NationRepository.getInstance();
     private hexDispatcher = HexDispatcher.getInstance();
@@ -28,6 +31,7 @@ export class Hex {
         this.name = data.name;
         this.position = CubePosition.fromAxial(data.q, data.r);
         this.model = data.model;
+        this.modifiers = new ModifierContainer(this.id, ModifierParent.Hex);
 
         if (data.owner) {
             this.owner = this.nationRepository.getById(data.owner);
@@ -82,6 +86,10 @@ export class Hex {
 
     public getBuildings() {
         return this.buildings;
+    }
+
+    public getModifiers() {
+        return this.modifiers;
     }
 
     public setBuildings(buildings: HexBuildings) {

@@ -2,7 +2,7 @@ import {RunService} from "@rbxts/services";
 import {Signal} from "../../../shared/classes/Signal";
 import {PrioritySignal} from "../../../shared/classes/PrioritySignal";
 
-const GAME_START_DATE = "5500-01-01T00:00:00.000Z";
+const GAME_START_DATE = "1936-01-01T00:00:00.000Z";
 const EPOCH = DateTime.fromIsoDate(GAME_START_DATE)!;
 if (!EPOCH) error("This date is impossible!");
 

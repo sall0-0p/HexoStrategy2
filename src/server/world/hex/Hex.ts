@@ -1,5 +1,5 @@
 import {CUBE_DIRECTIONS, CubePosition} from "../../../shared/classes/CubePosition";
-import {Workspace, ReplicatedStorage, RunService} from "@rbxts/services";
+import {ReplicatedStorage, RunService, Workspace} from "@rbxts/services";
 import {Nation} from "../nation/Nation";
 import {NationRepository} from "../nation/NationRepository";
 import {HexDTO} from "../../../shared/network/hex/DTO";
@@ -10,6 +10,7 @@ import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {HexBuildingComponent} from "../building/BuildingComponent";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
 import {HexReplicator} from "./HexReplicator";
+import {ModifierParent} from "../../../shared/classes/Modifier";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;
@@ -24,7 +25,7 @@ export class Hex {
     private owner?: Nation;
     private neighbors: Hex[] = [];
     private model!: Model;
-    private modifiers = new ModifierContainer();
+    private modifiers: ModifierContainer;
     private buildings = new HexBuildingComponent(this);
     private cmUpdated?: Connection;
     
@@ -35,6 +36,7 @@ export class Hex {
         this.name = data.name;
         this.position = CubePosition.fromAxial(data.q, data.r);
         this.hexType = data.hexType;
+        this.modifiers = new ModifierContainer(this.id, ModifierParent.Hex);
 
         if (data.buildings) {
             for (const [id, count] of pairs(data.buildings)) {

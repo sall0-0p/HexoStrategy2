@@ -7,6 +7,8 @@ import {Signal} from "../../../shared/classes/Signal";
 import {StateCategory} from "../../../shared/classes/StateCategory";
 import {StateCategories} from "../../../shared/data/ts/StateCategories";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
+import {ModifierParent} from "../../../shared/classes/Modifier";
 
 export class Region {
     private id: string;
@@ -16,6 +18,7 @@ export class Region {
     private owner: Nation;
     private population: number;
     private buildings: RegionBuildings;
+    private modifiers: ModifierContainer;
 
     private hexRepository = HexRepository.getInstance();
     private nationRepository = NationRepository.getInstance();
@@ -39,6 +42,7 @@ export class Region {
             planned: data.buildings.planned,
             slots: data.buildings.slots,
         }
+        this.modifiers = new ModifierContainer(this.id, ModifierParent.Region);
     }
 
     public getId() {
@@ -73,6 +77,10 @@ export class Region {
     public setBuildings(buildings: RegionBuildings) {
         this.buildings = buildings;
         this.changed.fire("buildings", buildings);
+    }
+
+    public getModifiers() {
+        return this.modifiers;
     }
 }
 

@@ -33,7 +33,7 @@ export class Unit {
         this.template = template;
         this.owner = template.getOwner();
         this.position = position;
-        this.statsComponent = new StatsComponent(template);
+        this.statsComponent = new StatsComponent(this, template);
 
         this.unitRepository.addUnit(this);
         this.unitReplicator.addToCreateQueue(this);
