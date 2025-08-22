@@ -98,7 +98,9 @@ export class ConstructionManager {
     }
 
     private tick() {
-        let factories = this.nation.getBuildings().get(Building.CivilianFactory);
+        // let factories = this.nation.getBuildings().get(Building.CivilianFactory);
+        let factories = this.nation.getFactories().getAvailable();
+        let usedThisTick = 0;
 
         const modifiers = this.nation.getModifiers();
         const baseOutput = Definition.BaseFactoryConstructionOutput;
@@ -117,6 +119,7 @@ export class ConstructionManager {
 
                 const assign = math.min(factories, Definition.MaxFactoriesOnConstructionProject) ?? 0;
                 factories -= assign;
+                usedThisTick += assign;
 
                 if (assign > 0) advancedThisTick.add(key);
 
@@ -131,6 +134,8 @@ export class ConstructionManager {
                 });
             }
         }
+
+        this.nation.getFactories().updateUsedConstructions(usedThisTick);
     }
 
     private getNextId() {

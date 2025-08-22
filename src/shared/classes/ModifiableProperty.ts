@@ -24,4 +24,10 @@ export enum ModifiableProperty {
 
     // Region
     MaxSharedSlotsInRegion = "maxSharedSlotsInRegion",
+
+    // Nation
+    CivilianGoodsFactor = "civilianGoodsFactor",
+
+    // Trade
+    ImportFactoryCost = "importFactoryCost",
 }

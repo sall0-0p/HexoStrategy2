@@ -11,6 +11,7 @@ import {NationBuildingComponent} from "../building/BuildingComponent";
 import {ConstructionManager} from "../building/ConstructionManager";
 import {NationRepository} from "./NationRepository";
 import {ModifierParent} from "../../../shared/classes/Modifier";
+import {FactoryProvider} from "./components/FactoryProvider";
 
 export class Nation {
     private id;
@@ -22,8 +23,9 @@ export class Nation {
     private modifiers: ModifierContainer;
     private buildings = new NationBuildingComponent(this);
     private construction = new ConstructionManager(this);
+    private factories = new FactoryProvider(this);
 
-    private changedSignal?: Signal<[string, unknown]>;
+    private changed: Signal<[string, unknown]> = new Signal();
 
     constructor(id: string, data: JsonNation) {
         this.id = id;
@@ -85,7 +87,7 @@ export class Nation {
             }
         } as DirtyNationEvent);
 
-        this.changedSignal?.fire("color", color);
+        this.changed?.fire("color", color);
     }
 
     public getFlag() {
@@ -102,7 +104,7 @@ export class Nation {
             }
         } as DirtyNationEvent);
 
-        this.changedSignal?.fire("flag", flag);
+        this.changed?.fire("flag", flag);
     }
 
     public getPlayer() {
@@ -119,7 +121,7 @@ export class Nation {
             }
         } as DirtyNationEvent)
 
-        this.changedSignal?.fire("player", player);
+        this.changed?.fire("player", player);
     }
 
     public getRelations() {
@@ -154,16 +156,12 @@ export class Nation {
         return this.buildings;
     }
 
-    public getConstructionManager() {
-        return this.construction;
+    public getFactories() {
+        return this.factories;
     }
 
-    public getChangedSignal() {
-        if (!this.changedSignal) {
-            this.changedSignal = new Signal();
-        }
-
-        return this.changedSignal;
+    public getConstructionManager() {
+        return this.construction;
     }
 }
 

@@ -105,6 +105,11 @@ export class DragOrder {
 
         if (siblings.size() === 0) return 0;
 
+        const first = siblings[0];
+        if (cursorY < first.AbsolutePosition.Y + first.AbsoluteSize.Y / 2) {
+            return 0;
+        }
+
         siblings.sort((a, b) => a.LayoutOrder < b.LayoutOrder);
 
         for (let i = 0; i < siblings.size(); i++) {

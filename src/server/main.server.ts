@@ -21,11 +21,11 @@ import {BattleService} from "./systems/battle/misc/BattleService";
 import {TemplateController} from "./systems/unit/template/TemplateController";
 import {StatsTemplate} from "../shared/classes/StatsTemplate";
 import {UnitType} from "../shared/classes/UnitType";
-import {Building} from "../shared/data/ts/BuildingDefs";
 import {ConstructionController} from "./world/building/ConstructionController";
 import {Modifier, ModifierType, ModifierVibe} from "../shared/classes/Modifier";
 import {ModifiableProperty} from "../shared/classes/ModifiableProperty";
 import {RTIcon} from "../shared/config/RichText";
+import {FactoryReservationType, FactorySourceType} from "../shared/classes/FactoryProviderEnums";
 
 WorldTime.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -162,17 +162,11 @@ fungaria.getRelations().setRelationStatus(byrdlands, DiplomaticRelationStatus.En
 const timeManager = WorldTime.getInstance();
 timeManager.setPaused(false);
 
-const region = RegionRepository.getInstance().getById("R001");
-const buildings = region!.getBuildings();
-print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));
-print("Infrastructure level:", buildings.getBuildingCount(Building.Infrastructure));
-buildings.addBuilding(Building.CivilianFactory, 4);
-
-const constructionManger = ponylandia.getConstructionManager();
-ponylandia.getBuildings().set(Building.CivilianFactory, 25);
+ponylandia.getFactories().addToSource(FactorySourceType.TradeExports, 30);
+ponylandia.getFactories().addReservation(FactoryReservationType.ConsumerGoods, 5);
+ponylandia.getFactories().addReservation(FactoryReservationType.TradeImports, 1);
 
 wait(1);
-print(WorldTime.getInstance().getTimestamp());
 ponylandia.getModifiers().add({
     id: "DevConstruction",
     property: ModifiableProperty.GlobalBuildSpeed,

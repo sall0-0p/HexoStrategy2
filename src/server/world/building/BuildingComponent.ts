@@ -155,11 +155,7 @@ export class RegionBuildingComponent extends BuildingComponent {
             return def.maxLevel;
         }
 
-        const pool = this.getSharedPool();
-        const curThis = this.getBuildingCount(building);
-        const usedOthers = this.getSharedUsed(building);
-        const remainingPool = math.max(0, pool - usedOthers); // how much this building can still occupy considering others
-        return math.min(def.maxLevel, remainingPool + curThis);
+        return math.min(def.maxLevel, this.getSharedPool());
     }
 
     private addToNation(building: Building, delta: number) {
