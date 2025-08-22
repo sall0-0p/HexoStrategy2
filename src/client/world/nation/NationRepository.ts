@@ -105,6 +105,10 @@ export class NationRepository {
                     return candidate;
                 }));
             }
+
+            if (delta.building) {
+                nation.setBuildings(delta.building);
+            }
         })
     }
 

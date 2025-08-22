@@ -34,6 +34,15 @@ export class Nation {
         this.flag = data.flag;
         this.relations = new DiplomaticRelations(this);
         this.modifiers = new ModifierContainer(this.id, ModifierParent.Nation);
+
+        this.buildings.updated.connect(() => {
+            dirtyNationSignal.fire({
+                nation: this,
+                delta: {
+                    building: this.buildings.toDTO(),
+                }
+            });
+        })
     }
 
     public toDTO(): NationDTO {
@@ -60,6 +69,7 @@ export class Nation {
             player: this.player,
             allies: allies,
             enemies: enemies,
+            building: this.buildings.toDTO(),
         }
     }
 

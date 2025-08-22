@@ -257,42 +257,37 @@ export class RegionBuildingComponent extends BuildingComponent {
 }
 
 export class NationBuildingComponent {
-    private counter = new Map<string, number>();
+    private counter = new Map<Building, number>();
     public updated = new Signal<[]>(); // emits when any nation count changes
 
     constructor(private nation: Nation) {}
 
-    private key(building: Building): string {
-        return BuildingDefs[building].id;
-    }
-
     public get(building: Building): number {
-        return this.counter.get(this.key(building)) ?? 0;
+        return this.counter.get(building) ?? 0;
     }
 
     public set(building: Building, qty: number) {
-        const k = this.key(building);
         const v = math.max(0, qty);
-        const prev = this.counter.get(k) ?? 0;
+        const prev = this.counter.get(building) ?? 0;
         if (v === prev) return;
-        this.counter.set(k, v);
+        this.counter.set(building, v);
         this.updated.fire();
     }
 
     public addDelta(building: Building, delta: number) {
         if (delta === 0) return;
-        const k = this.key(building);
-        const prev = this.counter.get(k) ?? 0;
+        const prev = this.counter.get(building) ?? 0;
         const nextt = math.max(0, prev + delta);
         if (nextt === prev) return;
-        this.counter.set(k, nextt);
+        this.counter.set(building, nextt);
         this.updated.fire();
     }
 
-    public toDTO() {
-        // Flatten to a simple { [defId: string]: number } for the wire if needed
-        const out: Record<string, number> = {};
-        for (const [k, v] of this.counter) out[k] = v;
-        return out;
+    public toDTO(): [Building, number][] {
+        const result: [Building, number][] = [];
+        this.counter.forEach((n, b) => {
+            result.push([b, n])
+        })
+        return result;
     }
 }

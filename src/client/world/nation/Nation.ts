@@ -3,6 +3,7 @@ import {Signal} from "../../../shared/classes/Signal";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {ModifierParent} from "../../../shared/classes/Modifier";
 import {FactoryProvider} from "./FactoryProvider";
+import {Building} from "../../../shared/data/ts/BuildingDefs";
 
 export class Nation {
     private readonly id;
@@ -14,6 +15,7 @@ export class Nation {
     private enemies: Nation[] = [];
     private modifiers: ModifierContainer;
     private factories: FactoryProvider;
+    private buildings: NationBuildings;
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -25,6 +27,10 @@ export class Nation {
         this.player = data.player;
         this.modifiers = new ModifierContainer(this.id, ModifierParent.Nation);
         this.factories = new FactoryProvider(this);
+
+        // Buildings
+        this.buildings = new Map();
+        this.setBuildings((data.building))
     }
 
     public getId() {
@@ -89,6 +95,18 @@ export class Nation {
         return this.factories;
     }
 
+    public getBuildings() {
+        return this.buildings;
+    }
+
+    public setBuildings(buildings: [Building, number][]) {
+        this.buildings.clear();
+        buildings.forEach((data) => {
+            this.buildings.set(data[0], data[1]);
+        })
+        print(this.buildings);
+    }
+
     public getChangedSignal() {
         if (!this.changedSignal) {
             this.changedSignal = new Signal();
@@ -97,3 +115,5 @@ export class Nation {
         return this.changedSignal;
     }
 }
+
+type NationBuildings = Map<Building, number>;

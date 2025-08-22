@@ -1,3 +1,5 @@
+import {Building} from "../../data/ts/BuildingDefs";
+
 export interface NationDTO {
     id: string,
     name: string,
@@ -6,4 +8,5 @@ export interface NationDTO {
     player?: Player,
     allies: string[],
     enemies: string[],
+    building: [Building, number][],
 }
