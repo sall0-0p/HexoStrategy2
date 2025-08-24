@@ -1,4 +1,5 @@
 import {ModifiableProperty} from "../constants/ModifiableProperty";
+import {ResourceMap, ResourceType} from "../constants/ResourceDef";
 
 export enum BuildingType {
     Shared = "shared",
@@ -18,4 +19,5 @@ export interface BuildingDef {
     maxLevel: number,
     menuOrder: number,
     modifier: ModifiableProperty,
+    resources?: { [key in ResourceType]?: number },
 }

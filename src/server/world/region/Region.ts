@@ -9,8 +9,10 @@ import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {StateCategory} from "../../../shared/types/StateCategory";
 import {StateCategories} from "../../../shared/data/ts/StateCategories";
 import {RegionBuildingComponent} from "../../systems/construction/BuildingComponent";
-import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {ModifierParent} from "../../../shared/types/Modifier";
+import {ResourceMap, ResourceType} from "../../../shared/constants/ResourceDef";
+import {RegionResourceComponent} from "../../systems/resource/RegionResourceComponent";
 
 const hexRepository = HexRepository.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -24,8 +26,9 @@ export class Region {
     private modifiers: ModifierContainer;
     private buildings = new RegionBuildingComponent(this);
     private cmUpdated?: Connection;
+    private resources = new RegionResourceComponent(this)
 
-    private changedSignal?: Signal<[string, unknown]>;
+    private changed?: Signal<[string, unknown]>;
 
     constructor(id: string, data: JsonRegion) {
         this.id = id;
@@ -53,12 +56,23 @@ export class Region {
                 this.buildings.setBuilding(id as Building, count);
             }
         }
+
+        if (data.resources) {
+            const base: ResourceMap = new Map();
+            for (const [id, count] of pairs(data.resources)) {
+                base.set(id as ResourceType, count);
+            }
+            this.resources.setBase(base);
+        }
     }
 
     private onBuildingUpdate() {
         const regionReplicator = RegionReplicator.getInstance();
+
+        this.resources.recompute();
         regionReplicator?.markAsDirty(this, {
             buildings: this.buildings.toDTO(),
+            resources: this.resources.getCurrent(),
         })
     }
 
@@ -71,6 +85,7 @@ export class Region {
             owner: this.getOwner().getId(),
             population: this.getPopulation(),
             buildings: this.buildings.toDTO(),
+            resources: this.resources.getCurrent(),
         } as RegionDTO
     }
 
@@ -134,6 +149,11 @@ export class Region {
 
     public updateOwner() {
         const prevOwner = this.owner;
+
+        if (prevOwner && prevOwner.getId() !== this.owner.getId()) {
+            this.resources.emitRemovalDelta();
+        }
+
         this.owner = this.computeOwner();
         this.cmUpdated?.disconnect();
         this.cmUpdated = this.owner.getConstructionManager().updated.connect(() => {
@@ -162,6 +182,10 @@ export class Region {
     public getBuildings() {
         return this.buildings;
     }
+
+    public getResources() {
+        return this.resources;
+    }
 }
 
 export interface JsonRegion {
@@ -171,4 +195,5 @@ export interface JsonRegion {
     owner: string,
     population: number,
     buildings?: { [key: string]: number };
+    resources?: { [key in ResourceType]?: number };
 }

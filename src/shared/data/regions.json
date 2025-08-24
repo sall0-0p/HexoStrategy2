@@ -7,6 +7,11 @@
     "owner": "PNL",
     "buildings": {
       "infrastructure": 3
+    },
+    "resources": {
+      "steel": 12,
+      "rubber": 2,
+      "aluminium": 2
     }
   },
   "R002": {

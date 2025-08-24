@@ -201,3 +201,7 @@ ponylandia.getModifiers().add({
 //     }
 //     i++;
 // }
+
+ponylandia.getResources().updated.connect(() => {
+    print(ponylandia.getResources().getTotal());
+})

@@ -12,6 +12,7 @@ import {ConstructionManager} from "../../systems/construction/ConstructionManage
 import {NationRepository} from "./NationRepository";
 import {ModifierParent} from "../../../shared/types/Modifier";
 import {FactoryProvider} from "../../systems/construction/FactoryProvider";
+import {NationResourceComponent} from "../../systems/resource/NationResourceComponent";
 
 export class Nation {
     private id;
@@ -24,6 +25,7 @@ export class Nation {
     private buildings = new NationBuildingComponent(this);
     private construction = new ConstructionManager(this);
     private factories = new FactoryProvider(this);
+    private resources = new NationResourceComponent(this);
 
     private changed: Signal<[string, unknown]> = new Signal();
 
@@ -168,6 +170,10 @@ export class Nation {
 
     public getFactories() {
         return this.factories;
+    }
+
+    public getResources() {
+        return this.resources;
     }
 
     public getConstructionManager() {

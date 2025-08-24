@@ -2,6 +2,7 @@ import {BuildingDef, BuildingType} from "../../types/BuildingDef";
 import {ModifiableProperty} from "../../constants/ModifiableProperty";
 import {Definitions} from "../../constants/Definitions";
 import {RTColor} from "../../constants/RichText";
+import {ResourceType} from "../../constants/ResourceDef";
 
 export enum Building {
     Infrastructure = "infrastructure",
@@ -33,6 +34,9 @@ export const BuildingDefs: Record<string, BuildingDef> = {
         maxLevel: 25,
         menuOrder: 1,
         modifier: ModifiableProperty.CivilianFactoryBuildSpeed,
+        resources: {
+            [ResourceType.Electronics]: 1,
+        }
     },
     militaryFactory: {
         id: "militaryFactory",

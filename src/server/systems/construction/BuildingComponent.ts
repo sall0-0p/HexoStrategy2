@@ -15,6 +15,15 @@ export abstract class BuildingComponent {
         return this.buildings.get(building) ?? 0;
     }
 
+    public getBuildings(): ReadonlyMap<Building, number> {
+        const array: [Building, number][] = [];
+        this.buildings.forEach((c, b) => {
+            array.push([b, c]);
+        })
+
+        return new ReadonlyMap<Building, number>(array);
+    }
+
     public updateOwner(prevOwner?: Nation, nextOwner?: Nation): void {
         if (this.buildings.size() === 0) return;
 

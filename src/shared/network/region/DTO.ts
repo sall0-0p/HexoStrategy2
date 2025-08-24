@@ -1,4 +1,5 @@
 import {BuildingComponentDTO} from "../building/BuildingComponentDTO";
+import {ResourceMap} from "../../constants/ResourceDef";
 
 export interface RegionDTO {
     id: string,
@@ -8,4 +9,5 @@ export interface RegionDTO {
     owner: string,
     population: number,
     buildings: BuildingComponentDTO,
+    resources: ResourceMap,
 }
