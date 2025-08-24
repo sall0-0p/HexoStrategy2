@@ -3,9 +3,9 @@ import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {CollectionService, Players, UserInputService, Workspace} from "@rbxts/services";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {Hex} from "../../world/hex/Hex";
-import {ConstructionEmitter, MessageType} from "../../../shared/tether/messages/Construction";
+import {ConstructionEmitter, MessageType} from "../../../shared/network/tether/messages/Construction";
 import {Region} from "../../world/region/Region";
-import {BuildingType} from "../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../shared/types/BuildingDef";
 
 const localPlayer = Players.LocalPlayer;
 const playerGui = localPlayer.WaitForChild("PlayerGui") as PlayerGui;

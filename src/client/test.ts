@@ -1,4 +1,4 @@
-import {ConstructionEmitter, MessageType} from "../shared/tether/messages/Construction";
+import {ConstructionEmitter, MessageType} from "../shared/network/tether/messages/Construction";
 import {Building} from "../shared/data/ts/BuildingDefs";
 
 export namespace StupidTest {

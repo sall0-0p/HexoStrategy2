@@ -4,11 +4,11 @@ import {RegionDTO} from "../../../shared/network/region/DTO";
 import {HexRepository} from "../hex/HexRepository";
 import {NationRepository} from "../nation/NationRepository";
 import {Signal} from "../../../shared/classes/Signal";
-import {StateCategory} from "../../../shared/classes/StateCategory";
+import {StateCategory} from "../../../shared/types/StateCategory";
 import {StateCategories} from "../../../shared/data/ts/StateCategories";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
-import {ModifierParent} from "../../../shared/classes/Modifier";
+import {ModifierParent} from "../../../shared/types/Modifier";
 
 export class Region {
     private id: string;

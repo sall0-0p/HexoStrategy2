@@ -3,7 +3,7 @@ import {TooltipService} from "../TooltipService";
 import {TooltipEntry} from "../Tooltip";
 import {Building, BuildingDefs} from "../../../../../shared/data/ts/BuildingDefs";
 import {TextComponent} from "../components/TextComponent";
-import {RTColor} from "../../../../../shared/config/RichText";
+import {RTColor} from "../../../../../shared/constants/RichText";
 
 export class BaseBuildTooltip implements WorldTooltip {
     constructor(private tooltipService: TooltipService, private building: Building) {

@@ -1,7 +1,7 @@
 import {ConstructionFlair} from "./ConstructionFlair";
 import {Building, BuildingDefs} from "../../../../shared/data/ts/BuildingDefs";
 import {RegionRepository} from "../../../world/region/RegionRepository";
-import {BuildingType} from "../../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../../shared/types/BuildingDef";
 import {HexRepository} from "../../../world/hex/HexRepository";
 
 export class ConstructionFlairManager {

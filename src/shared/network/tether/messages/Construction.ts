@@ -1,5 +1,5 @@
 import {BuiltinMiddlewares, MessageEmitter} from "@rbxts/tether";
-import {Building} from "../../data/ts/BuildingDefs";
+import {Building} from "../../../data/ts/BuildingDefs";
 
 export const ConstructionEmitter = MessageEmitter.create<MessageData>();
 export enum MessageType {

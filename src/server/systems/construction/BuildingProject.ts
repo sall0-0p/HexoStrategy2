@@ -1,7 +1,7 @@
-import {BuildingDef} from "../../../shared/classes/BuildingDef";
+import {BuildingDef} from "../../../shared/types/BuildingDef";
 import {Signal} from "../../../shared/classes/Signal";
-import {Hex} from "../hex/Hex";
-import {Region} from "../region/Region";
+import {Hex} from "../../world/hex/Hex";
+import {Region} from "../../world/region/Region";
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {ConstructionController} from "./ConstructionController";
 

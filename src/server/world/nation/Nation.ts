@@ -7,11 +7,11 @@ import {
     DiplomaticRelationStatus
 } from "../../systems/diplomacy/DiplomaticRelation";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
-import {NationBuildingComponent} from "../building/BuildingComponent";
-import {ConstructionManager} from "../building/ConstructionManager";
+import {NationBuildingComponent} from "../../systems/construction/BuildingComponent";
+import {ConstructionManager} from "../../systems/construction/ConstructionManager";
 import {NationRepository} from "./NationRepository";
-import {ModifierParent} from "../../../shared/classes/Modifier";
-import {FactoryProvider} from "./components/FactoryProvider";
+import {ModifierParent} from "../../../shared/types/Modifier";
+import {FactoryProvider} from "../../systems/construction/FactoryProvider";
 
 export class Nation {
     private id;

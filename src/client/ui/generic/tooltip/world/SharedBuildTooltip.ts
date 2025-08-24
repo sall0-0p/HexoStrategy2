@@ -3,13 +3,13 @@ import {TooltipService} from "../TooltipService";
 import {TooltipEntry} from "../Tooltip";
 import {Building, BuildingDefs} from "../../../../../shared/data/ts/BuildingDefs";
 import {TextComponent} from "../components/TextComponent";
-import {RTColor} from "../../../../../shared/config/RichText";
+import {RTColor} from "../../../../../shared/constants/RichText";
 import {Hex} from "../../../../world/hex/Hex";
 import {RegionBuildings} from "../../../../world/region/Region";
-import {BuildingType} from "../../../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../../../shared/types/BuildingDef";
 import {EmptyComponent} from "../components/EmptyComponent";
 import {SeparatorComponent} from "../components/SeparatorComponent";
-import {TextUtils} from "../../../../../shared/classes/TextUtils";
+import {TextUtils} from "../../../../../shared/functions/TextUtils";
 import {RichTextComponent} from "../components/RichTextComponent";
 
 export class SharedBuildTooltip implements WorldTooltip {

@@ -1,6 +1,6 @@
-import {Modifier, ModifierParent, ModifierType} from "../../../shared/classes/Modifier";
-import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
-import {MessageData, MessageType, ModifiersEmitter} from "../../../shared/tether/messages/Modifiers";
+import {Modifier, ModifierParent, ModifierType} from "../../../shared/types/Modifier";
+import {ModifiableProperty} from "../../../shared/constants/ModifiableProperty";
+import {MessageData, MessageType, ModifiersEmitter} from "../../../shared/network/tether/messages/Modifiers";
 import {TimeSignalType, WorldTime} from "../time/WorldTime";
 
 class Bucket {

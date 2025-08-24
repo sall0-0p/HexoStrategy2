@@ -1,11 +1,11 @@
 import {Battle} from "../Battle";
 import {Unit} from "../../unit/Unit";
-import {ArrayShuffle} from "../../../../shared/classes/ArrayShuffle";
+import {ArrayShuffle} from "../../../../shared/functions/ArrayShuffle";
 import {Accountant} from "./Accountant";
-import {ModifiableProperty} from "../../../../shared/classes/ModifiableProperty";
+import {ModifiableProperty} from "../../../../shared/constants/ModifiableProperty";
 import {ReserveManager} from "./ReserveManager";
 import {Building, BuildingDefs} from "../../../../shared/data/ts/BuildingDefs";
-import {Definition} from "../../../../shared/config/Definition";
+import {Definitions} from "../../../../shared/constants/Definitions";
 
 export namespace CombatEngine {
     function selectTargets(attacker: Unit, enemies: Unit[]) {
@@ -121,9 +121,9 @@ export namespace CombatEngine {
         if (fortCount > 0 && !isDefender) {
             const flanks = Accountant.getAttackingHexes(battle).size() - 1;
             const adjustedFortCount = math.clamp(fortCount - flanks, 1, BuildingDefs[Building.LandFort].maxLevel);
-            const basePenalty = (adjustedFortCount * Definition.LandFortAttackPenaltyPerLevel);
+            const basePenalty = (adjustedFortCount * Definitions.LandFortAttackPenaltyPerLevel);
             const penalty = unit.getModifiers().getEffectiveValue(basePenalty, [ModifiableProperty.EnemyLandFortEffectiveness]);
-            totalAttack *= (1 - math.clamp(penalty, 0, Definition.MaxLandFortAttackDebuff));
+            totalAttack *= (1 - math.clamp(penalty, 0, Definitions.MaxLandFortAttackDebuff));
         }
 
         const attackCount = math.round(totalAttack / 10);

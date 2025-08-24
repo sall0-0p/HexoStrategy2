@@ -1,7 +1,7 @@
 import {NationDTO} from "../../../shared/network/nation/DTO";
 import {Signal} from "../../../shared/classes/Signal";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
-import {ModifierParent} from "../../../shared/classes/Modifier";
+import {ModifierParent} from "../../../shared/types/Modifier";
 import {FactoryProvider} from "./FactoryProvider";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
 

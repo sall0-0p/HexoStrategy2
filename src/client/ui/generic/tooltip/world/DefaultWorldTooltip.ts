@@ -1,11 +1,11 @@
 import {TooltipEntry} from "../Tooltip";
 import {TextComponent} from "../components/TextComponent";
 import {Hex} from "../../../../world/hex/Hex";
-import {RTColor} from "../../../../../shared/config/RichText";
+import {RTColor} from "../../../../../shared/constants/RichText";
 import {SelectionManager} from "../../../unit/selection/SelectionManager";
 import {SeparatorComponent} from "../components/SeparatorComponent";
 import {EmptyComponent} from "../components/EmptyComponent";
-import {TooltipDelay} from "../../../../../shared/config/TooltipDelay";
+import {TooltipDelay} from "../../../../../shared/constants/TooltipDelay";
 import {WorldTooltip} from "./WorldTooltip";
 import {TooltipService} from "../TooltipService";
 

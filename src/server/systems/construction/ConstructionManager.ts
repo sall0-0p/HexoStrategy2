@@ -1,15 +1,15 @@
 // Per nation btw
-import {Region} from "../region/Region";
-import {Hex} from "../hex/Hex";
+import {Region} from "../../world/region/Region";
+import {Hex} from "../../world/hex/Hex";
 import {ConstructionQueue} from "./ConstructionQueue";
-import {TimeSignalType, WorldTime} from "../../systems/time/WorldTime";
-import {Nation} from "../nation/Nation";
+import {TimeSignalType, WorldTime} from "../time/WorldTime";
+import {Nation} from "../../world/nation/Nation";
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
-import {Definition} from "../../../shared/config/Definition";
-import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
+import {Definitions} from "../../../shared/constants/Definitions";
+import {ModifiableProperty} from "../../../shared/constants/ModifiableProperty";
 import {BuildingProject} from "./BuildingProject";
 import {Signal} from "../../../shared/classes/Signal";
-import {BuildingType} from "../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../shared/types/BuildingDef";
 
 export class ConstructionManager {
     private currentId = 0;
@@ -103,7 +103,7 @@ export class ConstructionManager {
         let usedThisTick = 0;
 
         const modifiers = this.nation.getModifiers();
-        const baseOutput = Definition.BaseFactoryConstructionOutput;
+        const baseOutput = Definitions.BaseFactoryConstructionOutput;
 
         const advancedThisTick = new Set<string>();
 
@@ -117,7 +117,7 @@ export class ConstructionManager {
                     [ModifiableProperty.GlobalBuildSpeed, proj.definition.modifier]
                 ) ?? 0;
 
-                const assign = math.min(factories, Definition.MaxFactoriesOnConstructionProject) ?? 0;
+                const assign = math.min(factories, Definitions.MaxFactoriesOnConstructionProject) ?? 0;
                 factories -= assign;
                 usedThisTick += assign;
 

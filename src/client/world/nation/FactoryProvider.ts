@@ -1,5 +1,5 @@
-import {FactoryReservationType, FactorySourceType} from "../../../shared/classes/FactoryProviderEnums";
-import {FactoryProviderEmitter, MessageData, MessageType} from "../../../shared/tether/messages/FactoryProvider";
+import {FactoryReservationType, FactorySourceType} from "../../../shared/constants/FactoryDef";
+import {FactoryProviderEmitter, MessageData, MessageType} from "../../../shared/network/tether/messages/FactoryProvider";
 import {Nation} from "./Nation";
 import {Signal} from "../../../shared/classes/Signal";
 import {ReplicatedStorage} from "@rbxts/services";

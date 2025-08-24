@@ -1,4 +1,4 @@
-import {UnitType} from "./UnitType";
+import {UnitType} from "../constants/UnitType";
 
 export interface StatsTemplate {
     speed: number;

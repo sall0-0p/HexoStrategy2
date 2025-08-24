@@ -7,7 +7,7 @@ import {HexDispatcher} from "./HexDispatcher";
 import {Region} from "../region/Region";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
-import {ModifierParent} from "../../../shared/classes/Modifier";
+import {ModifierParent} from "../../../shared/types/Modifier";
 
 export class Hex {
     private readonly id: string;

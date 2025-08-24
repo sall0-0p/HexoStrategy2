@@ -1,5 +1,5 @@
-import {StatsTemplate} from "../../../classes/StatsTemplate";
-import {UnitType} from "../../../classes/UnitType";
+import {StatsTemplate} from "../../../types/StatsTemplate";
+import {UnitType} from "../../../constants/UnitType";
 
 export interface UnitTemplateDTO {
     id: string;

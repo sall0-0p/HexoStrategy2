@@ -6,7 +6,7 @@ import {RegionConstructionHeatmap} from "../../heatmap/heatmaps/RegionConstructi
 import {Bind} from "../../Bind";
 import {BuildBind} from "../../construction/BuildBind";
 import {ConstructionFlairManager} from "../../construction/flair/ConstructionFlairManager";
-import {BuildingType} from "../../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../../shared/types/BuildingDef";
 import {BaseBuildTooltip} from "../../generic/tooltip/world/BaseBuildTooltip";
 import {TooltipService} from "../../generic/tooltip/TooltipService";
 import {SharedBuildTooltip} from "../../generic/tooltip/world/SharedBuildTooltip";

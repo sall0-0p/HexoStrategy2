@@ -6,7 +6,7 @@ import {NationRepository} from "../../world/nation/NationRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
 import {UnitFlairManager} from "../../ui/unit/flair/UnitFlairManager";
 import {ModifierContainer} from "../modifier/ModifierContainer";
-import {ModifierParent} from "../../../shared/classes/Modifier";
+import {ModifierParent} from "../../../shared/types/Modifier";
 
 export class Unit {
     private id: string;

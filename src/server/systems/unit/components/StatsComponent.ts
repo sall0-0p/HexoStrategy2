@@ -1,9 +1,9 @@
 import {ModifierContainer} from "../../modifier/ModifierContainer";
 import {Signal} from "../../../../shared/classes/Signal";
 import {UnitTemplate} from "../template/UnitTemplate";
-import {ModifiableProperty} from "../../../../shared/classes/ModifiableProperty";
+import {ModifiableProperty} from "../../../../shared/constants/ModifiableProperty";
 import {Unit} from "../Unit";
-import {ModifierParent} from "../../../../shared/classes/Modifier";
+import {ModifierParent} from "../../../../shared/types/Modifier";
 
 export enum StatKey {
     Speed = "unitSpeed",

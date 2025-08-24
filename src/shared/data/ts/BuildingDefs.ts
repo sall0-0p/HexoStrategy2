@@ -1,7 +1,7 @@
-import {BuildingDef, BuildingType} from "../../classes/BuildingDef";
-import {ModifiableProperty} from "../../classes/ModifiableProperty";
-import {Definition} from "../../config/Definition";
-import {RTColor} from "../../config/RichText";
+import {BuildingDef, BuildingType} from "../../types/BuildingDef";
+import {ModifiableProperty} from "../../constants/ModifiableProperty";
+import {Definitions} from "../../constants/Definitions";
+import {RTColor} from "../../constants/RichText";
 
 export enum Building {
     Infrastructure = "infrastructure",
@@ -25,7 +25,7 @@ export const BuildingDefs: Record<string, BuildingDef> = {
     civilianFactory: {
         id: "civilianFactory",
         name: "Civilian Factory",
-        description: `Civilian Factories are used to construct new buildings. Each generates base <color value="${RTColor.Important}">${Definition.BaseFactoryConstructionOutput}</color> points each day. They are also used for trade and special projects.`,
+        description: `Civilian Factories are used to construct new buildings. Each generates base <color value="${RTColor.Important}">${Definitions.BaseFactoryConstructionOutput}</color> points each day. They are also used for trade and special projects.`,
         icon: "rbxassetid://115581448311350",
         iconColor3: Color3.fromRGB(255, 187, 61),
         type: BuildingType.Shared,

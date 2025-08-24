@@ -1,8 +1,8 @@
-import {Nation} from "../Nation";
-import {FactoryReservationType, FactorySourceType} from "../../../../shared/classes/FactoryProviderEnums";
-import {Signal} from "../../../../shared/classes/Signal";
-import {Building} from "../../../../shared/data/ts/BuildingDefs";
-import {MessageData, MessageType} from "../../../../shared/tether/messages/FactoryProvider";
+import {Nation} from "../../world/nation/Nation";
+import {FactoryReservationType, FactorySourceType} from "../../../shared/constants/FactoryDef";
+import {Signal} from "../../../shared/classes/Signal";
+import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {MessageData, MessageType} from "../../../shared/network/tether/messages/FactoryProvider";
 import {ReplicatedStorage} from "@rbxts/services";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")

@@ -1,7 +1,7 @@
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {ConstructionWindow} from "./ConstructionWindow";
 import {ReplicatedStorage, UserInputService} from "@rbxts/services";
-import {BuildingDef, BuildingType} from "../../../shared/classes/BuildingDef";
+import {BuildingDef, BuildingType} from "../../../shared/types/BuildingDef";
 import {TooltipService} from "../generic/tooltip/TooltipService";
 import {UIStateMachine} from "../fsm/UIStateMachine";
 import {RegionConstructionState} from "../fsm/states/RegionConstructionState";
@@ -9,7 +9,7 @@ import {HexConstructionState} from "../fsm/states/HexConstructionState";
 import {EmptyComponent} from "../generic/tooltip/components/EmptyComponent";
 import {RichTextComponent} from "../generic/tooltip/components/RichTextComponent";
 import {HeaderComponent} from "../generic/tooltip/components/HeaderComponent";
-import {RTColor, RTIcon} from "../../../shared/config/RichText";
+import {RTColor, RTIcon} from "../../../shared/constants/RichText";
 import {UIStateType} from "../fsm/UIState";
 
 const template = ReplicatedStorage

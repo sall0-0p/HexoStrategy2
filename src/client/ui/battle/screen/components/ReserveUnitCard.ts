@@ -4,7 +4,7 @@ import {CombatantSummaryDTO} from "../../../../../shared/network/battle/Subscrip
 import {UnitRepository} from "../../../../systems/unit/UnitRepository";
 import {TooltipService} from "../../../generic/tooltip/TooltipService";
 import {TextComponent} from "../../../generic/tooltip/components/TextComponent";
-import {TextUtils} from "../../../../../shared/classes/TextUtils";
+import {TextUtils} from "../../../../../shared/functions/TextUtils";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")

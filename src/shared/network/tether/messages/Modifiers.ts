@@ -1,5 +1,5 @@
 import {MessageEmitter} from "@rbxts/tether";
-import {Modifier} from "../../classes/Modifier";
+import {Modifier} from "../../../types/Modifier";
 
 export const ModifiersEmitter = MessageEmitter.create<MessageData>();
 export enum MessageType {

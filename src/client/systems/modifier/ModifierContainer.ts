@@ -1,9 +1,9 @@
 // client/modifiers/ModifierMirror.ts
-import {Modifier, ModifierParent, ModifierType, ModifierVibe} from "shared/classes/Modifier";
-import {ModifiableProperty} from "shared/classes/ModifiableProperty";
+import {Modifier, ModifierParent, ModifierType, ModifierVibe} from "shared/types/Modifier";
+import {ModifiableProperty} from "shared/constants/ModifiableProperty";
 import {ModifierRouter} from "./ModifierRouter";
-import {TextUtils} from "../../../shared/classes/TextUtils";
-import {RTColor} from "../../../shared/config/RichText";
+import {TextUtils} from "../../../shared/functions/TextUtils";
+import {RTColor} from "../../../shared/constants/RichText";
 import {Signal} from "../../../shared/classes/Signal";
 
 class Bucket {

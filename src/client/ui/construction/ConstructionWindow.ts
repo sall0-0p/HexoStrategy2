@@ -5,7 +5,7 @@ import {
     CurrentProject,
     MessageData,
     MessageType
-} from "../../../shared/tether/messages/Construction";
+} from "../../../shared/network/tether/messages/Construction";
 import {ConstructionCard} from "./ConstructionCard";
 import {UIStateMachine} from "../fsm/UIStateMachine";
 import {UIStateType} from "../fsm/UIState";
@@ -14,16 +14,16 @@ import {BuildingCard} from "./BuildingCard";
 import {TooltipService} from "../generic/tooltip/TooltipService";
 import {RichTextComponent} from "../generic/tooltip/components/RichTextComponent";
 import {NationRepository} from "../../world/nation/NationRepository";
-import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
+import {ModifiableProperty} from "../../../shared/constants/ModifiableProperty";
 import {HeaderComponent} from "../generic/tooltip/components/HeaderComponent";
 import {SeparatorComponent} from "../generic/tooltip/components/SeparatorComponent";
-import {TooltipDelay} from "../../../shared/config/TooltipDelay";
+import {TooltipDelay} from "../../../shared/constants/TooltipDelay";
 import {TextComponent} from "../generic/tooltip/components/TextComponent";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
-import {Definition} from "../../../shared/config/Definition";
-import {FactoryReservationType, FactorySourceType} from "../../../shared/classes/FactoryProviderEnums";
+import {Definitions} from "../../../shared/constants/Definitions";
+import {FactoryReservationType, FactorySourceType} from "../../../shared/constants/FactoryDef";
 import {SpecialCard} from "./SpecialCard";
-import {RTColor} from "../../../shared/config/RichText";
+import {RTColor} from "../../../shared/constants/RichText";
 import {EmptyComponent} from "../generic/tooltip/components/EmptyComponent";
 import {FactoryProvider} from "../../world/nation/FactoryProvider";
 import {FactorySourceDefs} from "../../../shared/data/ts/FactorySourceDefs";
@@ -197,7 +197,7 @@ export class ConstructionWindow {
             .WaitForChild("Container")
             .WaitForChild("TextLabel") as TextLabel;
 
-        const base = Definition.BaseFactoryConstructionOutput;
+        const base = Definitions.BaseFactoryConstructionOutput;
         const effective = container.getEffectiveValue(base, [ModifiableProperty.GlobalBuildSpeed]);
         const value = math.round(((effective / base) - 1) * 100);
         const plus = (value > 0) ? `+` : ``

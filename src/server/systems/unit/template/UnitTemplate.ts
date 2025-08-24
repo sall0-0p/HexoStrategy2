@@ -1,7 +1,7 @@
 import {Nation} from "../../../world/nation/Nation";
 import {TemplateRepository} from "./TemplateRepository";
-import {UnitType} from "../../../../shared/classes/UnitType";
-import {StatsTemplate} from "../../../../shared/classes/StatsTemplate";
+import {UnitType} from "../../../../shared/constants/UnitType";
+import {StatsTemplate} from "../../../../shared/types/StatsTemplate";
 import {UnitTemplateDTO} from "../../../../shared/network/unit/template/DTO";
 
 const templateRepository = TemplateRepository.getInstance();

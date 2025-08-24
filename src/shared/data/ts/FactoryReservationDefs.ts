@@ -1,5 +1,5 @@
-import {FactoryReservationDef, FactoryReservationType} from "../../classes/FactoryProviderEnums";
-import {ModifiableProperty} from "../../classes/ModifiableProperty";
+import {FactoryReservationDef, FactoryReservationType} from "../../constants/FactoryDef";
+import {ModifiableProperty} from "../../constants/ModifiableProperty";
 
 export const FactoryReservationDefs: Record<FactoryReservationType, FactoryReservationDef> = {
     [FactoryReservationType.ConsumerGoods]: {

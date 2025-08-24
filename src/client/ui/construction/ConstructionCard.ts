@@ -3,22 +3,22 @@ import {
     CurrentProject,
     MessageData,
     MessageType
-} from "../../../shared/tether/messages/Construction";
+} from "../../../shared/network/tether/messages/Construction";
 import {ReplicatedStorage, RunService} from "@rbxts/services";
 import {BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
-import {BuildingType} from "../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../shared/types/BuildingDef";
 import {Region} from "../../world/region/Region";
 import {Hex} from "../../world/hex/Hex";
 import {RegionRepository} from "../../world/region/RegionRepository";
 import {HexRepository} from "../../world/hex/HexRepository";
-import {Definition} from "../../../shared/config/Definition";
+import {Definitions} from "../../../shared/constants/Definitions";
 import {DragOrder} from "./DragOrder";
 import {TooltipService} from "../generic/tooltip/TooltipService";
 import {TextComponent} from "../generic/tooltip/components/TextComponent";
-import {RTColor} from "../../../shared/config/RichText";
+import {RTColor} from "../../../shared/constants/RichText";
 import {RichTextComponent} from "../generic/tooltip/components/RichTextComponent";
 import {SeparatorComponent} from "../generic/tooltip/components/SeparatorComponent";
-import {TooltipDelay} from "../../../shared/config/TooltipDelay";
+import {TooltipDelay} from "../../../shared/constants/TooltipDelay";
 
 const template = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -76,7 +76,7 @@ export class ConstructionCard {
 
         const progress: number = payload.progress / payload.effectiveCost;
         progressBar.Size = UDim2.fromScale(progress, 1);
-        factoryCount.Text = `${payload.factories}/${Definition.MaxFactoriesOnConstructionProject}`;
+        factoryCount.Text = `${payload.factories}/${Definitions.MaxFactoriesOnConstructionProject}`;
     }
 
     public destroy() {
@@ -221,7 +221,7 @@ export class ConstructionCard {
         const progressContainer = container.WaitForChild("ProgressContainer") as Frame;
         tooltipService.bind(progressContainer, [
             { class: TextComponent, get: () => ({ text: `Used factories: <font color="${RTColor.Important}">${this.factoriesAssigned}</font>` })},
-            { class: TextComponent, get: () => ({ text: `Max factories: <font color="${RTColor.Important}">${Definition.MaxFactoriesOnConstructionProject}</font>` })},
+            { class: TextComponent, get: () => ({ text: `Max factories: <font color="${RTColor.Important}">${Definitions.MaxFactoriesOnConstructionProject}</font>` })},
         ])
 
         // Buttons

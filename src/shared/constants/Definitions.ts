@@ -1,4 +1,4 @@
-export enum Definition {
+export enum Definitions {
     BaseFactoryConstructionOutput = 20,
     MaxFactoriesOnConstructionProject = 15,
 

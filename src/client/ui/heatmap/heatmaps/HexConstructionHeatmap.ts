@@ -4,7 +4,7 @@ import {HexDispatcher, Update} from "../../../world/hex/HexDispatcher";
 import {Connection} from "../../../../shared/classes/Signal";
 import {HeatmapManager} from "../HeatmapManager";
 import {Building, BuildingDefs} from "../../../../shared/data/ts/BuildingDefs";
-import {BuildingType} from "../../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../../shared/types/BuildingDef";
 import {RegionRepository} from "../../../world/region/RegionRepository";
 import {StripeManager, StripeStyle} from "../StripeManager";
 import {HexRepository} from "../../../world/hex/HexRepository";

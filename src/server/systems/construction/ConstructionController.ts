@@ -1,12 +1,12 @@
-import {ConstructionEmitter, MessageData, MessageType} from "../../../shared/tether/messages/Construction";
+import {ConstructionEmitter, MessageData, MessageType} from "../../../shared/network/tether/messages/Construction";
 import {BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
-import {BuildingType} from "../../../shared/classes/BuildingDef";
-import {Hex} from "../hex/Hex";
-import {Region} from "../region/Region";
-import {RegionRepository} from "../region/RegionRepository";
-import {HexRepository} from "../hex/HexRepository";
-import {Nation} from "../nation/Nation";
-import {NationRepository} from "../nation/NationRepository";
+import {BuildingType} from "../../../shared/types/BuildingDef";
+import {Hex} from "../../world/hex/Hex";
+import {Region} from "../../world/region/Region";
+import {RegionRepository} from "../../world/region/RegionRepository";
+import {HexRepository} from "../../world/hex/HexRepository";
+import {Nation} from "../../world/nation/Nation";
+import {NationRepository} from "../../world/nation/NationRepository";
 
 export class ConstructionController {
     private static instance: ConstructionController;

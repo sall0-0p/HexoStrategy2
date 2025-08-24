@@ -7,10 +7,10 @@ import {Connection, Signal} from "../../../shared/classes/Signal";
 import {DirtyHexEvent, dirtyHexSignal} from "./DirtyHexSignal";
 import {Region} from "../region/Region";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
-import {HexBuildingComponent} from "../building/BuildingComponent";
+import {HexBuildingComponent} from "../../systems/construction/BuildingComponent";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
 import {HexReplicator} from "./HexReplicator";
-import {ModifierParent} from "../../../shared/classes/Modifier";
+import {ModifierParent} from "../../../shared/types/Modifier";
 
 const hexes = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Hexes") as Folder;
 const hexContainer = Workspace.WaitForChild("Hexes") as Folder;

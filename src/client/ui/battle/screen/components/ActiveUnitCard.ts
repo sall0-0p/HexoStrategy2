@@ -4,12 +4,12 @@ import {Unit} from "../../../../systems/unit/Unit";
 import {UnitRepository} from "../../../../systems/unit/UnitRepository";
 import {TooltipService} from "../../../generic/tooltip/TooltipService";
 import {TextComponent} from "../../../generic/tooltip/components/TextComponent";
-import {TextUtils} from "../../../../../shared/classes/TextUtils";
+import {TextUtils} from "../../../../../shared/functions/TextUtils";
 import {HeaderComponent} from "../../../generic/tooltip/components/HeaderComponent";
 import {EmptyComponent} from "../../../generic/tooltip/components/EmptyComponent";
 import {SeparatorComponent} from "../../../generic/tooltip/components/SeparatorComponent";
-import {RTColor} from "../../../../../shared/config/RichText";
-import {TooltipDelay} from "../../../../../shared/config/TooltipDelay";
+import {RTColor} from "../../../../../shared/constants/RichText";
+import {TooltipDelay} from "../../../../../shared/constants/TooltipDelay";
 
 const attackerPosition = UDim2.fromScale(0.089,0);
 const defenderPosition = UDim2.fromScale(0.03, 0);

@@ -3,7 +3,7 @@ import { Unit } from "../Unit";
 import { Signal } from "../../../../shared/classes/Signal";
 import { MovementSubscriptionManager } from "./MovementSubscriptionManager";
 import { TimeSignalType, WorldTime } from "../../time/WorldTime";
-import { ModifiableProperty } from "../../../../shared/classes/ModifiableProperty";
+import { ModifiableProperty } from "../../../../shared/constants/ModifiableProperty";
 import { BattleService } from "../../battle/misc/BattleService";
 import { Nation } from "../../../world/nation/Nation";
 import { UnitRepository } from "../UnitRepository";

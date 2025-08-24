@@ -1,9 +1,9 @@
 import {Region} from "../../../world/region/Region";
 import {Building, BuildingDefs} from "../../../../shared/data/ts/BuildingDefs";
 import {Players, ReplicatedStorage, RunService, Workspace} from "@rbxts/services";
-import {RTColor} from "../../../../shared/config/RichText";
+import {RTColor} from "../../../../shared/constants/RichText";
 import {Hex} from "../../../world/hex/Hex";
-import {BuildingType} from "../../../../shared/classes/BuildingDef";
+import {BuildingType} from "../../../../shared/types/BuildingDef";
 
 const template = ReplicatedStorage
     .WaitForChild("Assets")

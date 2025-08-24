@@ -1,5 +1,5 @@
 import {MessageEmitter} from "@rbxts/tether";
-import {FactoryReservationType, FactorySourceType} from "../../classes/FactoryProviderEnums";
+import {FactoryReservationType, FactorySourceType} from "../../../constants/FactoryDef";
 
 export const FactoryProviderEmitter = MessageEmitter.create<MessageData>();
 export enum MessageType {

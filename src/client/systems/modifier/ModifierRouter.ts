@@ -1,5 +1,5 @@
 import {ModifierContainer} from "./ModifierContainer";
-import {MessageData, MessageType, ModifiersEmitter} from "../../../shared/tether/messages/Modifiers";
+import {MessageData, MessageType, ModifiersEmitter} from "../../../shared/network/tether/messages/Modifiers";
 
 export class ModifierRouter {
     private static instance?: ModifierRouter;

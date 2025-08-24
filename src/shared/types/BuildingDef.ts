@@ -1,4 +1,4 @@
-import {ModifiableProperty} from "./ModifiableProperty";
+import {ModifiableProperty} from "../constants/ModifiableProperty";
 
 export enum BuildingType {
     Shared = "shared",

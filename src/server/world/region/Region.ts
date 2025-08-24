@@ -6,11 +6,11 @@ import {RegionDTO} from "../../../shared/network/region/DTO";
 import {RegionReplicator} from "./RegionReplicator";
 import {NationRepository} from "../nation/NationRepository";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
-import {StateCategory} from "../../../shared/classes/StateCategory";
+import {StateCategory} from "../../../shared/types/StateCategory";
 import {StateCategories} from "../../../shared/data/ts/StateCategories";
-import {RegionBuildingComponent} from "../building/BuildingComponent";
+import {RegionBuildingComponent} from "../../systems/construction/BuildingComponent";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
-import {ModifierParent} from "../../../shared/classes/Modifier";
+import {ModifierParent} from "../../../shared/types/Modifier";
 
 const hexRepository = HexRepository.getInstance();
 const nationRepository = NationRepository.getInstance();

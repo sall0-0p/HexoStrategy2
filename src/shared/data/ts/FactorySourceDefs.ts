@@ -1,7 +1,7 @@
 import {
     FactorySourceDef,
     FactorySourceType
-} from "../../classes/FactoryProviderEnums";
+} from "../../constants/FactoryDef";
 
 export const FactorySourceDefs: Record<FactorySourceType, FactorySourceDef> = {
     [FactorySourceType.Building]: {

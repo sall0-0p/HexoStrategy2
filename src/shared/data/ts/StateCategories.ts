@@ -1,4 +1,4 @@
-import {StateCategory} from "../../classes/StateCategory";
+import {StateCategory} from "../../types/StateCategory";
 
 export const StateCategories: Record<string, StateCategory> = {
     wasteland: {

@@ -1,8 +1,8 @@
-import {BuildingType} from "../../../shared/classes/BuildingDef";
-import {Hex} from "../hex/Hex";
-import {Region} from "../region/Region";
-import {ModifiableProperty} from "../../../shared/classes/ModifiableProperty";
-import {Nation} from "../nation/Nation";
+import {BuildingType} from "../../../shared/types/BuildingDef";
+import {Hex} from "../../world/hex/Hex";
+import {Region} from "../../world/region/Region";
+import {ModifiableProperty} from "../../../shared/constants/ModifiableProperty";
+import {Nation} from "../../world/nation/Nation";
 import {Building, BuildingDefs} from "../../../shared/data/ts/BuildingDefs";
 import {BuildingComponentDTO} from "../../../shared/network/building/BuildingComponentDTO";
 import {Signal} from "../../../shared/classes/Signal";

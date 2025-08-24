@@ -5,7 +5,7 @@ import {StupidTest} from "./test";
 import {defaultRegistry, parseRich} from "./ui/generic/tooltip/RichParser";
 import {TooltipService} from "./ui/generic/tooltip/TooltipService";
 import {RichTextComponent} from "./ui/generic/tooltip/components/RichTextComponent";
-import {MessageData, MessageType, ModifiersEmitter} from "../shared/tether/messages/Modifiers";
+import {MessageData, MessageType, ModifiersEmitter} from "../shared/network/tether/messages/Modifiers";
 import {NationRepository} from "./world/nation/NationRepository";
 
 declare global {

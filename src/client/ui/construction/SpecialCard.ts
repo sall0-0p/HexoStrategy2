@@ -1,5 +1,5 @@
 import {ReplicatedStorage} from "@rbxts/services";
-import {FactoryReservationType} from "../../../shared/classes/FactoryProviderEnums";
+import {FactoryReservationType} from "../../../shared/constants/FactoryDef";
 import {ConstructionWindow} from "./ConstructionWindow";
 import {NationRepository} from "../../world/nation/NationRepository";
 import {FactoryReservationDefs} from "../../../shared/data/ts/FactoryReservationDefs";
