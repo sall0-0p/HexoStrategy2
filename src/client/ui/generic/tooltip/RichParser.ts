@@ -13,6 +13,7 @@ export interface Style {
 export type Token =
     | { kind: "text"; text: string; style: Style }
     | { kind: "inline"; name: string; attributes: Map<string, string>; style: Style }
+    | { kind: "flag"; name: string; attributes: Map<string, string>; style: Style }
     | { kind: "break" };
 
 /** Tag handler hooks. Implement any that you need. */
@@ -272,6 +273,17 @@ export function defaultRegistry(): TagRegistry {
             });
         },
     });
+
+    reg.set("flag", {
+        onSelf: (attributes, style, emit) => {
+            emit({
+                kind: "flag",
+                name: "flag",
+                attributes,
+                style: { ...style }
+            })
+        }
+    })
 
     return reg;
 }

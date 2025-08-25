@@ -1,6 +1,7 @@
 import {TooltipComponent} from "../TooltipComponent";
 import {ReplicatedStorage, RunService} from "@rbxts/services";
 import {defaultRegistry, parseColor, parseRich, Style, Token} from "../RichParser";
+import {NationRepository} from "../../../../world/nation/NationRepository";
 
 const templateFolder = ReplicatedStorage.WaitForChild("Assets")
     .WaitForChild("UI")
@@ -11,6 +12,7 @@ const templateBase = templateFolder.WaitForChild("Base") as Frame;
 const templateParagraph = templateFolder.WaitForChild("Paragraph") as Frame;
 const templateWord = templateFolder.WaitForChild("Word") as TextLabel;
 const inlineIcon = templateFolder.WaitForChild("InlineIcon") as Frame;
+const inlineFlag = templateFolder.WaitForChild("InlineFlag") as Frame;
 
 export class RichTextComponent implements TooltipComponent<string> {
     public frame!: Frame;
@@ -62,6 +64,8 @@ export class RichTextComponent implements TooltipComponent<string> {
             this.renderTextToken(index, token);
         } else if (token.kind === "inline") {
             this.renderIconToken(index, token);
+        } else if (token.kind === "flag") {
+            this.renderFlagToken(index, token)
         } else if (token.kind === "break") {
             this.currentParagraph = this.createParagraph();
             return;
@@ -108,6 +112,28 @@ export class RichTextComponent implements TooltipComponent<string> {
         const colorSrt = token.attributes.get("color");
         const parsed = colorSrt ? parseColor(colorSrt) : undefined;
         icon.ImageColor3 = parsed ?? Color3.fromRGB(255, 255, 255);
+
+        base.LayoutOrder = index;
+        base.Parent = this.currentParagraph;
+
+        return base;
+    }
+
+    private renderFlagToken(index: number, token: {
+        kind: "flag",
+        name: string,
+        attributes: Map<string, string>,
+        style: Style,
+    }) {
+        const id = token.attributes.get("id");
+        if (!id) return;
+        const nationRepository = NationRepository.getInstance();
+        const nation = nationRepository.getById(id);
+        if (!nation) return;
+
+        const base = inlineFlag.Clone();
+        const icon = base.WaitForChild("Image") as ImageLabel;
+        icon.Image = nation.getFlag();
 
         base.LayoutOrder = index;
         base.Parent = this.currentParagraph;

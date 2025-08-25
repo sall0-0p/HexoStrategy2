@@ -8,6 +8,7 @@ import {EmptyComponent} from "../components/EmptyComponent";
 import {TooltipDelay} from "../../../../../shared/constants/TooltipDelay";
 import {WorldTooltip} from "./WorldTooltip";
 import {TooltipService} from "../TooltipService";
+import {RichTextComponent} from "../components/RichTextComponent";
 
 export class DefaultWorldTooltip implements WorldTooltip {
     public constructor(private tooltipService: TooltipService) {};
@@ -22,7 +23,13 @@ export class DefaultWorldTooltip implements WorldTooltip {
     private getOwner(hex: Hex): { text: string } {
         const owner = hex.getOwner();
         if (!owner) return { text: `Owner: <${this.font}>Neutral</font>}`}
-        return { text: `Owner: <${this.font}>${owner?.getName() ?? "Neutral"}</font>`}
+        return { text: `Owner: <${this.font}>${owner.getName()}</font>`}
+    }
+
+    private getRichOwner(hex: Hex): string {
+        const owner = hex.getOwner();
+        if (!owner) return `Owner: <color value="${RTColor.Important}">Neutral</color>`;
+        return `Owner: <color value="${RTColor.Important}">${owner.getName()}</color> <flag id=${owner.getId()}/>`
     }
 
     public get(): TooltipEntry<any>[] | undefined {
@@ -37,13 +44,13 @@ export class DefaultWorldTooltip implements WorldTooltip {
                 }
                 return this.getTitle(hex);
             }},
-            { class: TextComponent, get: () => {
+            { class: RichTextComponent, get: () => {
                 const hex = this.tooltipService.getHexAtMousePosition();
                 if (!hex) {
                     this.tooltipService.hideWorld();
-                    return {text: "???"};
+                    return "???";
                 }
-                return this.getOwner(hex);
+                return this.getRichOwner(hex);
             }},
             { class: EmptyComponent, if: () => selectionManager.getSelectedUnits().size() > 0},
             { class: TextComponent, if: () => selectionManager.getSelectedUnits().size() > 0,
