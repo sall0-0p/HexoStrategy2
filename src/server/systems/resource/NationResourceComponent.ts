@@ -6,6 +6,7 @@ import {
 } from "../../../shared/constants/ResourceDef";
 import {Nation} from "../../world/nation/Nation";
 import {Signal} from "../../../shared/classes/Signal";
+import {NationResourceDTO} from "../../../shared/network/nation/DTO";
 
 export class NationResourceComponent {
     private total: ResourceMap = new Map();
@@ -17,7 +18,12 @@ export class NationResourceComponent {
 
     public readonly updated: Signal<[]> = new Signal();
 
-    constructor(private readonly nation: Nation) {}
+    constructor(
+        private readonly nation: Nation,
+        private readonly replicate: () => void,
+    ) {
+        task.delay(1, () => this.recompute());
+    }
 
     public getSource(source: ResourceSourceType) {
         const existing = this.sources.get(source);
@@ -103,6 +109,21 @@ export class NationResourceComponent {
         return this.total;
     }
 
+    public toDTO(includeBreakdown = false): NationResourceDTO {
+        const dto: NationResourceDTO = {
+            total: this.total,
+            reserved: this.reserved,
+            available: this.available,
+        }
+
+        if (includeBreakdown) {
+            dto.sources = this.sources;
+            dto.reserved = this.reserved;
+        }
+
+        return dto;
+    }
+
     public recompute() {
         this.total = new Map();
         for (const [, map] of this.sources) {
@@ -125,5 +146,6 @@ export class NationResourceComponent {
         }
 
         this.updated.fire();
+        this.replicate();
     }
 }

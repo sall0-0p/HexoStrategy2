@@ -153,7 +153,6 @@ new Unit(fngUnit, fngSuperiorHex);
 new Unit(fngUnit, fngSuperiorHex);
 
 wait(5);
-print("Making an enemy!");
 const pnlRelations = ponylandia.getRelations();
 pnlRelations.setRelationStatus(fungaria, DiplomaticRelationStatus.Enemy);
 pnlRelations.setRelationStatus(byrdlands, DiplomaticRelationStatus.Allied);
@@ -201,7 +200,3 @@ ponylandia.getModifiers().add({
 //     }
 //     i++;
 // }
-
-ponylandia.getResources().updated.connect(() => {
-    print(ponylandia.getResources().getTotal());
-})

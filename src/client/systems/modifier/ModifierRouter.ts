@@ -5,7 +5,6 @@ export class ModifierRouter {
     private static instance?: ModifierRouter;
     private constructor() {
         ModifiersEmitter.client.on(MessageType.ReplicateModifiers, (data: MessageData[MessageType.ReplicateModifiers]) => {
-            print(data);
             this.processReplicateModifiers(data);
         })
     }

@@ -4,6 +4,7 @@ import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {ModifierParent} from "../../../shared/types/Modifier";
 import {FactoryProvider} from "./FactoryProvider";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
+import {ClientNationResourceView} from "../../systems/resource/ClientNationResourceView";
 
 export class Nation {
     private readonly id;
@@ -16,6 +17,7 @@ export class Nation {
     private modifiers: ModifierContainer;
     private factories: FactoryProvider;
     private buildings: NationBuildings;
+    private resources = new ClientNationResourceView();
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -104,7 +106,10 @@ export class Nation {
         buildings.forEach((data) => {
             this.buildings.set(data[0], data[1]);
         })
-        print(this.buildings);
+    }
+
+    public getResources() {
+        return this.resources;
     }
 
     public getChangedSignal() {

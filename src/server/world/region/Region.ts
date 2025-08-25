@@ -26,7 +26,12 @@ export class Region {
     private modifiers: ModifierContainer;
     private buildings = new RegionBuildingComponent(this);
     private cmUpdated?: Connection;
-    private resources = new RegionResourceComponent(this)
+    private resources = new RegionResourceComponent(this, () => {
+        const regionReplicator = RegionReplicator.getInstance();
+        regionReplicator?.markAsDirty(this, {
+            resources: this.resources.toDTO(),
+        })
+    })
 
     private changed?: Signal<[string, unknown]>;
 

@@ -9,5 +9,7 @@ export interface RegionDTO {
     owner: string,
     population: number,
     buildings: BuildingComponentDTO,
-    resources: ResourceMap,
+    resources: RegionResourceDTO,
 }
+
+export type RegionResourceDTO = ResourceMap;

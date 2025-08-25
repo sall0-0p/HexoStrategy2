@@ -2,6 +2,7 @@ export enum UIStateType {
     Normal = "NormalState",
     RegionConstruction = "RegionConstructionState",
     HexConstruction = "HexConstructionState",
+    ResourceState = "ResourceState",
 }
 
 export interface UIState {

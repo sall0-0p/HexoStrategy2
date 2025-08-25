@@ -9,6 +9,7 @@ import {StateCategories} from "../../../shared/data/ts/StateCategories";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
 import {ModifierContainer} from "../../systems/modifier/ModifierContainer";
 import {ModifierParent} from "../../../shared/types/Modifier";
+import {ClientRegionResourceView} from "../../systems/resource/ClientRegionResourceView";
 
 export class Region {
     private id: string;
@@ -19,6 +20,7 @@ export class Region {
     private population: number;
     private buildings: RegionBuildings;
     private modifiers: ModifierContainer;
+    private resources = new ClientRegionResourceView();
 
     private hexRepository = HexRepository.getInstance();
     private nationRepository = NationRepository.getInstance();
@@ -81,6 +83,10 @@ export class Region {
 
     public getModifiers() {
         return this.modifiers;
+    }
+
+    public getResources() {
+        return this.resources;
     }
 }
 

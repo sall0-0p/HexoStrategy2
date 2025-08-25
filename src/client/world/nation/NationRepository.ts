@@ -109,6 +109,10 @@ export class NationRepository {
             if (delta.building) {
                 nation.setBuildings(delta.building);
             }
+
+            if (delta.resources) {
+                nation.getResources().apply(delta.resources);
+            }
         })
     }
 

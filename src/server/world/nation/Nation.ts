@@ -25,7 +25,14 @@ export class Nation {
     private buildings = new NationBuildingComponent(this);
     private construction = new ConstructionManager(this);
     private factories = new FactoryProvider(this);
-    private resources = new NationResourceComponent(this);
+    private resources = new NationResourceComponent(this, () => {
+        dirtyNationSignal.fire({
+            nation: this,
+            delta: {
+                resources: this.resources.toDTO(true),
+            }
+        } as DirtyNationEvent);
+    });
 
     private changed: Signal<[string, unknown]> = new Signal();
 
@@ -72,6 +79,7 @@ export class Nation {
             allies: allies,
             enemies: enemies,
             building: this.buildings.toDTO(),
+            resources: this.resources.toDTO(),
         }
     }
 

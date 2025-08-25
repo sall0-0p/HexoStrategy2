@@ -28,7 +28,6 @@ export class BuildingProject {
 
     public advance(units: number, ratePerFactory: number, effectiveCostPreview: number, onComplete: () => void) {
         if (units > 0 && this.lockedCost === undefined) {
-            print(effectiveCostPreview);
             this.lockedCost = effectiveCostPreview;
         }
         const cost = this.lockedCost ?? effectiveCostPreview;

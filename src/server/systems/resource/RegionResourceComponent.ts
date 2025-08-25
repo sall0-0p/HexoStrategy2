@@ -2,6 +2,7 @@ import { ResourceMap, ResourceType } from "../../../shared/constants/ResourceDef
 import { RegionBuildingComponent } from "../../systems/construction/BuildingComponent";
 import { Building, BuildingDefs } from "../../../shared/data/ts/BuildingDefs";
 import {Region} from "../../world/region/Region";
+import {RegionResourceDTO} from "../../../shared/network/region/DTO";
 
 export class RegionResourceComponent {
     private base: ResourceMap = new Map();
@@ -9,8 +10,11 @@ export class RegionResourceComponent {
     private lastPublished: ResourceMap = new Map();
 
     constructor(
-        private readonly region: Region
-    ) {}
+        private readonly region: Region,
+        private readonly replicate: () => void,
+    ) {
+        task.delay(1, () => this.recompute());
+    }
 
     public setBase(resources: ResourceMap) {
         this.base.clear();
@@ -38,6 +42,8 @@ export class RegionResourceComponent {
             this.region.getOwner().getResources().addRegionDelta(delta);
             this.lastPublished = this.clone(this.current);
         }
+
+        this.replicate();
     }
 
     public emitRemovalDelta() {
@@ -49,6 +55,10 @@ export class RegionResourceComponent {
 
     public getCurrent(): ResourceMap {
         return this.current;
+    }
+
+    public toDTO(): RegionResourceDTO {
+        return this.getCurrent();
     }
 
     // helpers

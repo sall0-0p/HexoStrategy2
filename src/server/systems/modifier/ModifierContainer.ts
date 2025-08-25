@@ -12,7 +12,6 @@ class Bucket {
     private nextExpiry?: number;
 
     public add(m: Modifier) {
-        print(m.expireAt);
         const existed = this.modifiers.get(m.id);
         if (existed) this.delta(existed, -1);
         this.modifiers.set(m.id, m);
@@ -43,7 +42,6 @@ class Bucket {
 
     public upkeep(now: number) {
         if (this.nextExpiry !== undefined && this.nextExpiry <= now) {
-            print(now, this.nextExpiry);
             let newNext: number | undefined;
             const toDelete: string[] = [];
             this.modifiers.forEach((m, id) => {

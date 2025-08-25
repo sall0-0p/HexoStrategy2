@@ -68,6 +68,10 @@ export class RegionRepository {
             if (delta.buildings) {
                 region.setBuildings(delta.buildings);
             }
+
+            if (delta.resources) {
+                region.getResources().apply(delta.resources);
+            }
         })
     }
 

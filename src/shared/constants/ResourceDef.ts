@@ -1,6 +1,7 @@
 export interface ResourceDef {
     name: string,
     icon: string,
+    layoutOrder: number,
 }
 
 export enum ResourceType {

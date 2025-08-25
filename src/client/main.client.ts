@@ -2,11 +2,12 @@ import {GameState} from "./core/GameState";
 import {ConstructionWindow} from "./ui/construction/ConstructionWindow";
 import {Players} from "@rbxts/services";
 import {StupidTest} from "./test";
-import {defaultRegistry, parseRich} from "./ui/generic/tooltip/RichParser";
 import {TooltipService} from "./ui/generic/tooltip/TooltipService";
 import {RichTextComponent} from "./ui/generic/tooltip/components/RichTextComponent";
-import {MessageData, MessageType, ModifiersEmitter} from "../shared/network/tether/messages/Modifiers";
-import {NationRepository} from "./world/nation/NationRepository";
+import {UIStateType} from "./ui/fsm/UIState";
+import {UIStateMachine} from "./ui/fsm/UIStateMachine";
+import {NormalUIState} from "./ui/fsm/states/NormalState";
+import {ResourceUIState} from "./ui/fsm/states/ResourceState";
 
 declare global {
     interface _G {
@@ -25,21 +26,15 @@ test.MouseButton1Click.Connect(() => {
     new ConstructionWindow();
 });
 
-// Parse
-const reg = defaultRegistry();
-const tokens = parseRich('Hello <b><color value="#ffd000">world</color></b> <icon name="civ"/>!', reg);
-print(tokens);
-// // Iterate tokens in order and render them however you like
-// for (const t of tokens) {
-//     if (t.kind === "text") {
-//         // create TextLabel with t.style.bold, t.style.color, t.text
-//     } else if (t.kind === "inline" && t.name === "icon") {
-//         const name = t.attrs.get("name")!;
-//         // create ImageLabel for that icon; baseline-align; t.style is current style
-//     } else if (t.kind === "break") {
-//         // start new line
-//     }
-// }
+const resourceTest = Players.LocalPlayer.WaitForChild("PlayerGui").WaitForChild("Test").WaitForChild("Resources") as TextButton;
+resourceTest.MouseButton1Click.Connect(() => {
+    const uiStateMachine = UIStateMachine.getInstance();
+    if (uiStateMachine.getCurrentState()?.type === UIStateType.ResourceState) {
+        uiStateMachine.changeTo(new NormalUIState());
+    } else {
+        uiStateMachine.changeTo(new ResourceUIState());
+    }
+})
 
 TooltipService.getInstance().bind(test, [
     { class: RichTextComponent, get: () => 'Hello <b><color value="#ffd000">world</color></b> <icon src="rbxassetid://115581448311350"/> <br/>Hello Man, how are you? This is great.'}
