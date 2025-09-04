@@ -26,6 +26,8 @@ import {Modifier, ModifierType, ModifierVibe} from "../shared/types/Modifier";
 import {ModifiableProperty} from "../shared/constants/ModifiableProperty";
 import {RTIcon} from "../shared/constants/RichText";
 import {FactoryReservationType, FactorySourceType} from "../shared/constants/FactoryDef";
+import {LandEquipmentArchetype} from "../shared/constants/EquipmentArchetype";
+import {TemporaryEquipmentHelper} from "./systems/equipment/TemporaryEquipmentHelper";
 
 WorldTime.getInstance();
 const nationRepository = NationRepository.getInstance();
@@ -79,8 +81,8 @@ const militiaStats: StatsTemplate = {
     hp: 140,                 // less durability
     organisation: 35,        // lower cohesion
     recovery: 0.15,          // slower recovery
-    softAttack: 90,          // weaker against soft targets
-    hardAttack: 15,          // weaker anti‐armour
+    softAttack: 900,          // weaker against soft targets (90)
+    hardAttack: 500,          // weaker anti‐armour (15)
     defence: 300,            // lower defence value
     breakthrough: 50,        // reduced punch-through
     armor: 1,                // minimal protection
@@ -125,11 +127,20 @@ const opTankStats: StatsTemplate = {
     unitType: UnitType.Armored,
 }
 
-let plnInfantry: UnitTemplate = new UnitTemplate("Infantry Division", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", ponylandia);
-let plnMotorised: UnitTemplate = new UnitTemplate("Motorised Division", motorisedStats, new Instance("Model"), "rbxassetid://72306001883478", ponylandia);
-let plnArmored: UnitTemplate = new UnitTemplate("Armored Division", opTankStats, new Instance("Model"), "rbxassetid://111943619870880", ponylandia);
-let brdUnit: UnitTemplate = new UnitTemplate("Infantry Division", militiaStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands);
-let fngUnit: UnitTemplate = new UnitTemplate("Fungarian Militia", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", fungaria);
+
+const infantryEquipmentList = {
+    [LandEquipmentArchetype.InfantryEquipment]: 200,
+}
+const tankEquipmentList = {
+    [LandEquipmentArchetype.InfantryEquipment]: 200,
+    [LandEquipmentArchetype.MediumTank]: 40,
+}
+
+let plnInfantry: UnitTemplate = new UnitTemplate("Infantry Division", infantryStats, new Instance("Model"), "rbxassetid://91903456850255", ponylandia, infantryEquipmentList);
+let plnMotorised: UnitTemplate = new UnitTemplate("Motorised Division", motorisedStats, new Instance("Model"), "rbxassetid://72306001883478", ponylandia, infantryEquipmentList);
+let plnArmored: UnitTemplate = new UnitTemplate("Armored Division", opTankStats, new Instance("Model"), "rbxassetid://111943619870880", ponylandia, tankEquipmentList);
+let brdUnit: UnitTemplate = new UnitTemplate("Infantry Division", militiaStats, new Instance("Model"), "rbxassetid://91903456850255", byrdlands, infantryEquipmentList);
+let fngUnit: UnitTemplate = new UnitTemplate("Fungarian Militia", militiaStats, new Instance("Model"), "rbxassetid://91903456850255", fungaria, infantryEquipmentList);
 
 // → your own “ponylandia” group (at PNL capital)
 new Unit(plnMotorised, pnlCapital).setName("1st Motorised Division");
@@ -200,3 +211,8 @@ ponylandia.getModifiers().add({
 //     }
 //     i++;
 // }
+
+const infantryEquipment = TemporaryEquipmentHelper.create(ponylandia, LandEquipmentArchetype.InfantryEquipment);
+const tank = TemporaryEquipmentHelper.create(ponylandia, LandEquipmentArchetype.MediumTank);
+ponylandia.getEquipment().getStockpile().addEquipment(infantryEquipment, 5000);
+ponylandia.getEquipment().getStockpile().addEquipment(tank, 5000);

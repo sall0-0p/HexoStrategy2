@@ -83,11 +83,14 @@ export namespace CombatEngine {
 
         const unitHp = unit.getHp() / unit.getMaxHp();
         const orgDieSize = unit.getArmor() > target.getPiercing() ? 6 : 4;
-        const hpDamage = (math.random(1, 2) * 0.06) * unitHp;
+        // const hpDamage = (math.random(1, 2) * 0.06) * unitHp;
+        const hpDamage = (math.random(1, 2) * 0.6) * unitHp;
         const orgDamage = ((math.random(1, orgDieSize)) * 0.053) * unitHp;
 
         target.setHp(target.getHp() - hpDamage);
         target.setOrganisation(target.getOrganisation() - orgDamage);
+
+        Accountant.addDamage(battle, target, hpDamage);
     }
 
     export function tick(battle: Battle, unit: Unit, isDefender: boolean) {

@@ -46,6 +46,7 @@ export class UnitRepository {
 
     public deleteUnit(unit: Unit) {
         this.unitsById.delete(unit.getId());
+        unit.destroying.fire();
 
         if (!this.unitsByOwner.has(unit.getOwner())) {
             error("Unit does not exist in our records. Perhabs archives are incomplete.");

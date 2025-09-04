@@ -40,7 +40,6 @@ export namespace Accountant {
     }
 
     // Powers
-
     export function computePowers(battle: Battle): Map<Unit, number> {
         const units = battle.getUnits();
         const attackingReserve = units.attackingReserve;
@@ -115,5 +114,22 @@ export namespace Accountant {
         if (units.size() === 0) return 0;
         const sum = units.reduce((acc, u) => acc + u.getHardness(), 0);
         return sum / units.size();
+    }
+
+    // Damage taken
+    const hpDamageTaken = new Map<Battle, Map<Unit, number>>;
+
+    export function addDamage(battle: Battle, unit: Unit, damage: number) {
+        if (!hpDamageTaken.has(battle)) {
+            hpDamageTaken.set(battle, new Map());
+        }
+
+        const battleDamage = hpDamageTaken.get(battle)!;
+        const value = (battleDamage.get(unit) ?? 0) + damage;
+        battleDamage.set(unit, value);
+    }
+
+    export function getDamageForBattle(battle: Battle): Map<Unit, number> {
+        return hpDamageTaken.get(battle) ?? new Map();
     }
 }

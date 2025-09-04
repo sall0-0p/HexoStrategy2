@@ -72,18 +72,29 @@ export class Battle {
     }
 
     public removeUnit(unit: Unit): void {
+        let wasOnFrontline = false;
         if (this.attackers.has(unit.getOwner())) {
             if (this.attackingUnits.find(u => u.getId() === unit.getId())) {
+                wasOnFrontline = true;
                 this.attackingUnits.remove(this.attackingUnits.findIndex(u => u.getId() === unit.getId()));
             } else {
                 this.attackingReserve.remove(this.attackingReserve.findIndex(u => u.getId() === unit.getId()));
             }
         } else {
             if (this.defendingUnits.find(u => u.getId() === unit.getId())) {
+                wasOnFrontline = true;
                 this.defendingUnits.remove(this.defendingUnits.findIndex(u => u.getId() === unit.getId()));
             } else {
                 this.defendingReserve.remove(this.defendingReserve.findIndex(u => u.getId() === unit.getId()));
             }
+        }
+
+        const losses = Accountant.getDamageForBattle(this);
+        const unitLosses = losses.get(unit) ?? 0;
+        if (unitLosses > 0 && wasOnFrontline) {
+            unit.getEquipment().applyLosses(unitLosses);
+        } else {
+            print(`${unit.getName()} did not suffer any losses.`);
         }
     }
 
@@ -114,7 +125,16 @@ export class Battle {
     public toSummaryDTO(): BattleSummaryDTO { return DTOFactory.toSummaryDTO(this); }
     public toSubscriptionEvent(): BattleUpdate { return DTOFactory.toSubscriptionEvent(this); }
 
-    private end(): void { this.onBattleEnded.fire(this); }
+    private end(): void {
+        print("Ending battle!", this.defendingUnits.size(), this.attackingUnits.size());
+        this.defendingUnits.forEach((u) => {
+            this.removeUnit(u);
+        })
+        this.attackingUnits.forEach((u) => {
+            this.removeUnit(u);
+        })
+        this.onBattleEnded.fire(this);
+    }
 }
 
 interface Units {

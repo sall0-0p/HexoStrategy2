@@ -12,6 +12,7 @@ export enum ModifiableProperty {
     UnitPiercing = "piercing",
     UnitInitiative = "initiative",
     UnitOrganisationLossInMovement = "movementOrganisationLoss",
+    UnitEquipmentRecovery = "unitEquipmentRecovery",
 
     EnemyLandFortEffectiveness = "enemyLandFortEffectiveness",
 

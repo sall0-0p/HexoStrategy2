@@ -3,6 +3,8 @@ import {TemplateRepository} from "./TemplateRepository";
 import {UnitType} from "../../../../shared/constants/UnitType";
 import {StatsTemplate} from "../../../../shared/types/StatsTemplate";
 import {UnitTemplateDTO} from "../../../../shared/network/unit/template/DTO";
+import {LandEquipmentArchetype} from "../../../../shared/constants/EquipmentArchetype";
+import {Signal} from "../../../../shared/classes/Signal";
 
 const templateRepository = TemplateRepository.getInstance();
 
@@ -30,7 +32,11 @@ export class UnitTemplate {
     private hardness: number;
     private unitType: UnitType;
 
-    constructor(name: string, stats: StatsTemplate, model: Model, icon: string, owner: Nation) {
+    private requiredEquipment: Map<LandEquipmentArchetype, number> = new Map();
+
+    public readonly updated: Signal<[]> = new Signal();
+
+    constructor(name: string, stats: StatsTemplate, model: Model, icon: string, owner: Nation, requiredEquipment: { [key in LandEquipmentArchetype]?: number } ) {
         this.id = TemplateCounter.getNextId();
         this.name = name;
         this.speed = stats.speed;
@@ -50,6 +56,10 @@ export class UnitTemplate {
         this.model = model;
         this.icon = icon;
         this.owner = owner;
+
+        for (const [t, n] of pairs(requiredEquipment)) {
+            this.requiredEquipment.set(t, n);
+        }
 
         templateRepository.addTemplate(this);
     }
@@ -128,6 +138,10 @@ export class UnitTemplate {
 
     public getOwner() {
         return this.owner;
+    }
+
+    public getEquipment() {
+        return this.requiredEquipment;
     }
 
     public toUnitTemplateDTO(): UnitTemplateDTO {

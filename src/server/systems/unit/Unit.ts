@@ -7,6 +7,7 @@ import {UnitDTO} from "../../../shared/network/unit/DTO";
 import {UnitReplicator} from "./UnitReplicator";
 import {OrderQueue} from "./order/OrderQueue";
 import {StatKey, StatsComponent} from "./components/StatsComponent";
+import {UnitEquipmentComponent} from "../equipment/UnitEquipmentComponent";
 
 export class Unit {
     // Base properties
@@ -18,6 +19,7 @@ export class Unit {
 
     // Components
     private statsComponent: StatsComponent;
+    private equipmentComponent: UnitEquipmentComponent;
     private orderQueue = new OrderQueue(this);
 
     // Meta
@@ -25,7 +27,8 @@ export class Unit {
     private unitReplicator = UnitReplicator.getInstance();
     private unitRepository = UnitRepository.getInstance();
 
-    public changed: Signal<[string, unknown]> = new Signal();
+    public readonly updated: Signal<[string, unknown]> = new Signal();
+    public readonly destroying: Signal<[]> = new Signal();
 
     constructor(template: UnitTemplate, position: Hex) {
         // Base
@@ -34,12 +37,13 @@ export class Unit {
         this.owner = template.getOwner();
         this.position = position;
         this.statsComponent = new StatsComponent(this, template);
+        this.equipmentComponent = new UnitEquipmentComponent(this);
 
         this.unitRepository.addUnit(this);
         this.unitReplicator.addToCreateQueue(this);
 
         this.statsComponent.changed.connect((key, value) => {
-            this.changed.fire(key, value);
+            this.updated.fire(key, value);
         })
     }
 
@@ -61,7 +65,7 @@ export class Unit {
         this.unitReplicator.markDirty(this, {
             name: name,
         });
-        this.changed.fire("name", name);
+        this.updated.fire("name", name);
     }
 
     public getTemplate() {
@@ -79,7 +83,7 @@ export class Unit {
             ownerId: owner.getId(),
         });
         this.unitRepository.updateUnit(this, "owner", oldOwner, owner);
-        this.changed.fire("owner", owner);
+        this.updated.fire("owner", owner);
         this.updateModifierParents();
     }
 
@@ -95,7 +99,7 @@ export class Unit {
             positionId: position.getId(),
         });
         this.unitRepository.updateUnit(this, "position", oldPosition, position);
-        this.changed.fire("position", position);
+        this.updated.fire("position", position);
         this.updateModifierParents();
     }
 
@@ -187,6 +191,7 @@ export class Unit {
     public getBreakthrough(): number {
         return this.statsComponent.get(StatKey.Breakthrough);
     }
+
     public setBreakthrough(value: number): void {
         this.statsComponent.set(StatKey.Breakthrough, value);
     }
@@ -194,6 +199,7 @@ export class Unit {
     public getArmor(): number {
         return this.statsComponent.get(StatKey.Armor);
     }
+
     public setArmor(value: number): void {
         this.statsComponent.set(StatKey.Armor, value);
     }
@@ -240,6 +246,10 @@ export class Unit {
 
     public getModifiers() {
         return this.statsComponent.getModifierContainer();
+    }
+
+    public getEquipment() {
+        return this.equipmentComponent;
     }
 
     private updateModifierParents() {
