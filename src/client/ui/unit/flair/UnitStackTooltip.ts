@@ -6,29 +6,30 @@ import {RTColor} from "../../../../shared/constants/RichText";
 import {TextUtils} from "../../../../shared/functions/TextUtils";
 import {TooltipDelay} from "../../../../shared/constants/TooltipDelay";
 import {TemplateRequester} from "../../../systems/unit/template/TemplateRequester";
+import {RichTextComponent} from "../../generic/tooltip/components/RichTextComponent";
 
 export namespace UnitStackTooltip {
     const font = `font color="${RTColor.Important}"`
+    const rich = `color value="${RTColor.Important}"`
 
-    function getTitle(stack: UnitStack): { text: string } {
+    function getTitle(stack: UnitStack): string {
         const units = stack.getUnits();
 
         let name: string;
         if (units.size() > 1) {
             const template = TemplateRequester.getTemplate(units[0].getTemplateId(), true);
-            const templateName  = template?.name ?? "???"
-            name = `<${font}>${units.size()}</font> of <${font}>${templateName}</font>`
+            const templateName  = template?.name ?? "???";
+            name = `<${rich}>${units.size()}</color> of <${rich}>${templateName}</color>`;
         } else if (units.size() === 1) {
-            name = `<${font}>${units[0].getName()}</font>`
+            name = `<${rich}>${units[0].getName()}</color>`;
         } else {
-            return { text: "???" }
+            return "???";
         }
 
         const unit = units[0];
         const nation = unit.getOwner();
-        const text = name + ` (<${font}>${nation.getName()}</font>)`;
 
-        return { text };
+        return name + ` (<${rich}>${nation.getName()}</color> <flag id=${nation.getId()}/>)`;
     }
 
     function getOrganisation(stack: UnitStack): { text: string } {
@@ -85,7 +86,7 @@ export namespace UnitStackTooltip {
         const frame = flair.getFrame();
 
         tooltipService.bind(frame, [
-            { class: TextComponent, get: () => getTitle(stack) },
+            { class: RichTextComponent, get: () => getTitle(stack) },
             { class: SeparatorComponent, delay: TooltipDelay.MoreInfo },
             { class: TextComponent, delay: TooltipDelay.MoreInfo, get: () => getOrganisation(stack) },
             { class: TextComponent, delay: TooltipDelay.MoreInfo, get: () => getStrength(stack) },
