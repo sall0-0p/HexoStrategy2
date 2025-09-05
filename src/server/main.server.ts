@@ -84,8 +84,8 @@ const militiaStats: StatsTemplate = {
     hp: 140,                 // less durability
     organisation: 35,        // lower cohesion
     recovery: 0.15,          // slower recovery
-    softAttack: 900,          // weaker against soft targets (90)
-    hardAttack: 500,          // weaker anti‐armour (15)
+    softAttack: 90,          // weaker against soft targets (90)
+    hardAttack: 15,          // weaker anti‐armour (15)
     defence: 300,            // lower defence value
     breakthrough: 50,        // reduced punch-through
     armor: 1,                // minimal protection
@@ -129,7 +129,6 @@ const opTankStats: StatsTemplate = {
     combatWidth: 40,
     unitType: UnitType.Armored,
 }
-
 
 const infantryEquipmentList = {
     [LandEquipmentArchetype.InfantryEquipment]: 200,
@@ -200,11 +199,6 @@ ponylandia.getModifiers().add({
     vibe: ModifierVibe.Positive,
     expireAt: WorldTime.getInstance().getTimestamp() + (86400 * 5),
 } as Modifier)
-
-// constructionManger.addProject(region!, Building.CivilianFactory);
-// constructionManger.addProject(region!, Building.Infrastructure);
-// print("Civ count:", buildings.getBuildingCount(Building.CivilianFactory));
-// print("Civ slot count:", buildings.getSlotCount(Building.CivilianFactory));
 
 // let i = 0;
 // while (i < 1000) {

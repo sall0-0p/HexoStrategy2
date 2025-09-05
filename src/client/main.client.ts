@@ -1,6 +1,6 @@
 import {GameState} from "./core/GameState";
 import {ConstructionWindow} from "./ui/construction/ConstructionWindow";
-import {Players} from "@rbxts/services";
+import {Players, ReplicatedStorage} from "@rbxts/services";
 import {StupidTest} from "./test";
 import {TooltipService} from "./ui/generic/tooltip/TooltipService";
 import {RichTextComponent} from "./ui/generic/tooltip/components/RichTextComponent";
@@ -43,5 +43,8 @@ TooltipService.getInstance().bind(test, [
 
 wait(5);
 print(EquipmentTypeRepository.getInstance().getAll());
+
+const event = ReplicatedStorage.WaitForChild("Events").WaitForChild("StockpileReplicator") as RemoteEvent;
+event.OnClientEvent.Connect((d: unknown) => print(d));
 // const ponylandia = NationRepository.getInstance().getById("PNL")!;
 // print(ponylandia.getModifiers().getAllModifiers());

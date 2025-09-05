@@ -1,4 +1,4 @@
-import {EquipmentStockpile} from "./EquipmentStockpile";
+import {EquipmentStockpile} from "./stockpile/EquipmentStockpile";
 import {Unit} from "../unit/Unit";
 import {TimeSignalType, WorldTime} from "../time/WorldTime";
 import {EquipmentArchetype} from "../../../shared/constants/EquipmentArchetype";
@@ -7,7 +7,7 @@ import {NationEquipmentComponent} from "./NationEquipmentComponent";
 import {TemporaryEquipmentHelper} from "./TemporaryEquipmentHelper";
 
 export class UnitEquipmentComponent {
-    private readonly stockpile = new EquipmentStockpile();
+    private readonly stockpile;
     private max: Map<EquipmentArchetype, number> = new Map();
     private reservations: Set<EquipmentReservation> = new Set();
 
@@ -18,8 +18,11 @@ export class UnitEquipmentComponent {
             WorldTime.getInstance().on(TimeSignalType.Hour)
                 .connect(() => this.update());
 
+        this.stockpile = new EquipmentStockpile("Unit", unit);
+
         this.unit.destroying.once(() => {
             connection1.disconnect();
+            this.stockpile.cleanup();
         });
 
         this.max = this.unit.getTemplate().getEquipment();

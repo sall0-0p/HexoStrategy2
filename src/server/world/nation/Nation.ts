@@ -13,7 +13,7 @@ import {NationRepository} from "./NationRepository";
 import {ModifierParent} from "../../../shared/types/Modifier";
 import {FactoryProvider} from "../../systems/construction/FactoryProvider";
 import {NationResourceComponent} from "../../systems/resource/NationResourceComponent";
-import {EquipmentStockpile} from "../../systems/equipment/EquipmentStockpile";
+import {EquipmentStockpile} from "../../systems/equipment/stockpile/EquipmentStockpile";
 import {NationEquipmentComponent} from "../../systems/equipment/NationEquipmentComponent";
 
 export class Nation {
@@ -27,7 +27,7 @@ export class Nation {
     private buildings = new NationBuildingComponent(this);
     private construction = new ConstructionManager(this);
     private factories = new FactoryProvider(this);
-    private equipment = new NationEquipmentComponent(this);
+    private equipment: NationEquipmentComponent;
     private resources = new NationResourceComponent(this, () => {
         dirtyNationSignal.fire({
             nation: this,
@@ -46,6 +46,7 @@ export class Nation {
         this.flag = data.flag;
         this.relations = new DiplomaticRelations(this);
         this.modifiers = new ModifierContainer(this.id, ModifierParent.Nation);
+        this.equipment = new NationEquipmentComponent(this);
 
         this.buildings.updated.connect(() => {
             dirtyNationSignal.fire({

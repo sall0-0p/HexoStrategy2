@@ -88,6 +88,6 @@ namespace EquipmentIdFactory {
 
     export function generateId(archetype: EquipmentArchetype): string {
         currentIdCounter++;
-        return `(archetype as string)_${tostring(currentIdCounter)}`;
+        return `${archetype as string}_${tostring(currentIdCounter)}`;
     }
 }

@@ -1,12 +1,17 @@
-import {EquipmentArchetype} from "../../../shared/constants/EquipmentArchetype";
-import {BaseEquipmentType} from "./type/BaseEquipmentType";
+import {EquipmentArchetype} from "../../../../shared/constants/EquipmentArchetype";
+import {BaseEquipmentType} from "../type/BaseEquipmentType";
+import {EquipmentStockpileReplicator} from "./EquipmentStockpileReplicator";
+import {Nation} from "../../../world/nation/Nation";
+import {Unit} from "../../unit/Unit";
 
 export class EquipmentStockpile {
     private readonly stockpile: Map<EquipmentArchetype, Map<BaseEquipmentType, number>> = new Map();
+    private replicator: EquipmentStockpileReplicator;
     public changed: boolean = false;
 
-    constructor() {
-
+    constructor(public readonly kind: "Unit" | "Nation", public readonly target: Unit | Nation) {
+        print(kind, target.getId(), target.getName(), Counter.getNext());
+        this.replicator = new EquipmentStockpileReplicator(this);
     }
 
     private getForArchetype(archetype: EquipmentArchetype) {
@@ -18,20 +23,32 @@ export class EquipmentStockpile {
         return newMap;
     }
 
+    public getAll() {
+        const result: Map<BaseEquipmentType, number> = new Map();
+        this.stockpile.forEach((m, a) => {
+            m.forEach((n, t) => {
+                result.set(t, n);
+            })
+        })
+        return result;
+    }
+
     public addEquipment(equipmentType: BaseEquipmentType, count: number) {
         assert(count >= 0, "Added equipment count has to be positive");
         const aStockpile = this.getForArchetype(equipmentType.getArchetype());
         const curCount = this.getEquipmentCount(equipmentType);
         aStockpile.set(equipmentType, curCount + count);
         this.changed = true;
+        this.replicator.sendDelta([equipmentType]);
     }
 
     public removeEquipment(equipmentType: BaseEquipmentType, count: number) {
-        assert(count <= 0, "Removed equipment count has to be negative");
+        assert(count >= 0, "Removed equipment count has to be positive");
         const aStockpile = this.getForArchetype(equipmentType.getArchetype());
         const curCount = this.getEquipmentCount(equipmentType);
         aStockpile.set(equipmentType, math.max(curCount - count, 0));
         this.changed = true;
+        this.replicator.sendDelta([equipmentType]);
     }
 
     public setEquipment(equipmentType: BaseEquipmentType, count: number) {
@@ -39,11 +56,13 @@ export class EquipmentStockpile {
         const aStockpile = this.getForArchetype(equipmentType.getArchetype());
         aStockpile.set(equipmentType, count);
         this.changed = true;
+        this.replicator.sendDelta([equipmentType]);
     }
 
     public takeEquipmentForArchetype(archetype: EquipmentArchetype, count: number, sort?: (a: BaseEquipmentType, b: BaseEquipmentType) => boolean): Map<BaseEquipmentType, number> {
         const stockpileMap = this.stockpile.get(archetype);
         const result: Map<BaseEquipmentType, number> = new Map();
+        const types: BaseEquipmentType[] = [];
         let remaining = count;
 
         if (!stockpileMap) return result;
@@ -67,10 +86,12 @@ export class EquipmentStockpile {
             if (toTake > 0 && stockpileMap.get(t)) {
                 result.set(t, toTake);
                 stockpileMap.set(t, stockpileMap.get(t)! - toTake);
+                types.push(t);
                 remaining -= toTake;
             }
         }
 
+        this.replicator.sendDelta(types);
         return result;
     }
 
@@ -81,6 +102,12 @@ export class EquipmentStockpile {
             })
         });
         this.changed = true;
+
+        const types: BaseEquipmentType[] = [];
+        this.getAll().forEach((n, t) => {
+            types.push(t);
+        })
+        this.replicator.sendDelta(types);
     }
 
     public getEquipmentCount(equipmentType: BaseEquipmentType): number {
@@ -95,5 +122,21 @@ export class EquipmentStockpile {
             sum += n;
         });
         return sum;
+    }
+
+    public getStockpile() {
+        return this.stockpile as ReadonlyMap<EquipmentArchetype, ReadonlyMap<BaseEquipmentType, number>>;
+    }
+
+    public cleanup() {
+        this.replicator.cleanup();
+    }
+}
+
+namespace Counter {
+    let count = 1;
+
+    export function getNext() {
+        return count++;
     }
 }

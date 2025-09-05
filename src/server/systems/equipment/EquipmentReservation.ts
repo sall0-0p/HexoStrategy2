@@ -1,6 +1,6 @@
 import {EquipmentArchetype} from "../../../shared/constants/EquipmentArchetype";
 import {BaseEquipmentType} from "./type/BaseEquipmentType";
-import {EquipmentStockpile} from "./EquipmentStockpile";
+import {EquipmentStockpile} from "./stockpile/EquipmentStockpile";
 
 export class EquipmentReservation {
     private needed: Map<EquipmentArchetype, number>;
