@@ -29,7 +29,7 @@ export namespace UnitStackTooltip {
         const unit = units[0];
         const nation = unit.getOwner();
 
-        return name + ` (<${rich}>${nation.getName()}</color> <flag id=${nation.getId()}/>)`;
+        return name + ` ( <${rich}>${nation.getName()}</color> <flag id=${nation.getId()}/> )`;
     }
 
     function getOrganisation(stack: UnitStack): { text: string } {
