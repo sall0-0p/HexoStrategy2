@@ -11,13 +11,15 @@ import {ClientEquipmentFactory} from "./ClientEquipmentFactory";
 import {BaseEquipmentType} from "./BaseEquipmentType";
 import {LandEquipmentType} from "./LandEquipmentType";
 import {ReplicatedStorage} from "@rbxts/services";
+import {Nation} from "../../world/nation/Nation";
+import {NationRepository} from "../../world/nation/NationRepository";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("EquipmentTypeReplicator") as RemoteEvent;
 
 export class EquipmentTypeRepository {
     private mapById = new Map<string, BaseEquipmentType>();
-    private mapByOwner = new Map<string, BaseEquipmentType[]>();
+    private mapByOwner = new Map<Nation, BaseEquipmentType[]>();
     private mapByArchetype = new Map<EquipmentArchetype, BaseEquipmentType[]>();
 
     private static instance: EquipmentTypeRepository;
@@ -54,8 +56,8 @@ export class EquipmentTypeRepository {
         return result;
     }
 
-    public getAllByOwner(ownerId: string) {
-        const arr = this.mapByOwner.get(ownerId) || [];
+    public getAllByOwner(nation: Nation) {
+        const arr = this.mapByOwner.get(nation) || [];
         return [...arr];
     }
 
@@ -73,8 +75,9 @@ export class EquipmentTypeRepository {
         const inst = ClientEquipmentFactory.fromDTO(dto);
         this.mapById.set(dto.id, inst);
 
-        if (!this.mapByOwner.has(dto.owner)) this.mapByOwner.set(dto.owner, []);
-        this.mapByOwner.get(dto.owner)!.push(inst);
+        const nation = this.resolveNation(dto.owner)
+        if (!this.mapByOwner.has(nation)) this.mapByOwner.set(nation, []);
+        this.mapByOwner.get(nation)!.push(inst);
 
         if (!this.mapByArchetype.has(dto.archetype)) this.mapByArchetype.set(dto.archetype, []);
         this.mapByArchetype.get(dto.archetype)!.push(inst);
@@ -92,7 +95,7 @@ export class EquipmentTypeRepository {
             inst.applyMutableFieldsFromDTO(dto);
         }
 
-        const ownerArr = this.mapByOwner.get(inst.getOwnerId());
+        const ownerArr = this.mapByOwner.get(inst.getOwner());
         if (ownerArr) {
             const idx = this.findIndexById(ownerArr, dto.id);
             if (idx !== undefined) ownerArr[idx] = inst;
@@ -105,6 +108,13 @@ export class EquipmentTypeRepository {
             if (idx !== undefined) archArr[idx] = inst;
             else archArr.push(inst);
         }
+    }
+
+    private resolveNation(id: string) {
+        const repo = NationRepository.getInstance();
+        const candidate = repo.getById(id);
+        if (!candidate) error(`Failed to query nation ${id}`);
+        return candidate;
     }
 
     private findIndexById(arr: BaseEquipmentType[], id: string): number | undefined {

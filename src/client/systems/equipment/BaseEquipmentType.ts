@@ -1,10 +1,12 @@
 // client/equipment/ClientBaseEquipmentType.ts
 import { EquipmentArchetype } from "shared/constants/EquipmentArchetype";
 import { EquipmentKind, EquipmentTypeDTO } from "shared/network/tether/messages/EquipmentEmitter";
+import {Nation} from "../../world/nation/Nation";
+import {NationRepository} from "../../world/nation/NationRepository";
 
 export abstract class BaseEquipmentType {
     protected id: string;
-    protected ownerId: string;
+    protected owner: Nation;
     protected archetype: EquipmentArchetype;
     protected name: string;
     protected icon: string;
@@ -15,7 +17,7 @@ export abstract class BaseEquipmentType {
 
     public constructor(dto: EquipmentTypeDTO) {
         this.id = dto.id;
-        this.ownerId = dto.owner; // resolve Nation on client elsewhere
+        this.owner = this.resolveNation(dto.owner); // resolve Nation on client elsewhere
         this.archetype = dto.archetype;
         this.name = dto.name;
         this.icon = dto.icon;
@@ -25,8 +27,15 @@ export abstract class BaseEquipmentType {
         this.parentId = dto.parentId;
     }
 
+    private resolveNation(id: string) {
+        const repo = NationRepository.getInstance();
+        const candidate = repo.getById(id);
+        if (!candidate) error(`Failed to query nation ${id}`);
+        return candidate;
+    }
+
     public getId() { return this.id; }
-    public getOwnerId() { return this.ownerId; }
+    public getOwner() { return this.owner; }
     public getArchetype() { return this.archetype; }
     public getName() { return this.name; }
     public getIcon() { return this.icon; }
