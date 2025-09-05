@@ -1,8 +1,8 @@
 import {EquipmentArchetype} from "../../../shared/constants/EquipmentArchetype";
-import {EquipmentType} from "./type/EquipmentType";
+import {BaseEquipmentType} from "./type/BaseEquipmentType";
 
 export class EquipmentStockpile {
-    private readonly stockpile: Map<EquipmentArchetype, Map<EquipmentType, number>> = new Map();
+    private readonly stockpile: Map<EquipmentArchetype, Map<BaseEquipmentType, number>> = new Map();
     public changed: boolean = false;
 
     constructor() {
@@ -13,12 +13,12 @@ export class EquipmentStockpile {
         const candidate = this.stockpile.get(archetype);
         if (candidate) return candidate;
 
-        const newMap: Map<EquipmentType, number> = new Map();
+        const newMap: Map<BaseEquipmentType, number> = new Map();
         this.stockpile.set(archetype, newMap);
         return newMap;
     }
 
-    public addEquipment(equipmentType: EquipmentType, count: number) {
+    public addEquipment(equipmentType: BaseEquipmentType, count: number) {
         assert(count >= 0, "Added equipment count has to be positive");
         const aStockpile = this.getForArchetype(equipmentType.getArchetype());
         const curCount = this.getEquipmentCount(equipmentType);
@@ -26,7 +26,7 @@ export class EquipmentStockpile {
         this.changed = true;
     }
 
-    public removeEquipment(equipmentType: EquipmentType, count: number) {
+    public removeEquipment(equipmentType: BaseEquipmentType, count: number) {
         assert(count <= 0, "Removed equipment count has to be negative");
         const aStockpile = this.getForArchetype(equipmentType.getArchetype());
         const curCount = this.getEquipmentCount(equipmentType);
@@ -34,20 +34,20 @@ export class EquipmentStockpile {
         this.changed = true;
     }
 
-    public setEquipment(equipmentType: EquipmentType, count: number) {
+    public setEquipment(equipmentType: BaseEquipmentType, count: number) {
         assert(count >= 0, "Equipment count has to be positive");
         const aStockpile = this.getForArchetype(equipmentType.getArchetype());
         aStockpile.set(equipmentType, count);
         this.changed = true;
     }
 
-    public takeEquipmentForArchetype(archetype: EquipmentArchetype, count: number, sort?: (a: EquipmentType, b: EquipmentType) => boolean): Map<EquipmentType, number> {
+    public takeEquipmentForArchetype(archetype: EquipmentArchetype, count: number, sort?: (a: BaseEquipmentType, b: BaseEquipmentType) => boolean): Map<BaseEquipmentType, number> {
         const stockpileMap = this.stockpile.get(archetype);
-        const result: Map<EquipmentType, number> = new Map();
+        const result: Map<BaseEquipmentType, number> = new Map();
         let remaining = count;
 
         if (!stockpileMap) return result;
-        const stockpile: [EquipmentType, number][] = [];
+        const stockpile: [BaseEquipmentType, number][] = [];
         stockpileMap.forEach((n, t) => {
             stockpile.push([t, n]);
         })
@@ -83,7 +83,7 @@ export class EquipmentStockpile {
         this.changed = true;
     }
 
-    public getEquipmentCount(equipmentType: EquipmentType): number {
+    public getEquipmentCount(equipmentType: BaseEquipmentType): number {
         const aStockpile = this.getForArchetype(equipmentType.getArchetype());
         return aStockpile.get(equipmentType) ?? 0;
     }

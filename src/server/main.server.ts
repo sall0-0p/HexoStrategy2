@@ -27,12 +27,15 @@ import {ModifiableProperty} from "../shared/constants/ModifiableProperty";
 import {RTIcon} from "../shared/constants/RichText";
 import {FactoryReservationType, FactorySourceType} from "../shared/constants/FactoryDef";
 import {LandEquipmentArchetype} from "../shared/constants/EquipmentArchetype";
-import {TemporaryEquipmentHelper} from "./systems/equipment/TemporaryEquipmentHelper";
+import {EquipmentTypeRepository} from "./systems/equipment/type/EquipmentTypeRepository";
+import {LandEquipmentType} from "./systems/equipment/type/LandEquipmentType";
+import {LandEquipmentStats} from "../shared/types/EquipmentStats";
 
 WorldTime.getInstance();
 const nationRepository = NationRepository.getInstance();
 const hexRepository = HexRepository.getInstance();
 const regionRepository = RegionRepository.getInstance();
+EquipmentTypeRepository.getInstance();
 TemplateRepository.getInstance();
 TemplateController.getInstance();
 UnitRepository.getInstance();
@@ -211,8 +214,9 @@ ponylandia.getModifiers().add({
 //     }
 //     i++;
 // }
+//
+const infantryEquipment = new LandEquipmentType(ponylandia, LandEquipmentArchetype.InfantryEquipment, "AR-15", "", LandEquipmentStats.zero());
+const tank = new LandEquipmentType(ponylandia, LandEquipmentArchetype.MediumTank, "M1A3 Sherman", "", LandEquipmentStats.zero());
 
-const infantryEquipment = TemporaryEquipmentHelper.create(ponylandia, LandEquipmentArchetype.InfantryEquipment);
-const tank = TemporaryEquipmentHelper.create(ponylandia, LandEquipmentArchetype.MediumTank);
 ponylandia.getEquipment().getStockpile().addEquipment(infantryEquipment, 5000);
 ponylandia.getEquipment().getStockpile().addEquipment(tank, 5000);

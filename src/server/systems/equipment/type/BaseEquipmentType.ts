@@ -1,17 +1,22 @@
 import {EquipmentArchetype} from "../../../../shared/constants/EquipmentArchetype";
 import {Nation} from "../../../world/nation/Nation";
+import {Signal} from "../../../../shared/classes/Signal";
+import {EquipmentKind, EquipmentTypeDTO} from "../../../../shared/network/tether/messages/EquipmentEmitter";
 
-export abstract class EquipmentType {
+export abstract class BaseEquipmentType {
     private id: string;
     private generation: number;
     private outdated: boolean = false;
+
+    public readonly changed: Signal<[]> = new Signal();
 
     constructor(
         private readonly owner: Nation,
         private readonly archetype: EquipmentArchetype,
         private name: string,
         private icon: string,
-        private readonly parent?: EquipmentType,
+        private kind: EquipmentKind,
+        private readonly parent?: BaseEquipmentType,
     ) {
         this.id = EquipmentIdFactory.generateId(archetype);
 
@@ -34,8 +39,13 @@ export abstract class EquipmentType {
         return this.name;
     }
 
+    public getKind() {
+        return this.kind;
+    }
+
     public setName(name: string) {
-        return this.name;
+        this.name = name;
+        this.changed.fire();
     }
 
     public getIcon() {
@@ -44,6 +54,7 @@ export abstract class EquipmentType {
 
     public setIcon(icon: string) {
         this.icon = icon;
+        this.changed.fire();
     }
 
     public isOutdated() {
@@ -52,6 +63,7 @@ export abstract class EquipmentType {
 
     public setOutdated(outdated: boolean) {
         this.outdated = outdated;
+        this.changed.fire();
     }
 
     public getParent() {
@@ -64,6 +76,10 @@ export abstract class EquipmentType {
 
     public getArchetype() {
         return this.archetype;
+    }
+
+    public toDTO(): EquipmentTypeDTO {
+        error(`Base toDTO() is empty, do not use it, ${this.kind} is missing override!`);
     }
 }
 

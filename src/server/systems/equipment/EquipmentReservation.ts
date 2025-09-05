@@ -1,16 +1,16 @@
 import {EquipmentArchetype} from "../../../shared/constants/EquipmentArchetype";
-import {EquipmentType} from "./type/EquipmentType";
+import {BaseEquipmentType} from "./type/BaseEquipmentType";
 import {EquipmentStockpile} from "./EquipmentStockpile";
 
 export class EquipmentReservation {
     private needed: Map<EquipmentArchetype, number>;
     private delivered: Map<EquipmentArchetype, number> = new Map();
-    private onDeliver?: (payload: Map<EquipmentType, number>) => void;
+    private onDeliver?: (payload: Map<BaseEquipmentType, number>) => void;
     private onComplete?: () => void;
 
     constructor(
         requirements: Map<EquipmentArchetype, number>,
-        onDeliver?: (payload: Map<EquipmentType, number>) => void,
+        onDeliver?: (payload: Map<BaseEquipmentType, number>) => void,
         onComplete?: () => void
     ) {
         this.needed = requirements;
@@ -21,7 +21,7 @@ export class EquipmentReservation {
 
     /** Try to fulfill part of this reservation from national stockpile */
     public deliverFrom(stockpile: EquipmentStockpile) {
-        const payload = new Map<EquipmentType, number>();
+        const payload = new Map<BaseEquipmentType, number>();
 
         this.needed.forEach((need, archetype) => {
             const deliveredSoFar = this.delivered.get(archetype) ?? 0;

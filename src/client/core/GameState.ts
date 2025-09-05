@@ -7,14 +7,13 @@ import {UnitFlairManager} from "../ui/unit/flair/UnitFlairManager";
 import {HeatmapManager} from "../ui/heatmap/HeatmapManager";
 import {SelectionManager} from "../ui/unit/selection/SelectionManager";
 import {ReplicatedStorage, StarterGui} from "@rbxts/services";
-import {Bind} from "../ui/Bind";
-import {MoveBind} from "../ui/unit/order/MoveBind";
 import {BattleFlairManager} from "../ui/battle/flair/BattleFlairManager";
 import {BattleWindowManager} from "../ui/battle/screen/BattleWindowManager";
 import {TooltipService} from "../ui/generic/tooltip/TooltipService";
 import {UIStateMachine} from "../ui/fsm/UIStateMachine";
 import {NormalUIState} from "../ui/fsm/states/NormalState";
 import {ModifierRouter} from "../systems/modifier/ModifierRouter";
+import {EquipmentTypeRepository} from "../systems/equipment/EquipmentTypeRepository";
 
 const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("SelectNation") as RemoteFunction;
@@ -57,6 +56,7 @@ export class GameState {
         RegionRepository.resetInstance();
         UnitRepository.resetInstance();
         ModifierRouter.resetInstance();
+        // TODO: Add EquipmentTypeRepository resets, or probably I do not need them, idk.
 
         // UI
         UnitFlairManager.resetInstance();
@@ -72,6 +72,7 @@ export class GameState {
         NationRepository.getInstance();
         HexRepository.getInstance();
         RegionRepository.getInstance();
+        EquipmentTypeRepository.getInstance();
         UnitRepository.getInstance();
         ModifierRouter.getInstance();
 

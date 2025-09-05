@@ -8,6 +8,7 @@ import {UIStateType} from "./ui/fsm/UIState";
 import {UIStateMachine} from "./ui/fsm/UIStateMachine";
 import {NormalUIState} from "./ui/fsm/states/NormalState";
 import {ResourceUIState} from "./ui/fsm/states/ResourceState";
+import {EquipmentTypeRepository} from "./systems/equipment/EquipmentTypeRepository";
 
 declare global {
     interface _G {
@@ -40,6 +41,7 @@ TooltipService.getInstance().bind(test, [
     { class: RichTextComponent, get: () => 'Hello <b><color value="#ffd000">world</color></b> <icon src="rbxassetid://115581448311350"/> <br/>Hello Man, how are you? This is great.'}
 ]);
 
-// wait(5);
+wait(5);
+print(EquipmentTypeRepository.getInstance().getAll());
 // const ponylandia = NationRepository.getInstance().getById("PNL")!;
 // print(ponylandia.getModifiers().getAllModifiers());
