@@ -5,6 +5,7 @@ import {ModifierParent} from "../../../shared/types/Modifier";
 import {FactoryProvider} from "./FactoryProvider";
 import {Building} from "../../../shared/data/ts/BuildingDefs";
 import {ClientNationResourceView} from "../../systems/resource/ClientNationResourceView";
+import {NationEquipmentComponent} from "../../systems/equipment/NationEquipmentComponent";
 
 export class Nation {
     private readonly id;
@@ -17,6 +18,7 @@ export class Nation {
     private modifiers: ModifierContainer;
     private factories: FactoryProvider;
     private buildings: NationBuildings;
+    private equipment: NationEquipmentComponent;
     private resources = new ClientNationResourceView();
 
     private changedSignal?: Signal<[string, unknown]>;
@@ -29,6 +31,7 @@ export class Nation {
         this.player = data.player;
         this.modifiers = new ModifierContainer(this.id, ModifierParent.Nation);
         this.factories = new FactoryProvider(this);
+        this.equipment = new NationEquipmentComponent(this);
 
         // Buildings
         this.buildings = new Map();
@@ -110,6 +113,10 @@ export class Nation {
 
     public getResources() {
         return this.resources;
+    }
+
+    public getEquipment() {
+        return this.equipment;
     }
 
     public getChangedSignal() {

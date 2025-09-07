@@ -13,7 +13,7 @@ import {TooltipService} from "../ui/generic/tooltip/TooltipService";
 import {UIStateMachine} from "../ui/fsm/UIStateMachine";
 import {NormalUIState} from "../ui/fsm/states/NormalState";
 import {ModifierRouter} from "../systems/modifier/ModifierRouter";
-import {EquipmentTypeRepository} from "../systems/equipment/EquipmentTypeRepository";
+import {EquipmentTypeRepository} from "../systems/equipment/type/EquipmentTypeRepository";
 
 const changeNationRequest = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("SelectNation") as RemoteFunction;
@@ -72,7 +72,7 @@ export class GameState {
         NationRepository.getInstance();
         HexRepository.getInstance();
         RegionRepository.getInstance();
-        EquipmentTypeRepository.getInstance();
+        EquipmentTypeRepository.getInstance(NationRepository.getInstance());
         UnitRepository.getInstance();
         ModifierRouter.getInstance();
 

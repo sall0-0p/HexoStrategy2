@@ -11,8 +11,8 @@ import {ClientEquipmentFactory} from "./ClientEquipmentFactory";
 import {BaseEquipmentType} from "./BaseEquipmentType";
 import {LandEquipmentType} from "./LandEquipmentType";
 import {ReplicatedStorage} from "@rbxts/services";
-import {Nation} from "../../world/nation/Nation";
-import {NationRepository} from "../../world/nation/NationRepository";
+import {Nation} from "../../../world/nation/Nation";
+import {NationRepository} from "../../../world/nation/NationRepository";
 
 const replicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("EquipmentTypeReplicator") as RemoteEvent;
@@ -23,7 +23,7 @@ export class EquipmentTypeRepository {
     private mapByArchetype = new Map<EquipmentArchetype, BaseEquipmentType[]>();
 
     private static instance: EquipmentTypeRepository;
-    private constructor() {
+    private constructor(private readonly nationRepository: NationRepository) {
         replicator.OnClientEvent.Connect((payload: MessageData[MessageType.AddEquipment] | MessageData[MessageType.UpdateEquipment]) => {
             if (payload.message === MessageType.AddEquipment) {
                 this.onAddMessage(payload);
@@ -33,8 +33,9 @@ export class EquipmentTypeRepository {
         })
     }
 
-    public static getInstance() {
-        if (!this.instance) this.instance = new EquipmentTypeRepository();
+    public static getInstance(nationRepository?: NationRepository) {
+        if (!this.instance && nationRepository) this.instance = new EquipmentTypeRepository(nationRepository);
+
         return this.instance;
     }
 
@@ -72,7 +73,7 @@ export class EquipmentTypeRepository {
             this.update(dto);
             return;
         }
-        const inst = ClientEquipmentFactory.fromDTO(dto);
+        const inst = ClientEquipmentFactory.fromDTO(dto, this.nationRepository);
         this.mapById.set(dto.id, inst);
 
         const nation = this.resolveNation(dto.owner)
@@ -111,8 +112,7 @@ export class EquipmentTypeRepository {
     }
 
     private resolveNation(id: string) {
-        const repo = NationRepository.getInstance();
-        const candidate = repo.getById(id);
+        const candidate = this.nationRepository.getById(id);
         if (!candidate) error(`Failed to query nation ${id}`);
         return candidate;
     }

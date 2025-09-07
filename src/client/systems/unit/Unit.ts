@@ -7,6 +7,7 @@ import {HexRepository} from "../../world/hex/HexRepository";
 import {UnitFlairManager} from "../../ui/unit/flair/UnitFlairManager";
 import {ModifierContainer} from "../modifier/ModifierContainer";
 import {ModifierParent} from "../../../shared/types/Modifier";
+import {UnitEquipmentComponent} from "../equipment/UnitEquipmentComponent";
 
 export class Unit {
     private id: string;
@@ -16,6 +17,7 @@ export class Unit {
     private position: Hex;
     private icon: string;
     private modifiers: ModifierContainer;
+    private equipment: UnitEquipmentComponent;
 
     // stats
     private hp: number;
@@ -26,6 +28,7 @@ export class Unit {
     private nationRepository = NationRepository.getInstance();
     private hexRepository = HexRepository.getInstance();
     private unitFlairManager = UnitFlairManager.getInstance();
+
 
     private changedSignal?: Signal<[string, unknown]>;
 
@@ -54,6 +57,7 @@ export class Unit {
         // Add flairs
         this.unitFlairManager.addUnitToTheMap(this);
 
+        this.equipment = new UnitEquipmentComponent(this);
         this.modifiers = new ModifierContainer(this.id, ModifierParent.Unit);
     }
 
@@ -150,6 +154,14 @@ export class Unit {
 
     public getIcon() {
         return this.icon;
+    }
+
+    public getModifiers() {
+        return this.modifiers;
+    }
+
+    public getEquipment() {
+        return this.equipment;
     }
 
     public getChangedSignal() {

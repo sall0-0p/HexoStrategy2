@@ -2,7 +2,7 @@ import {EquipmentStockpile} from "./stockpile/EquipmentStockpile";
 import {Unit} from "../unit/Unit";
 import {TimeSignalType, WorldTime} from "../time/WorldTime";
 import {EquipmentArchetype} from "../../../shared/constants/EquipmentArchetype";
-import {EquipmentReservation} from "./EquipmentReservation";
+import {EquipmentReservation} from "./reservation/EquipmentReservation";
 import {NationEquipmentComponent} from "./NationEquipmentComponent";
 import {TemporaryEquipmentHelper} from "./TemporaryEquipmentHelper";
 
@@ -81,6 +81,7 @@ export class UnitEquipmentComponent {
             const nationEquip: NationEquipmentComponent = this.unit.getOwner().getEquipment();
 
             const newReservation = nationEquip.createReservation(new EquipmentReservation(
+                this.unit.getOwner(),
                 deficits,
                 (payload) => {
                     payload.forEach((count, eType) => {
@@ -90,12 +91,12 @@ export class UnitEquipmentComponent {
                 () => {
                     this.reservations.delete(newReservation);
                     print(`Resupply complete for ${this.unit.getName()}`);
-                }
+                },
+                this.unit,
             ));
 
             this.reservations.add(newReservation);
         }
-
     }
 
     public applyLosses(hp: number) {

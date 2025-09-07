@@ -1,8 +1,8 @@
 // client/equipment/ClientBaseEquipmentType.ts
 import { EquipmentArchetype } from "shared/constants/EquipmentArchetype";
 import { EquipmentKind, EquipmentTypeDTO } from "shared/network/tether/messages/EquipmentEmitter";
-import {Nation} from "../../world/nation/Nation";
-import {NationRepository} from "../../world/nation/NationRepository";
+import {Nation} from "../../../world/nation/Nation";
+import {NationRepository} from "../../../world/nation/NationRepository";
 
 export abstract class BaseEquipmentType {
     protected id: string;
@@ -15,7 +15,7 @@ export abstract class BaseEquipmentType {
     protected kind: EquipmentKind;
     protected parentId?: string;
 
-    public constructor(dto: EquipmentTypeDTO) {
+    public constructor(dto: EquipmentTypeDTO, private readonly nationRepository: NationRepository) {
         this.id = dto.id;
         this.owner = this.resolveNation(dto.owner); // resolve Nation on client elsewhere
         this.archetype = dto.archetype;
@@ -28,8 +28,7 @@ export abstract class BaseEquipmentType {
     }
 
     private resolveNation(id: string) {
-        const repo = NationRepository.getInstance();
-        const candidate = repo.getById(id);
+        const candidate = this.nationRepository.getById(id);
         if (!candidate) error(`Failed to query nation ${id}`);
         return candidate;
     }

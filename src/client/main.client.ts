@@ -8,7 +8,9 @@ import {UIStateType} from "./ui/fsm/UIState";
 import {UIStateMachine} from "./ui/fsm/UIStateMachine";
 import {NormalUIState} from "./ui/fsm/states/NormalState";
 import {ResourceUIState} from "./ui/fsm/states/ResourceState";
-import {EquipmentTypeRepository} from "./systems/equipment/EquipmentTypeRepository";
+import {EquipmentTypeRepository} from "./systems/equipment/type/EquipmentTypeRepository";
+import {NationRepository} from "./world/nation/NationRepository";
+import {StockpileWindow} from "./ui/stockpile/StockpileWindow";
 
 declare global {
     interface _G {
@@ -22,9 +24,14 @@ print("Selecting PNL");
 gameState.switchNation("PNL");
 StupidTest.test();
 
-const test = Players.LocalPlayer.WaitForChild("PlayerGui").WaitForChild("Test").WaitForChild("OpenConstruction") as TextButton;
-test.MouseButton1Click.Connect(() => {
+const constructions = Players.LocalPlayer.WaitForChild("PlayerGui").WaitForChild("Test").WaitForChild("OpenConstruction") as TextButton;
+constructions.MouseButton1Click.Connect(() => {
     new ConstructionWindow();
+});
+
+const stockpiles = Players.LocalPlayer.WaitForChild("PlayerGui").WaitForChild("Test").WaitForChild("OpenStockpile") as TextButton;
+stockpiles.MouseButton1Click.Connect(() => {
+    new StockpileWindow();
 });
 
 const resourceTest = Players.LocalPlayer.WaitForChild("PlayerGui").WaitForChild("Test").WaitForChild("Resources") as TextButton;
@@ -37,14 +44,14 @@ resourceTest.MouseButton1Click.Connect(() => {
     }
 })
 
-TooltipService.getInstance().bind(test, [
-    { class: RichTextComponent, get: () => 'Hello <b><color value="#ffd000">world</color></b> <icon src="rbxassetid://115581448311350"/> <br/>Hello Man, how are you? This is great.'}
-]);
-
 wait(5);
 print(EquipmentTypeRepository.getInstance().getAll());
 
-const event = ReplicatedStorage.WaitForChild("Events").WaitForChild("StockpileReplicator") as RemoteEvent;
-event.OnClientEvent.Connect((d: unknown) => print(d));
-// const ponylandia = NationRepository.getInstance().getById("PNL")!;
-// print(ponylandia.getModifiers().getAllModifiers());
+// const eventStockpile = ReplicatedStorage.WaitForChild("Events").WaitForChild("StockpileReplicator") as RemoteEvent;
+// eventStockpile.OnClientEvent.Connect((d: unknown) => print("StockpileReplicator", d));
+
+const eventReservation = ReplicatedStorage.WaitForChild("Events").WaitForChild("ReservationReplicator") as RemoteEvent;
+eventReservation.OnClientEvent.Connect((d: unknown) => print("ReservationReplicator:", d));
+
+wait(5);
+print(NationRepository.getInstance().getById("PNL")!.getEquipment());

@@ -10,7 +10,6 @@ export class EquipmentStockpile {
     public changed: boolean = false;
 
     constructor(public readonly kind: "Unit" | "Nation", public readonly target: Unit | Nation) {
-        print(kind, target.getId(), target.getName(), Counter.getNext());
         this.replicator = new EquipmentStockpileReplicator(this);
     }
 
