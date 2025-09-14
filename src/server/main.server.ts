@@ -178,7 +178,6 @@ ponylandia.getFactories().addToSource(FactorySourceType.TradeExports, 30);
 ponylandia.getFactories().addReservation(FactoryReservationType.ConsumerGoods, 5);
 ponylandia.getFactories().addReservation(FactoryReservationType.TradeImports, 1);
 
-wait(1);
 ponylandia.getModifiers().add({
     id: "DevConstruction",
     property: ModifiableProperty.GlobalBuildSpeed,

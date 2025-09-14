@@ -13,6 +13,7 @@ import {
 import {EquipmentArchetype} from "../../../shared/constants/EquipmentArchetype";
 import {Nation} from "../../world/nation/Nation";
 import {ReplicatedStorage} from "@rbxts/services";
+import {Signal} from "../../../shared/classes/Signal";
 
 const sReplicator = ReplicatedStorage.WaitForChild("Events")
     .WaitForChild("StockpileReplicator") as RemoteEvent;
@@ -23,6 +24,7 @@ export class NationEquipmentComponent {
     private readonly stockpile: ClientEquipmentStockpile;
 
     private reservations: Map<string, ClientEquipmentReservation> = new Map();
+    public readonly changed: Signal<[]> = new Signal();
 
     // TODO: nation instance if needed for cross-links
     constructor(private readonly nation: Nation) {
@@ -67,6 +69,7 @@ export class NationEquipmentComponent {
         // Stockpile messages
         if ("type" in dto && (dto.type === MessageType.StockpileSnapshot || dto.type === MessageType.StockpileDelta)) {
             this.stockpile.apply(dto);
+            this.changed.fire();
             return;
         }
 
@@ -88,6 +91,7 @@ export class NationEquipmentComponent {
                     if (r.complete) c.applyDone({ type: ReservationMessageType.ReservationDone, reservationId: r.reservationId });
                     this.reservations.set(r.reservationId, c);
                 });
+                this.changed.fire();
                 return;
             }
             case ReservationMessageType.ReservationCreate: {
@@ -95,23 +99,27 @@ export class NationEquipmentComponent {
                 if (create.nationId !== this.nation.getId()) return;
                 const c = new ClientEquipmentReservation(create);
                 this.reservations.set(create.reservationId, c);
+                this.changed.fire();
                 return;
             }
             case ReservationMessageType.ReservationProgress: {
                 const prog = dto as ReservationProgressDTO;
                 const r = this.reservations.get(prog.reservationId);
                 if (r) r.applyProgress(prog);
+                this.changed.fire();
                 return;
             }
             case ReservationMessageType.ReservationDone: {
                 const done = dto as ReservationDoneDTO;
                 const r = this.reservations.get(done.reservationId);
                 if (r) r.applyDone(done);
+                this.changed.fire();
                 return;
             }
             case ReservationMessageType.ReservationCancel: {
                 const cancel = dto as ReservationCancelDTO;
                 this.reservations.delete(cancel.reservationId);
+                this.changed.fire();
                 return;
             }
         }
@@ -134,5 +142,18 @@ export class NationEquipmentComponent {
             if (r["unitId"] === unitId) res.push(r);
         });
         return res;
+    }
+
+    public getTotalNeededForArchetype(a: EquipmentArchetype) {
+        let total = 0;
+        this.reservations.forEach((r) => {
+            r.getAllProgress().forEach((n, pa) => {
+                if (pa === a) {
+                      total += n.needed;
+                }
+            })
+        })
+
+        return total;
     }
 }

@@ -82,4 +82,8 @@ export class ClientEquipmentStockpile {
         m.forEach((n) => (sum += n));
         return sum;
     }
+
+    public getStockpile() {
+        return this.stockpile as ReadonlyMap<EquipmentArchetype, ReadonlyMap<BaseEquipmentType, number>>;
+    }
 }

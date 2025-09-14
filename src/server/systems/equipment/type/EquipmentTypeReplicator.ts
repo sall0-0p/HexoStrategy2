@@ -39,12 +39,12 @@ export class EquipmentTypeReplicator {
         } as MessageData[MessageType.AddEquipment])
     }
 
-    private flush() {
+    public flush() {
         this.flushAdd();
         this.flushUpdate();
     }
 
-    private flushAdd() {
+    public flushAdd() {
         if (this.addBatch.size() > 0) {
             replicator.FireAllClients({
                 message: MessageType.AddEquipment,
@@ -54,7 +54,7 @@ export class EquipmentTypeReplicator {
         }
     }
 
-    private flushUpdate() {
+    public flushUpdate() {
         if (this.updateBatch.size() > 0) {
             // EquipmentEmitter.client.emitAll(MessageType.UpdateEquipment, {
             //     types: this.updateBatch,
